@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#16233c">
 <title>Conversor de Certificados</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
 @layer reset, base, components, utilities;
 
@@ -203,19 +205,89 @@
   }
 
   .feedback-dialog {
-    border: none; border-radius: var(--radius-md); padding: 0; max-width: min(90vw, 360px);
+    border: none; border-radius: var(--radius-lg); padding: 0;
+    width: min(92vw, 400px);
     background: var(--surface); color: var(--text);
-    box-shadow: 0 30px 60px -20px oklch(0% 0 0 / .4);
+    box-shadow: 0 40px 80px -20px oklch(0% 0 0 / .45);
+    opacity: 0; transform: translateY(12px) scale(.96);
+    transition: opacity .25s var(--ease), transform .25s var(--ease), overlay .25s allow-discrete, display .25s allow-discrete;
 
-    &::backdrop { backdrop-filter: blur(6px); background: oklch(10% 0 0 / .35); }
+    position: fixed;
+    inset: 0;
+    margin: auto;
 
-    & .feedback-form { display: grid; gap: .75rem; padding: var(--space-2); text-align: center; }
-    & #feedbackIcon { font-size: 1.8rem; }
+    &[open] { opacity: 1; transform: translateY(0) scale(1); }
 
-    & .btn-secondary {
-      padding: .6rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
-      background: var(--surface-2); font-weight: 600; font-size: .85rem;
+    @starting-style {
+      &[open] { opacity: 0; transform: translateY(12px) scale(.96); }
     }
+
+    &::backdrop {
+      backdrop-filter: blur(8px);
+      background: oklch(10% 0 0 / .4);
+      opacity: 0;
+      transition: opacity .25s var(--ease), overlay .25s allow-discrete, display .25s allow-discrete;
+    }
+    &[open]::backdrop { opacity: 1; }
+    @starting-style { &[open]::backdrop { opacity: 0; } }
+
+    & .feedback-form {
+      display: grid; justify-items: center; gap: .6rem;
+      padding: var(--space-3) var(--space-2);
+      text-align: center;
+    }
+  }
+
+  .feedback-icon-wrap {
+    position: relative;
+    width: 4rem; height: 4rem;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--surface-2);
+    margin-bottom: .3rem;
+
+    & svg { position: absolute; inset: 0; margin: auto; display: none; }
+  }
+  [data-variant="success"] .feedback-icon-wrap {
+    background: color-mix(in oklch, var(--accent) 18%, var(--surface-2));
+  }
+  [data-variant="error"] .feedback-icon-wrap {
+    background: color-mix(in oklch, var(--danger) 18%, var(--surface-2));
+  }
+  [data-variant="success"] .icon-check { display: block; color: var(--accent-dim); }
+  [data-variant="error"] .icon-warn { display: block; color: var(--danger); }
+
+  #feedbackTitle {
+    font-size: 1.15rem; font-weight: 800; letter-spacing: -.01em;
+  }
+  [data-variant="success"] #feedbackTitle { color: var(--accent-dim); }
+  [data-variant="error"] #feedbackTitle { color: var(--danger); }
+
+  #feedbackMessage { font-size: .88rem; color: var(--muted); line-height: 1.5; }
+
+  .feedback-file-list {
+    list-style: none; width: 100%;
+    display: grid; gap: .4rem;
+    margin-top: .3rem;
+
+    & li {
+      display: flex; align-items: center; gap: .55rem;
+      padding: .55rem .7rem;
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: .8rem; font-weight: 600;
+      text-align: left;
+    }
+    & .file-chip-icon { flex-shrink: 0; color: var(--accent-dim); }
+    & span:last-child { overflow-wrap: anywhere; }
+  }
+
+  .btn-secondary {
+    width: 100%; margin-top: .4rem;
+    padding: .65rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface-2); font-weight: 600; font-size: .85rem;
+    transition: background-color .15s var(--ease);
+
+    &:is(:hover, :focus-visible) { background: color-mix(in oklch, var(--accent) 10%, var(--surface-2)); }
   }
 }
 
@@ -322,8 +394,18 @@
 
 <dialog id="feedbackDialog" class="feedback-dialog">
   <form method="dialog" class="feedback-form">
-    <p id="feedbackIcon" aria-hidden="true"></p>
+    <div class="feedback-icon-wrap" aria-hidden="true">
+      <svg class="icon-check" viewBox="0 0 24 24" width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <svg class="icon-warn" viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 8.5v5M12 17h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+      </svg>
+    </div>
+    <h2 id="feedbackTitle"></h2>
     <p id="feedbackMessage"></p>
+    <ul id="feedbackFileList" class="feedback-file-list" hidden></ul>
     <button class="btn-secondary" type="submit">Fechar</button>
   </form>
 </dialog>
@@ -402,14 +484,60 @@
     });
   });
 
+  // ---------- Feedback (dialog + confete) ----------
   const dialog = document.getElementById('feedbackDialog');
-  const feedbackIcon = document.getElementById('feedbackIcon');
+  const feedbackTitle = document.getElementById('feedbackTitle');
   const feedbackMessage = document.getElementById('feedbackMessage');
+  const feedbackFileList = document.getElementById('feedbackFileList');
 
-  function mostrarFeedback(tipo, mensagem) {
-    feedbackIcon.textContent = tipo === 'success' ? '✅' : '⚠️';
+  const FILE_ICON_SVG = '<svg class="file-chip-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<path d="M14 3v4h4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '</svg>';
+
+  function dispararConfete() {
+    if (typeof confetti !== 'function') return;
+
+    const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cores = ['#27F549', '#6fe888', '#ffffff'];
+
+    if (reduzido) {
+      confetti({ particleCount: 60, spread: 90, origin: { y: 0.6 }, colors: cores });
+      return;
+    }
+
+    const fim = Date.now() + 1400;
+    (function quadro() {
+      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: cores });
+      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: cores });
+      if (Date.now() < fim) requestAnimationFrame(quadro);
+    })();
+    confetti({ particleCount: 90, spread: 100, origin: { y: 0.55 }, colors: cores });
+  }
+
+  function mostrarFeedback(tipo, mensagem, arquivos) {
+    dialog.dataset.variant = tipo;
+    feedbackTitle.textContent = tipo === 'success' ? 'Conversão concluída!' : 'Algo deu errado';
     feedbackMessage.textContent = mensagem;
+
+    feedbackFileList.replaceChildren();
+    if (tipo === 'success' && Array.isArray(arquivos) && arquivos.length > 0) {
+      arquivos.forEach((nome) => {
+        const li = document.createElement('li');
+        const iconWrap = document.createElement('span');
+        iconWrap.innerHTML = FILE_ICON_SVG;
+        const label = document.createElement('span');
+        label.textContent = nome;
+        li.append(iconWrap.firstElementChild, label);
+        feedbackFileList.append(li);
+      });
+      feedbackFileList.hidden = false;
+    } else {
+      feedbackFileList.hidden = true;
+    }
+
     dialog.showModal();
+    if (tipo === 'success') dispararConfete();
   }
 
   function dispararDownload(conteudo, nomeArquivo, tipoMime) {
@@ -456,7 +584,8 @@
       dispararDownload(data.certPem, data.nomeCert, 'application/x-pem-file');
       setTimeout(() => dispararDownload(data.keyPem, data.nomeChave, 'application/x-pem-file'), 300);
 
-      mostrarFeedback('success', 'Download iniciado: ' + data.nomeCert + ' e ' + data.nomeChave);
+      form.reset();
+      mostrarFeedback('success', 'Seus arquivos estão prontos para uso.', [data.nomeCert, data.nomeChave]);
     } catch (err) {
       if (err.name === 'AbortError') return;
       mostrarFeedback('error', 'Erro ao se comunicar com a aplicação.');
@@ -498,7 +627,9 @@
       const nomeArquivo = disposition.match(/filename="(.+?)"/)?.[1] ?? 'certificadonovo.pfx';
 
       dispararDownload(blob, nomeArquivo);
-      mostrarFeedback('success', 'Download iniciado: ' + nomeArquivo);
+
+      form.reset();
+      mostrarFeedback('success', 'Seu certificado convertido está pronto.', [nomeArquivo]);
     } catch (err) {
       if (err.name === 'AbortError') return;
       mostrarFeedback('error', 'Erro ao se comunicar com a aplicação.');
