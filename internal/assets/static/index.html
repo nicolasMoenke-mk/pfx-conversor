@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#16233c">
+<title>Conversor de Certificados</title>
+<style>
+@layer reset, base, components, utilities;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: light dark; }
+  img, svg { display: block; max-width: 100%; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+}
+
+@layer base {
+  :root {
+    --hue: 142;
+    --accent: oklch(78% 0.23 var(--hue));
+    --accent-dim: oklch(64% 0.19 var(--hue));
+    --accent-contrast: oklch(20% 0.02 var(--hue));
+
+    --bg: light-dark(oklch(97% 0.01 250), oklch(19% 0.03 250));
+    --surface: light-dark(oklch(99% 0.004 250), oklch(24% 0.03 250));
+    --surface-2: light-dark(oklch(94% 0.008 250), oklch(29% 0.03 250));
+    --text: light-dark(oklch(22% 0.02 250), oklch(95% 0.01 250));
+    --muted: light-dark(oklch(46% 0.02 250), oklch(66% 0.02 250));
+    --border: light-dark(oklch(89% 0.01 250), oklch(34% 0.03 250));
+    --danger: light-dark(oklch(52% 0.19 25), oklch(75% 0.16 25));
+    --success: light-dark(oklch(50% 0.15 150), oklch(78% 0.18 150));
+
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --ease: cubic-bezier(.16,1,.3,1);
+
+    --space-2: clamp(1rem, .8rem + .6vw, 1.5rem);
+    --space-3: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  [data-theme="light"] { color-scheme: light; }
+  [data-theme="dark"] { color-scheme: dark; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100svh;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-2);
+    transition: background-color .3s var(--ease), color .3s var(--ease);
+  }
+
+  h1 { font-size: clamp(1.25rem, 1rem + 1vw, 1.7rem); font-weight: 700; letter-spacing: -.01em; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+}
+
+@layer components {
+  .app-header {
+    width: 100%; max-width: 560px;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .brand { display: flex; align-items: center; gap: .75rem; }
+  .brand-mark {
+    width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm);
+    background: var(--surface-2); border: 1px solid var(--border);
+    display: grid; place-items: center; flex-shrink: 0;
+    color: var(--accent-dim);
+  }
+  .eyebrow { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-dim); }
+
+  .theme-toggle {
+    width: 2.4rem; height: 2.4rem; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface);
+    display: grid; place-items: center; color: var(--text);
+    transition: border-color .2s var(--ease), transform .2s var(--ease);
+
+    & svg { grid-area: 1 / 1; transition: opacity .2s var(--ease), transform .3s var(--ease); }
+
+    &:is(:hover, :focus-visible) { border-color: var(--accent-dim); }
+    &:active { transform: scale(.94); }
+  }
+
+  .theme-toggle .icon-moon { opacity: 0; transform: rotate(-40deg) scale(.6); position: absolute; }
+  .theme-toggle .icon-sun  { opacity: 1; position: static; }
+
+  [data-theme="dark"] .theme-toggle .icon-sun  { opacity: 0; transform: rotate(40deg) scale(.6); position: absolute; }
+  [data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; transform: none; position: static; }
+
+  .card {
+    container-type: inline-size;
+    container-name: card;
+    width: 100%; max-width: 560px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 60px -30px oklch(0% 0 0 / .35);
+    overflow: hidden;
+  }
+
+  .tabs {
+    display: flex; gap: .25rem; padding: .5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+
+    & .tab-btn {
+      flex: 1; padding: .65rem .75rem; border: none; border-radius: var(--radius-sm);
+      background: transparent; color: var(--muted); font-weight: 600; font-size: .85rem;
+      transition: color .2s var(--ease), background-color .2s var(--ease);
+
+      &:is(:hover, :focus-visible) { color: var(--text); }
+      &[aria-selected="true"] { color: var(--accent-contrast); background: var(--accent); }
+    }
+  }
+
+  @container card (max-width: 380px) {
+    .tabs { flex-direction: column; }
+  }
+
+  .tab-panel { padding: var(--space-2); }
+  .tab-panel[hidden] { display: none; }
+
+  .form { display: grid; gap: var(--space-2); }
+
+  .field {
+    display: grid; gap: .4rem;
+
+    & label { font-size: .82rem; font-weight: 600; }
+
+    & input[type="text"], & input[type="password"] {
+      padding: .65rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg); outline: none;
+      transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+
+      &:focus-visible {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 25%, transparent);
+      }
+    }
+
+    &:has(input:user-invalid) {
+      & label { color: var(--danger); }
+      & input { border-color: var(--danger); }
+    }
+  }
+
+  .file-drop {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .5rem; border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+    background: var(--bg);
+    transition: border-color .2s var(--ease);
+
+    &:has(input:focus-visible) { border-color: var(--accent); }
+    &:has(input:valid) { border-style: solid; border-color: color-mix(in oklch, var(--accent) 50%, var(--border)); }
+
+    & input[type="file"] {
+      flex: 1; border: none; background: transparent; font-size: .82rem;
+
+      &::file-selector-button {
+        background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+        padding: .4rem .7rem; margin-right: .6rem; font-size: .75rem; font-weight: 600;
+      }
+    }
+
+    & .btn-clear {
+      display: none; width: 2rem; height: 2rem; flex-shrink: 0;
+      border: 1px solid var(--danger); background: transparent; color: var(--danger);
+      border-radius: 6px;
+    }
+
+    &:has(input:valid) .btn-clear { display: grid; place-items: center; }
+  }
+
+  .hint { font-size: .72rem; color: var(--muted); }
+  .hint b { color: var(--accent-dim); font-weight: 600; }
+
+  details.info-box {
+    border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .6rem .8rem;
+
+    & summary { font-size: .8rem; font-weight: 600; color: var(--muted); }
+    &[open] summary { color: var(--text); margin-bottom: .6rem; }
+    & p { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+  }
+
+  .btn-primary {
+    padding: .8rem; border: none; border-radius: var(--radius-sm);
+    background: var(--accent); color: var(--accent-contrast); font-weight: 700; font-size: .9rem;
+    transition: transform .15s var(--ease), box-shadow .15s var(--ease), background-color .15s var(--ease);
+
+    &:is(:hover, :focus-visible):not(:disabled) {
+      background: var(--accent-dim); transform: translateY(-1px);
+      box-shadow: 0 10px 24px -10px color-mix(in oklch, var(--accent) 60%, transparent);
+    }
+    &:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+  }
+
+  .feedback-dialog {
+    border: none; border-radius: var(--radius-md); padding: 0; max-width: min(90vw, 360px);
+    background: var(--surface); color: var(--text);
+    box-shadow: 0 30px 60px -20px oklch(0% 0 0 / .4);
+
+    &::backdrop { backdrop-filter: blur(6px); background: oklch(10% 0 0 / .35); }
+
+    & .feedback-form { display: grid; gap: .75rem; padding: var(--space-2); text-align: center; }
+    & #feedbackIcon { font-size: 1.8rem; }
+
+    & .btn-secondary {
+      padding: .6rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface-2); font-weight: 600; font-size: .85rem;
+    }
+  }
+}
+
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="12" cy="16" r="1.4" fill="currentColor"/>
+      </svg>
+    </div>
+    <div>
+      <p class="eyebrow">Ferramenta Interna · Segurança</p>
+      <h1>Conversor de Certificados</h1>
+    </div>
+  </div>
+  <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Alternar tema claro/escuro">
+    <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"
+            stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</header>
+
+<main class="card" id="card">
+  <nav class="tabs" role="tablist" aria-label="Tipo de conversão">
+    <button role="tab" id="tab-pem" aria-selected="true" aria-controls="panel-pem" class="tab-btn">PFX → PEMs</button>
+    <button role="tab" id="tab-next" aria-selected="false" aria-controls="panel-next" tabindex="-1" class="tab-btn">PFX Re-encodado</button>
+  </nav>
+
+  <section id="panel-pem" role="tabpanel" aria-labelledby="tab-pem" class="tab-panel">
+    <form id="formPem" class="form" novalidate>
+      <div class="field">
+        <label for="pemFile">Certificado (.PFX / .P12)</label>
+        <div class="file-drop">
+          <input type="file" id="pemFile" name="pfxfile" accept=".pfx,.p12" required>
+          <button type="button" class="btn-clear" aria-label="Remover arquivo">✕</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pemPassword">Senha do certificado</label>
+        <input type="text" id="pemPassword" name="password" placeholder="••••••••" required>
+      </div>
+
+      <div class="field">
+        <label for="pemNomeCert">Chave Pública</label>
+        <input type="text" id="pemNomeCert" name="nomeCert" placeholder="Ex: PROVEDORNET26">
+      </div>
+
+      <div class="field">
+        <label for="pemNomeChave">Chave Privada</label>
+        <input type="text" id="pemNomeChave" name="nomeChave" placeholder="Ex: PROVEDORNET26">
+      </div>
+
+      <button type="submit" class="btn-primary">Converter Chaves</button>
+    </form>
+  </section>
+
+  <section id="panel-next" role="tabpanel" aria-labelledby="tab-next" class="tab-panel" hidden>
+    <form id="formNext" class="form" novalidate>
+      <div class="field">
+        <label for="nextFile">Certificado original (.PFX / .P12)</label>
+        <div class="file-drop">
+          <input type="file" id="nextFile" name="pfxfile" accept=".pfx,.p12" required>
+          <button type="button" class="btn-clear" aria-label="Remover arquivo">✕</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="nextPassword">Senha atual do certificado</label>
+        <input type="password" id="nextPassword" name="password" placeholder="••••••••" required>
+      </div>
+
+      <div class="field">
+        <label for="nextNovaSenha">Nova senha</label>
+        <input type="password" id="nextNovaSenha" name="novaSenha" placeholder="••••••••">
+      </div>
+
+      <div class="field">
+        <label for="nextNomeSaida">Nome do novo arquivo final</label>
+        <input type="text" id="nextNomeSaida" name="nomeSaida" placeholder="Ex: certificadonovo26">
+      </div>
+
+      <button type="submit" class="btn-primary">Converter PFX</button>
+    </form>
+  </section>
+
+</main>
+
+<dialog id="feedbackDialog" class="feedback-dialog">
+  <form method="dialog" class="feedback-form">
+    <p id="feedbackIcon" aria-hidden="true"></p>
+    <p id="feedbackMessage"></p>
+    <button class="btn-secondary" type="submit">Fechar</button>
+  </form>
+</dialog>
+
+<script type="module">
+  const root = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  const STORAGE_KEY = 'cert-tool-theme';
+
+  function efetivo(theme) {
+    if (theme === 'dark' || theme === 'light') return theme;
+    return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function aplicarTema(theme) {
+    if (theme === 'light' || theme === 'dark') {
+      root.dataset.theme = theme;
+    } else {
+      delete root.dataset.theme;
+    }
+    const efetivoAtual = efetivo(theme);
+    themeToggle.setAttribute('aria-pressed', String(efetivoAtual === 'dark'));
+  }
+
+  aplicarTema(localStorage.getItem(STORAGE_KEY) ?? 'auto');
+
+  themeToggle.addEventListener('click', () => {
+    const proximo = efetivo(root.dataset.theme) === 'dark' ? 'light' : 'dark';
+    const trocar = () => {
+      aplicarTema(proximo);
+      localStorage.setItem(STORAGE_KEY, proximo);
+    };
+    document.startViewTransition ? document.startViewTransition(trocar) : trocar();
+  });
+
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+  const paineis = {
+    'tab-pem': document.getElementById('panel-pem'),
+    'tab-next': document.getElementById('panel-next'),
+  };
+
+  function selecionarAba(tab) {
+    const trocar = () => {
+      tabs.forEach((t) => {
+        const selecionada = t === tab;
+        t.setAttribute('aria-selected', String(selecionada));
+        t.tabIndex = selecionada ? 0 : -1;
+        paineis[t.id].hidden = !selecionada;
+      });
+    };
+    document.startViewTransition ? document.startViewTransition(trocar) : trocar();
+    tab.focus();
+  }
+
+  document.querySelector('.tabs').addEventListener('click', (e) => {
+    const tab = e.target.closest('[role="tab"]');
+    if (!tab) return;
+    controladorAtivo?.abort();
+    selecionarAba(tab);
+  });
+
+  document.querySelector('.tabs').addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const atual = tabs.indexOf(document.activeElement);
+    if (atual === -1) return;
+    const proximo = e.key === 'ArrowRight'
+      ? (atual + 1) % tabs.length
+      : (atual - 1 + tabs.length) % tabs.length;
+    selecionarAba(tabs[proximo]);
+  });
+
+  document.querySelectorAll('.btn-clear').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = btn.closest('.file-drop').querySelector('input[type="file"]');
+      input.value = '';
+    });
+  });
+
+  const dialog = document.getElementById('feedbackDialog');
+  const feedbackIcon = document.getElementById('feedbackIcon');
+  const feedbackMessage = document.getElementById('feedbackMessage');
+
+  function mostrarFeedback(tipo, mensagem) {
+    feedbackIcon.textContent = tipo === 'success' ? '✅' : '⚠️';
+    feedbackMessage.textContent = mensagem;
+    dialog.showModal();
+  }
+
+  function dispararDownload(conteudo, nomeArquivo, tipoMime) {
+    const blob = conteudo instanceof Blob ? conteudo : new Blob([conteudo], { type: tipoMime ?? 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nomeArquivo;
+    a.style.display = 'none';
+    document.body.append(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  let controladorAtivo = null;
+
+  document.getElementById('formPem').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const btn = form.querySelector('.btn-primary');
+    const formData = new FormData(form);
+
+    controladorAtivo?.abort();
+    controladorAtivo = new AbortController();
+
+    btn.disabled = true;
+    btn.textContent = 'Convertendo...';
+
+    try {
+      const response = await fetch('/convert-pem', {
+        method: 'POST',
+        body: formData,
+        signal: controladorAtivo.signal,
+      });
+
+      const data = await response.json();
+
+      if (!data?.sucesso) {
+        mostrarFeedback('error', data?.erro ?? 'Falha desconhecida ao converter.');
+        return;
+      }
+
+      dispararDownload(data.certPem, data.nomeCert, 'application/x-pem-file');
+      setTimeout(() => dispararDownload(data.keyPem, data.nomeChave, 'application/x-pem-file'), 300);
+
+      mostrarFeedback('success', 'Download iniciado: ' + data.nomeCert + ' e ' + data.nomeChave);
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      mostrarFeedback('error', 'Erro ao se comunicar com a aplicação.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Converter Chaves';
+    }
+  });
+
+  document.getElementById('formNext').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const btn = form.querySelector('.btn-primary');
+    const formData = new FormData(form);
+
+    controladorAtivo?.abort();
+    controladorAtivo = new AbortController();
+
+    btn.disabled = true;
+    btn.textContent = 'Convertendo...';
+
+    try {
+      const response = await fetch('/convert-next', {
+        method: 'POST',
+        body: formData,
+        signal: controladorAtivo.signal,
+      });
+
+      const contentType = response.headers.get('Content-Type') ?? '';
+
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        mostrarFeedback('error', data?.erro ?? 'Falha desconhecida ao converter.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition') ?? '';
+      const nomeArquivo = disposition.match(/filename="(.+?)"/)?.[1] ?? 'certificadonovo.pfx';
+
+      dispararDownload(blob, nomeArquivo);
+      mostrarFeedback('success', 'Download iniciado: ' + nomeArquivo);
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      mostrarFeedback('error', 'Erro ao se comunicar com a aplicação.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Converter PFX';
+    }
+  });
+</script>
+</body>
+</html>
