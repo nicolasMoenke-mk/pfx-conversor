@@ -6,7 +6,6 @@
 <meta name="theme-color" content="#16233c">
 <title>Conversor de Certificados</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
 @layer reset, base, components, utilities;
 
@@ -204,90 +203,103 @@
     &:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
   }
 
-  .feedback-dialog {
-    border: none; border-radius: var(--radius-lg); padding: 0;
-    width: min(92vw, 400px);
-    background: var(--surface); color: var(--text);
-    box-shadow: 0 40px 80px -20px oklch(0% 0 0 / .45);
-    opacity: 0; transform: translateY(12px) scale(.96);
-    transition: opacity .25s var(--ease), transform .25s var(--ease), overlay .25s allow-discrete, display .25s allow-discrete;
-
+  /* ---------- Toasts ---------- */
+  .toast-container {
     position: fixed;
-    inset: 0;
-    margin: auto;
-
-    &[open] { opacity: 1; transform: translateY(0) scale(1); }
-
-    @starting-style {
-      &[open] { opacity: 0; transform: translateY(12px) scale(.96); }
-    }
-
-    &::backdrop {
-      backdrop-filter: blur(8px);
-      background: oklch(10% 0 0 / .4);
-      opacity: 0;
-      transition: opacity .25s var(--ease), overlay .25s allow-discrete, display .25s allow-discrete;
-    }
-    &[open]::backdrop { opacity: 1; }
-    @starting-style { &[open]::backdrop { opacity: 0; } }
-
-    & .feedback-form {
-      display: grid; justify-items: center; gap: .6rem;
-      padding: var(--space-3) var(--space-2);
-      text-align: center;
-    }
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    pointer-events: none;
+    width: min(90vw, 360px);
   }
 
-  .feedback-icon-wrap {
-    position: relative;
-    width: 4rem; height: 4rem;
+  .toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    padding: .85rem .9rem;
+    border-radius: var(--radius-md);
+    background: color-mix(in oklch, var(--surface) 82%, transparent);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 40px -16px oklch(0% 0 0 / .35), 0 2px 6px -2px oklch(0% 0 0 / .2);
+    color: var(--text);
+
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity .35s var(--ease), transform .35s var(--ease);
+
+    &.is-visible { opacity: 1; transform: translateX(0); }
+    &.is-leaving { opacity: 0; transform: translateX(20px); }
+  }
+
+  .toast[data-variant="success"] {
+    border-color: color-mix(in oklch, var(--accent) 45%, var(--border));
+    background: color-mix(in oklch, var(--accent) 10%, var(--surface) 82%);
+  }
+  .toast[data-variant="error"] {
+    border-color: color-mix(in oklch, var(--danger) 45%, var(--border));
+    background: color-mix(in oklch, var(--danger) 10%, var(--surface) 82%);
+  }
+
+  .toast-icon {
+    flex-shrink: 0;
+    width: 1.9rem; height: 1.9rem;
     border-radius: 50%;
     display: grid; place-items: center;
-    background: var(--surface-2);
-    margin-bottom: .3rem;
-
-    & svg { position: absolute; inset: 0; margin: auto; display: none; }
+    margin-top: .05rem;
   }
-  [data-variant="success"] .feedback-icon-wrap {
-    background: color-mix(in oklch, var(--accent) 18%, var(--surface-2));
+  .toast[data-variant="success"] .toast-icon {
+    color: var(--accent-dim);
+    background: color-mix(in oklch, var(--accent) 22%, var(--surface-2));
   }
-  [data-variant="error"] .feedback-icon-wrap {
-    background: color-mix(in oklch, var(--danger) 18%, var(--surface-2));
+  .toast[data-variant="error"] .toast-icon {
+    color: var(--danger);
+    background: color-mix(in oklch, var(--danger) 22%, var(--surface-2));
   }
-  [data-variant="success"] .icon-check { display: block; color: var(--accent-dim); }
-  [data-variant="error"] .icon-warn { display: block; color: var(--danger); }
 
-  #feedbackTitle {
-    font-size: 1.15rem; font-weight: 800; letter-spacing: -.01em;
-  }
-  [data-variant="success"] #feedbackTitle { color: var(--accent-dim); }
-  [data-variant="error"] #feedbackTitle { color: var(--danger); }
+  .toast-body { flex: 1; min-width: 0; display: grid; gap: .25rem; }
 
-  #feedbackMessage { font-size: .88rem; color: var(--muted); line-height: 1.5; }
+  .toast-title { font-size: .88rem; font-weight: 700; letter-spacing: -.005em; }
+  .toast[data-variant="success"] .toast-title { color: var(--accent-dim); }
+  .toast[data-variant="error"] .toast-title { color: var(--danger); }
 
-  .feedback-file-list {
-    list-style: none; width: 100%;
-    display: grid; gap: .4rem;
-    margin-top: .3rem;
+  .toast-message { font-size: .8rem; color: var(--muted); line-height: 1.45; }
+
+  .toast-files {
+    list-style: none;
+    display: grid; gap: .3rem;
+    margin-top: .2rem;
 
     & li {
-      display: flex; align-items: center; gap: .55rem;
-      padding: .55rem .7rem;
-      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      font-size: .8rem; font-weight: 600;
-      text-align: left;
+      display: flex; align-items: center; gap: .4rem;
+      padding: .35rem .5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .74rem; font-weight: 600;
     }
-    & .file-chip-icon { flex-shrink: 0; color: var(--accent-dim); }
-    & span:last-child { overflow-wrap: anywhere; }
+    & svg { flex-shrink: 0; color: var(--accent-dim); }
+    & span { overflow-wrap: anywhere; }
   }
 
-  .btn-secondary {
-    width: 100%; margin-top: .4rem;
-    padding: .65rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
-    background: var(--surface-2); font-weight: 600; font-size: .85rem;
-    transition: background-color .15s var(--ease);
+  .toast-close {
+    flex-shrink: 0;
+    width: 1.5rem; height: 1.5rem;
+    border: none; background: transparent; color: var(--muted);
+    border-radius: 5px;
+    display: grid; place-items: center;
+    font-size: .8rem;
+    transition: background-color .15s var(--ease), color .15s var(--ease);
 
-    &:is(:hover, :focus-visible) { background: color-mix(in oklch, var(--accent) 10%, var(--surface-2)); }
+    &:is(:hover, :focus-visible) {
+      background: var(--surface-2);
+      color: var(--text);
+    }
   }
 }
 
@@ -392,23 +404,7 @@
 
 </main>
 
-<dialog id="feedbackDialog" class="feedback-dialog">
-  <form method="dialog" class="feedback-form">
-    <div class="feedback-icon-wrap" aria-hidden="true">
-      <svg class="icon-check" viewBox="0 0 24 24" width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <svg class="icon-warn" viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 8.5v5M12 17h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
-      </svg>
-    </div>
-    <h2 id="feedbackTitle"></h2>
-    <p id="feedbackMessage"></p>
-    <ul id="feedbackFileList" class="feedback-file-list" hidden></ul>
-    <button class="btn-secondary" type="submit">Fechar</button>
-  </form>
-</dialog>
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
 
 <script type="module">
   const root = document.documentElement;
@@ -484,60 +480,66 @@
     });
   });
 
-  // ---------- Feedback (dialog + confete) ----------
-  const dialog = document.getElementById('feedbackDialog');
-  const feedbackTitle = document.getElementById('feedbackTitle');
-  const feedbackMessage = document.getElementById('feedbackMessage');
-  const feedbackFileList = document.getElementById('feedbackFileList');
+  // ---------- Sistema de Toasts ----------
+  const toastContainer = document.getElementById('toastContainer');
+  const TOAST_DURATION = 4500;
 
-  const FILE_ICON_SVG = '<svg class="file-chip-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+
+  const ICON_WARN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path d="M12 8.5v5M12 17h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>' +
+    '</svg>';
+
+  const ICON_FILE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
     '<path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M14 3v4h4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
     '</svg>';
 
-  function dispararConfete() {
-    if (typeof confetti !== 'function') return;
+  function removerToast(toastEl) {
+    if (!toastEl.isConnected) return;
+    toastEl.classList.remove('is-visible');
+    toastEl.classList.add('is-leaving');
 
-    const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const cores = ['#27F549', '#6fe888', '#ffffff'];
-
-    if (reduzido) {
-      confetti({ particleCount: 60, spread: 90, origin: { y: 0.6 }, colors: cores });
-      return;
-    }
-
-    const fim = Date.now() + 1400;
-    (function quadro() {
-      confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 }, colors: cores });
-      confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 }, colors: cores });
-      if (Date.now() < fim) requestAnimationFrame(quadro);
-    })();
-    confetti({ particleCount: 90, spread: 100, origin: { y: 0.55 }, colors: cores });
+    const finalizar = () => toastEl.remove();
+    toastEl.addEventListener('transitionend', finalizar, { once: true });
+    setTimeout(finalizar, 500); // fallback caso a transição não dispare
   }
 
   function mostrarFeedback(tipo, mensagem, arquivos) {
-    dialog.dataset.variant = tipo;
-    feedbackTitle.textContent = tipo === 'success' ? 'Conversão concluída!' : 'Algo deu errado';
-    feedbackMessage.textContent = mensagem;
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.dataset.variant = tipo;
+    toast.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
 
-    feedbackFileList.replaceChildren();
+    const titulo = tipo === 'success' ? 'Conversão concluída!' : 'Algo deu errado';
+    const icone = tipo === 'success' ? ICON_CHECK : ICON_WARN;
+
+    let listaHTML = '';
     if (tipo === 'success' && Array.isArray(arquivos) && arquivos.length > 0) {
-      arquivos.forEach((nome) => {
-        const li = document.createElement('li');
-        const iconWrap = document.createElement('span');
-        iconWrap.innerHTML = FILE_ICON_SVG;
-        const label = document.createElement('span');
-        label.textContent = nome;
-        li.append(iconWrap.firstElementChild, label);
-        feedbackFileList.append(li);
-      });
-      feedbackFileList.hidden = false;
-    } else {
-      feedbackFileList.hidden = true;
+      const itens = arquivos.map((nome) =>
+        '<li>' + ICON_FILE + '<span>' + nome + '</span></li>'
+      ).join('');
+      listaHTML = '<ul class="toast-files">' + itens + '</ul>';
     }
 
-    dialog.showModal();
-    if (tipo === 'success') dispararConfete();
+    toast.innerHTML =
+      '<div class="toast-icon">' + icone + '</div>' +
+      '<div class="toast-body">' +
+        '<p class="toast-title">' + titulo + '</p>' +
+        '<p class="toast-message">' + mensagem + '</p>' +
+        listaHTML +
+      '</div>' +
+      '<button type="button" class="toast-close" aria-label="Fechar notificação">✕</button>';
+
+    toast.querySelector('.toast-close').addEventListener('click', () => removerToast(toast));
+
+    toastContainer.append(toast);
+    requestAnimationFrame(() => toast.classList.add('is-visible'));
+
+    setTimeout(() => removerToast(toast), TOAST_DURATION);
   }
 
   function dispararDownload(conteudo, nomeArquivo, tipoMime) {
