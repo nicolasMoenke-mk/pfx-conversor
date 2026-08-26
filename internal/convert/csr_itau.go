@@ -50,7 +50,7 @@ func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 	csrDer, err := x509.CreateCertificateRequest(rand.Reader, &template, privKey)
 	if err != nil {
-		return nil, nil, errors.New("")
+		return nil, nil, errors.New("Falha ao tentar gerar o CSR")
 	}
 
 	csrPEM = pem.EncodeToMemory(&pem.Block{
@@ -60,7 +60,7 @@ func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 	keyDer, err := x509.MarshalPKCS8PrivateKey(privKey)
 	if err != nil {
-		return nil, nil, errors.New("")
+		return nil, nil, errors.New("Falha ao converter a chave para o formato PKCS8")
 	}
 
 	keyPEM = pem.EncodeToMemory(&pem.Block{

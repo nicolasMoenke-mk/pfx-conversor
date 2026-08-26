@@ -3,643 +3,717 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#16233c">
-<title>Conversor de Certificados</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+<meta name="theme-color" content="#0f172a">
+<title>Hub de Integrações Bancárias · Suporte & Engenharia</title>
 <style>
-@layer reset, base, components, utilities;
+@layer reset, tokens, layout, components, utilities;
 
 @layer reset {
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { color-scheme: light dark; }
-  img, svg { display: block; max-width: 100%; }
-  button, input { font: inherit; color: inherit; }
-  button { cursor: pointer; }
+  html { scroll-behavior: smooth; color-scheme: light dark; }
+  body { min-height: 100vh; line-height: 1.5; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  a { text-decoration: none; color: inherit; }
+  svg { display: block; }
 }
 
-@layer base {
+@layer tokens {
   :root {
-    --hue: 142;
-    --accent: oklch(78% 0.23 var(--hue));
-    --accent-dim: oklch(64% 0.19 var(--hue));
-    --accent-contrast: oklch(20% 0.02 var(--hue));
-
-    --bg: light-dark(oklch(97% 0.01 250), oklch(19% 0.03 250));
-    --surface: light-dark(oklch(99% 0.004 250), oklch(24% 0.03 250));
-    --surface-2: light-dark(oklch(94% 0.008 250), oklch(29% 0.03 250));
-    --text: light-dark(oklch(22% 0.02 250), oklch(95% 0.01 250));
-    --muted: light-dark(oklch(46% 0.02 250), oklch(66% 0.02 250));
-    --border: light-dark(oklch(89% 0.01 250), oklch(34% 0.03 250));
-    --danger: light-dark(oklch(52% 0.19 25), oklch(75% 0.16 25));
-    --success: light-dark(oklch(50% 0.15 150), oklch(78% 0.18 150));
-
+    --brand-primary: #2563eb;
+    --brand-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #06b6d4 100%);
+    
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f1f5f9;
+    --bg-surface-subtle: #f8fafc;
+    
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+    
+    --border-subtle: #e2e8f0;
+    --border-focus: #3b82f6;
+    
+    --success: #10b981;
+    --success-soft: color-mix(in srgb, #10b981 12%, transparent);
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --danger-soft: color-mix(in srgb, #ef4444 12%, transparent);
+    
+    --sidebar-w: 240px;
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 20px;
-    --ease: cubic-bezier(.16,1,.3,1);
-
-    --space-2: clamp(1rem, .8rem + .6vw, 1.5rem);
-    --space-3: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
-
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    --radius-full: 9999px;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.12);
+    --ease-bounce: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  [data-theme="light"] { color-scheme: light; }
-  [data-theme="dark"] { color-scheme: dark; }
+  [data-theme="dark"] {
+    --bg-base: #090d16;
+    --bg-surface: #111827;
+    --bg-surface-elevated: #1e293b;
+    --bg-surface-subtle: #0f172a;
+    
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-subtle: #64748b;
+    
+    --border-subtle: #1e293b;
+    --border-focus: #60a5fa;
+    
+    --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  }
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100svh;
-    display: grid;
-    justify-items: center;
-    align-content: start;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-2);
-    transition: background-color .3s var(--ease), color .3s var(--ease);
+@layer layout {
+  body { 
+    background: var(--bg-base); 
+    color: var(--text-main);
+    transition: background-color 0.35s var(--ease-bounce), color 0.3s var(--ease-bounce);
+  }
+  .app-shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+  
+  .sidebar {
+    position: fixed; inset: 0 auto 0 0; width: var(--sidebar-w);
+    background: var(--bg-surface); border-right: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; padding: 20px 14px; z-index: 50;
+    transition: transform 0.25s var(--ease-bounce), background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
   }
 
-  h1 { font-size: clamp(1.25rem, 1rem + 1vw, 1.7rem); font-weight: 700; letter-spacing: -.01em; }
+  .main-area { grid-column: 2; min-width: 0; display: flex; flex-direction: column; }
+  
+  .topbar {
+    height: 64px; position: sticky; top: 0; z-index: 40;
+    background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+  }
 
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .content-container { width: min(1200px, 100% - 64px); margin: 0 auto; padding: 32px 0 64px; }
 }
 
 @layer components {
-  .app-header {
-    width: 100%; max-width: 560px;
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  .brand-header { display: flex; align-items: center; gap: 12px; padding: 4px 8px 24px; }
+  .brand-badge {
+    width: 38px; height: 38px; border-radius: 10px; background: var(--brand-primary);
+    color: #fff; display: grid; place-items: center; box-shadow: 0 4px 12px color-mix(in srgb, var(--brand-primary) 35%, transparent);
+    transition: background-color 0.35s var(--ease-bounce), box-shadow 0.35s var(--ease-bounce);
   }
-  .brand { display: flex; align-items: center; gap: .75rem; }
-  .brand-mark {
-    width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm);
-    background: var(--surface-2); border: 1px solid var(--border);
-    display: grid; place-items: center; flex-shrink: 0;
-    color: var(--accent-dim);
+  .brand-info h2 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand-info span { font-size: 11px; color: var(--text-muted); }
+
+  .nav-group-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); padding: 12px 10px 6px; }
+  .nav-menu { display: grid; gap: 4px; }
+  .nav-link {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text-muted);
+    transition: all 0.2s var(--ease-bounce);
   }
-  .eyebrow { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-dim); }
-
-  .theme-toggle {
-    width: 2.4rem; height: 2.4rem; border-radius: 50%;
-    border: 1px solid var(--border); background: var(--surface);
-    display: grid; place-items: center; color: var(--text);
-    transition: border-color .2s var(--ease), transform .2s var(--ease);
-
-    & svg { grid-area: 1 / 1; transition: opacity .2s var(--ease), transform .3s var(--ease); }
-
-    &:is(:hover, :focus-visible) { border-color: var(--accent-dim); }
-    &:active { transform: scale(.94); }
+  .nav-link svg { color: var(--text-subtle); transition: color 0.2s; }
+  .nav-link:hover { background: var(--bg-surface-elevated); color: var(--text-main); }
+  .nav-link:hover svg { color: var(--text-main); }
+  .nav-link[aria-current="page"] {
+    background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
+    color: var(--brand-primary);
   }
+  .nav-link[aria-current="page"] svg { color: var(--brand-primary); }
 
-  .theme-toggle .icon-moon { opacity: 0; transform: rotate(-40deg) scale(.6); position: absolute; }
-  .theme-toggle .icon-sun  { opacity: 1; position: static; }
-
-  [data-theme="dark"] .theme-toggle .icon-sun  { opacity: 0; transform: rotate(40deg) scale(.6); position: absolute; }
-  [data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; transform: none; position: static; }
-
-  .card {
-    container-type: inline-size;
-    container-name: card;
-    width: 100%; max-width: 560px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 30px 60px -30px oklch(0% 0 0 / .35);
-    overflow: hidden;
+  .sidebar-footer {
+    margin-top: auto; padding: 14px; border-radius: var(--radius-sm);
+    background: var(--bg-surface-subtle); border: 1px solid var(--border-subtle);
+    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
   }
+  .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px var(--success-soft); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } }
 
-  .tabs {
-    display: flex; gap: .25rem; padding: .5rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-2);
-
-    & .tab-btn {
-      flex: 1; padding: .65rem .75rem; border: none; border-radius: var(--radius-sm);
-      background: transparent; color: var(--muted); font-weight: 600; font-size: .85rem;
-      transition: color .2s var(--ease), background-color .2s var(--ease);
-
-      &:is(:hover, :focus-visible) { color: var(--text); }
-      &[aria-selected="true"] { color: var(--accent-contrast); background: var(--accent); }
-    }
+  .search-btn {
+    width: min(440px, 45vw); height: 38px; border-radius: var(--radius-sm);
+    background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 10px; padding: 0 12px;
+    color: var(--text-muted); font-size: 13px; transition: border-color 0.2s, background-color 0.35s var(--ease-bounce);
   }
-
-  @container card (max-width: 380px) {
-    .tabs { flex-direction: column; }
+  .search-btn:hover { border-color: var(--border-focus); }
+  .search-btn kbd {
+    margin-left: auto; font-size: 10px; font-weight: 700; background: var(--bg-surface);
+    border: 1px solid var(--border-subtle); padding: 2px 6px; border-radius: 4px;
   }
-
-  .tab-panel { padding: var(--space-2); }
-  .tab-panel[hidden] { display: none; }
-
-  .form { display: grid; gap: var(--space-2); }
-
-  .field {
-    display: grid; gap: .4rem;
-
-    & label { font-size: .82rem; font-weight: 600; }
-
-    & input[type="text"], & input[type="password"] {
-      padding: .65rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
-      background: var(--bg); outline: none;
-      transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
-
-      &:focus-visible {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 25%, transparent);
-      }
-    }
-
-    &:has(input:user-invalid) {
-      & label { color: var(--danger); }
-      & input { border-color: var(--danger); }
-    }
+  .theme-btn {
+    width: 38px; height: 38px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);
+    background: var(--bg-surface); display: grid; place-items: center; color: var(--text-muted);
+    transition: all 0.2s;
   }
+  .theme-btn:hover { color: var(--text-main); border-color: var(--border-focus); transform: scale(1.04); }
 
-  .file-drop {
-    display: flex; align-items: center; gap: .5rem;
-    padding: .5rem; border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
-    background: var(--bg);
-    transition: border-color .2s var(--ease);
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.3s var(--ease-bounce); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-    &:has(input:focus-visible) { border-color: var(--accent); }
-    &:has(input:valid) { border-style: solid; border-color: color-mix(in oklch, var(--accent) 50%, var(--border)); }
-
-    & input[type="file"] {
-      flex: 1; border: none; background: transparent; font-size: .82rem;
-
-      &::file-selector-button {
-        background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
-        padding: .4rem .7rem; margin-right: .6rem; font-size: .75rem; font-weight: 600;
-      }
-    }
-
-    & .btn-clear {
-      display: none; width: 2rem; height: 2rem; flex-shrink: 0;
-      border: 1px solid var(--danger); background: transparent; color: var(--danger);
-      border-radius: 6px;
-    }
-
-    &:has(input:valid) .btn-clear { display: grid; place-items: center; }
+  .dashboard-hero {
+    position: relative; overflow: hidden; padding: 36px 32px; border-radius: var(--radius-lg);
+    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-md); margin-bottom: 28px;
+    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
   }
-
-  .hint { font-size: .72rem; color: var(--muted); }
-  .hint b { color: var(--accent-dim); font-weight: 600; }
-
-  details.info-box {
-    border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .6rem .8rem;
-
-    & summary { font-size: .8rem; font-weight: 600; color: var(--muted); }
-    &[open] summary { color: var(--text); margin-bottom: .6rem; }
-    & p { font-size: .82rem; color: var(--muted); line-height: 1.5; }
-  }
-
-  .btn-primary {
-    padding: .8rem; border: none; border-radius: var(--radius-sm);
-    background: var(--accent); color: var(--accent-contrast); font-weight: 700; font-size: .9rem;
-    transition: transform .15s var(--ease), box-shadow .15s var(--ease), background-color .15s var(--ease);
-
-    &:is(:hover, :focus-visible):not(:disabled) {
-      background: var(--accent-dim); transform: translateY(-1px);
-      box-shadow: 0 10px 24px -10px color-mix(in oklch, var(--accent) 60%, transparent);
-    }
-    &:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
-  }
-
-  /* ---------- Toasts ---------- */
-  .toast-container {
-    position: fixed;
-    top: 1.5rem;
-    right: 1.5rem;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
+  .dashboard-hero::before {
+    content: ""; position: absolute; top: -50%; right: -10%; width: 420px; height: 420px;
+    border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--brand-primary) 15%, transparent) 0%, transparent 70%);
     pointer-events: none;
-    width: min(90vw, 360px);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    border-radius: var(--radius-full); background: var(--success-soft); color: var(--success);
+    font-size: 11px; font-weight: 700; margin-bottom: 12px;
+  }
+  .hero-content h1 { font-size: clamp(22px, 2vw + 12px, 30px); font-weight: 800; letter-spacing: -0.02em; }
+  .hero-content p { font-size: 14px; color: var(--text-muted); max-width: 680px; margin-top: 6px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
+  .kpi-card {
+    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+    padding: 18px 20px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s, background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .kpi-title { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .kpi-icon { color: var(--brand-primary); }
+  .kpi-value { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  .kpi-caption { font-size: 11px; color: var(--text-subtle); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .kpi-caption.up { color: var(--success); font-weight: 600; }
+
+  .section-title-wrap { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+  .section-title-wrap h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .section-title-wrap p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .bank-card {
+    --b-accent: var(--brand-primary);
+    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+    padding: 22px; display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 200px; position: relative; overflow: hidden; transition: all 0.25s var(--ease-bounce);
+    box-shadow: var(--shadow-sm);
+  }
+  .bank-card::after {
+    content: ""; position: absolute; inset: 0; border-radius: var(--radius-md);
+    border: 1px solid transparent; transition: border-color 0.25s; pointer-events: none;
+  }
+  .bank-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--b-accent); }
+  
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+  .bank-logo-wrap {
+    width: 48px; height: 48px; border-radius: 12px; background: color-mix(in srgb, var(--b-accent) 8%, var(--bg-surface-elevated));
+    display: grid; place-items: center; padding: 6px; border: 1px solid color-mix(in srgb, var(--b-accent) 20%, transparent);
+    overflow: hidden; flex-shrink: 0;
+  }
+  .bank-logo-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  
+  .protocol-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px;
+    border-radius: var(--radius-full); background: var(--bg-surface-elevated); color: var(--text-muted);
   }
 
+  .card-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .card-body p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle);
+    font-size: 12px; font-weight: 600; color: var(--b-accent);
+  }
+  .card-footer span { color: var(--text-subtle); font-size: 11px; font-weight: 500; }
+  .card-footer .arrow { transition: transform 0.2s; }
+  .bank-card:hover .arrow { transform: translateX(3px); }
+
+  .converter-shell { width: min(740px, 100%); margin: 0 auto; }
+  .converter-card {
+    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden;
+    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+  }
+  .converter-tabs { display: flex; padding: 6px; background: var(--bg-surface-elevated); border-bottom: 1px solid var(--border-subtle); transition: background-color 0.35s var(--ease-bounce); }
+  .tab-btn {
+    flex: 1; padding: 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700;
+    color: var(--text-muted); text-align: center; transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--bg-surface); color: var(--text-main); box-shadow: var(--shadow-sm); }
+  
+  .converter-body { padding: 28px; }
+  .form-grid { display: grid; gap: 16px; }
+  .form-group { display: grid; gap: 6px; }
+  .form-group label { font-size: 12px; font-weight: 600; color: var(--text-main); }
+  .form-group input {
+    height: 42px; padding: 0 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);
+    background: var(--bg-base); font-size: 13px; color: var(--text-main); outline: none; transition: border-color 0.2s, background-color 0.35s var(--ease-bounce);
+  }
+  .form-group input:focus { border-color: var(--border-focus); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .dropzone {
+    border: 2px dashed var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-base);
+    padding: 24px; text-align: center; position: relative; cursor: pointer; transition: all 0.2s, background-color 0.35s var(--ease-bounce);
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--brand-primary); background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-base)); }
+  .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .dropzone-content svg { margin: 0 auto 10px; color: var(--brand-primary); }
+  .dropzone-content strong { font-size: 13px; display: block; }
+  .dropzone-content span { font-size: 11px; color: var(--text-muted); }
+
+  .file-badge {
+    display: none; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm);
+    background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle);
+  }
+  .file-badge.active { display: flex; }
+  .file-badge-info { flex: 1; font-size: 12px; font-weight: 600; }
+  .file-badge-size { font-size: 11px; color: var(--text-muted); }
+  .btn-remove-file { font-size: 11px; color: var(--danger); font-weight: 700; }
+
+  .btn-submit {
+    height: 44px; border-radius: var(--radius-sm); background: var(--brand-primary);
+    color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: filter 0.2s, transform 0.1s, background-color 0.35s var(--ease-bounce); margin-top: 8px;
+  }
+  .btn-submit:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-submit:active:not(:disabled) { transform: translateY(1px); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .toast-container { position: fixed; right: 24px; top: 80px; z-index: 100; display: grid; gap: 10px; pointer-events: none; }
   .toast {
-    pointer-events: auto;
-    display: flex;
-    align-items: flex-start;
-    gap: .65rem;
-    padding: .85rem .9rem;
-    border-radius: var(--radius-md);
-    background: color-mix(in oklch, var(--surface) 82%, transparent);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    box-shadow: 0 20px 40px -16px oklch(0% 0 0 / .35), 0 2px 6px -2px oklch(0% 0 0 / .2);
-    color: var(--text);
-
-    opacity: 0;
-    transform: translateX(100%);
-    transition: opacity .35s var(--ease), transform .35s var(--ease);
-
-    &.is-visible { opacity: 1; transform: translateX(0); }
-    &.is-leaving { opacity: 0; transform: translateX(20px); }
+    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg); padding: 14px 18px; display: flex; align-items: center; gap: 12px;
+    min-width: 300px; max-width: 420px; pointer-events: auto; animation: toastSlide 0.3s var(--ease-bounce);
   }
-
-  .toast[data-variant="success"] {
-    border-color: color-mix(in oklch, var(--accent) 45%, var(--border));
-    background: color-mix(in oklch, var(--accent) 10%, var(--surface) 82%);
-  }
-  .toast[data-variant="error"] {
-    border-color: color-mix(in oklch, var(--danger) 45%, var(--border));
-    background: color-mix(in oklch, var(--danger) 10%, var(--surface) 82%);
-  }
-
-  .toast-icon {
-    flex-shrink: 0;
-    width: 1.9rem; height: 1.9rem;
-    border-radius: 50%;
-    display: grid; place-items: center;
-    margin-top: .05rem;
-  }
-  .toast[data-variant="success"] .toast-icon {
-    color: var(--accent-dim);
-    background: color-mix(in oklch, var(--accent) 22%, var(--surface-2));
-  }
-  .toast[data-variant="error"] .toast-icon {
-    color: var(--danger);
-    background: color-mix(in oklch, var(--danger) 22%, var(--surface-2));
-  }
-
-  .toast-body { flex: 1; min-width: 0; display: grid; gap: .25rem; }
-
-  .toast-title { font-size: .88rem; font-weight: 700; letter-spacing: -.005em; }
-  .toast[data-variant="success"] .toast-title { color: var(--accent-dim); }
-  .toast[data-variant="error"] .toast-title { color: var(--danger); }
-
-  .toast-message { font-size: .8rem; color: var(--muted); line-height: 1.45; }
-
-  .toast-files {
-    list-style: none;
-    display: grid; gap: .3rem;
-    margin-top: .2rem;
-
-    & li {
-      display: flex; align-items: center; gap: .4rem;
-      padding: .35rem .5rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: .74rem; font-weight: 600;
-    }
-    & svg { flex-shrink: 0; color: var(--accent-dim); }
-    & span { overflow-wrap: anywhere; }
-  }
-
-  .toast-close {
-    flex-shrink: 0;
-    width: 1.5rem; height: 1.5rem;
-    border: none; background: transparent; color: var(--muted);
-    border-radius: 5px;
-    display: grid; place-items: center;
-    font-size: .8rem;
-    transition: background-color .15s var(--ease), color .15s var(--ease);
-
-    &:is(:hover, :focus-visible) {
-      background: var(--surface-2);
-      color: var(--text);
-    }
-  }
+  @keyframes toastSlide { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast-title { font-size: 12px; font-weight: 700; }
+  .toast-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 }
 
 @layer utilities {
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  @media (max-width: 1024px) {
+    .bank-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .app-shell { display: block; }
+    .sidebar { transform: translateX(-100%); }
+    body.menu-open .sidebar { transform: none; box-shadow: var(--shadow-lg); }
+    .main-area { margin-left: 0; }
+    .bank-grid, .kpi-grid { grid-template-columns: 1fr; }
+    .content-container { width: min(100% - 32px, 768px); padding: 20px 0 40px; }
+    .topbar { padding: 0 16px; }
+    .form-row { grid-template-columns: 1fr; }
   }
 }
 </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div class="brand">
-    <div class="brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        <circle cx="12" cy="16" r="1.4" fill="currentColor"/>
-      </svg>
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-header">
+      <div class="brand-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+      </div>
+      <div class="brand-info">
+        <h2>BankHub Core</h2>
+        <span>Suporte & Operações</span>
+      </div>
     </div>
-    <div>
-      <p class="eyebrow">Ferramenta Interna · Segurança</p>
-      <h1>Conversor de Certificados</h1>
+
+    <div class="nav-group-label">Navegação Principal</div>
+    <nav class="nav-menu">
+      <a href="#dashboard" class="nav-link" data-nav="dashboard" aria-current="page">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="#documentacao" class="nav-link" data-nav="documentacao">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+        Documentação
+      </a>
+      <a href="#collections" class="nav-link" data-nav="collections">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10M12 3v18"/></svg>
+        Collections
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span>Gateways Operacionais</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Area -->
+  <div class="main-area">
+    <header class="topbar">
+      <button id="menuToggle" class="theme-btn" style="display:none;" aria-label="Abrir Menu">☰</button>
+      <button class="search-btn" id="searchBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>Pesquisar banco, chave ou payload...</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+      <div style="display:flex; gap:8px;">
+        <button class="theme-btn" id="themeToggle" aria-label="Alternar Tema">🌓</button>
+      </div>
+    </header>
+
+    <div class="content-container">
+      <!-- VIEW: Dashboard -->
+      <section class="view active" data-view="dashboard">
+        <div class="dashboard-hero">
+          <div class="hero-badge">● Ambiente 100% Protegido & Isolado</div>
+          <div class="hero-content">
+            <h1>Central de Operações Bancárias</h1>
+            <p>Gerencie conversões de certificados mTLS, teste endpoints homologados e acesse as rotinas oficiais para os principais gateways financeiros do Brasil.</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Bancos Integrados</span>
+              <span class="kpi-icon">🏛️</span>
+            </div>
+            <div class="kpi-value">6 Instituições</div>
+            <div class="kpi-caption up">● 100% Homologados</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Padrão de Autenticação</span>
+              <span class="kpi-icon">🔒</span>
+            </div>
+            <div class="kpi-value">mTLS + OAuth2</div>
+            <div class="kpi-caption">Certificação Digital A1</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Processamento</span>
+              <span class="kpi-icon">⚡</span>
+            </div>
+            <div class="kpi-value">RAM Volátil</div>
+            <div class="kpi-caption">Zero persistência em disco</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Disponibilidade APIs</span>
+              <span class="kpi-icon">🌐</span>
+            </div>
+            <div class="kpi-value">99.98%</div>
+            <div class="kpi-caption up">Sem alertas de instabilidade</div>
+          </div>
+        </div>
+
+        <div class="section-title-wrap">
+          <div>
+            <h2>Instituições Bancárias Homologadas</h2>
+            <p>Selecione a instituição financeira para carregar seu conversor e fluxos dedicados.</p>
+          </div>
+        </div>
+
+        <div class="bank-grid" id="bankGrid"></div>
+      </section>
+
+      <!-- VIEW: Banco / Conversor -->
+      <section class="view" data-view="banco">
+        <div id="bankViewContainer"></div>
+      </section>
+
+      <!-- VIEW: Documentação -->
+      <section class="view" data-view="documentacao">
+        <div class="dashboard-hero">
+          <div class="hero-content">
+            <h1>Base de Conhecimento Técnico</h1>
+            <p>Guias operacionais de integração, erros comuns (401, 403, 422) e checklists de validação para o suporte.</p>
+          </div>
+        </div>
+        <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:32px;">
+          <h3>Estrutura de Suporte</h3>
+          <p style="color:var(--text-muted); margin-top:8px; font-size:14px;">Selecione o banco desejado na dashboard para visualizar seus parâmetros de handshake, URLs de homologação/produção e escopos OAuth2.</p>
+        </div>
+      </section>
+
+      <!-- VIEW: Collections -->
+      <section class="view" data-view="collections">
+        <div class="dashboard-hero">
+          <div class="hero-content">
+            <h1>Gerador de Collections Postman</h1>
+            <p>Exporte coleções prontas (JSON v2.1) com scripts de autenticação OAuth2 e mTLS pré-configurados.</p>
+          </div>
+        </div>
+        <div class="converter-shell">
+          <div class="converter-card" style="padding:28px;">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Selecione a Instituição Financeira</label>
+                <select id="collectionBank" style="height:42px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-base); padding:0 12px;">
+                  <option value="bb">Banco do Brasil (PIX & Cobrança)</option>
+                  <option value="itau">Itaú Unibanco (Boleto & PIX API)</option>
+                  <option value="sicoob">Sicoob (V3 mTLS)</option>
+                  <option value="sicredi">Sicredi (V2)</option>
+                  <option value="santander">Santander (Developer)</option>
+                  <option value="bradesco">Bradesco ShopFácil</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Client ID</label>
+                  <input type="text" placeholder="Ex: app-prod-12345">
+                </div>
+                <div class="form-group">
+                  <label>Client Secret</label>
+                  <input type="password" placeholder="••••••••••••••••">
+                </div>
+              </div>
+              <button class="btn-submit" type="button" onclick="toast('success', 'Download Iniciado', 'Collection gerada com sucesso no formato Postman 2.1')">
+                Baixar Collection (.json)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
-  <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Alternar tema claro/escuro">
-    <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.6"/>
-      <path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"
-            stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-    <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-    </svg>
-  </button>
-</header>
+</div>
 
-<main class="card" id="card">
-  <nav class="tabs" role="tablist" aria-label="Tipo de conversão">
-    <button role="tab" id="tab-pem" aria-selected="true" aria-controls="panel-pem" class="tab-btn">PFX → PEMs</button>
-    <button role="tab" id="tab-next" aria-selected="false" aria-controls="panel-next" tabindex="-1" class="tab-btn">PFX Re-encodado</button>
-  </nav>
+<div class="toast-container" id="toasts"></div>
 
-  <section id="panel-pem" role="tabpanel" aria-labelledby="tab-pem" class="tab-panel">
-    <form id="formPem" class="form" novalidate>
-      <div class="field">
-        <label for="pemFile">Certificado (.PFX / .P12)</label>
-        <div class="file-drop">
-          <input type="file" id="pemFile" name="pfxfile" accept=".pfx,.p12" required>
-          <button type="button" class="btn-clear" aria-label="Remover arquivo">✕</button>
-        </div>
-      </div>
+<script>
+const BANKS = [
+  { id: "bb", name: "Banco do Brasil", color: "#005CA9", protocol: "mTLS + OAuth2", desc: "API PIX e Cobrança Boleto com assinatura mTLS direta.", logo: "img/bb.svg" },
+  { id: "itau", name: "Itaú Unibanco", color: "#EC7000", protocol: "mTLS Dedicated", desc: "Processamento e handshake mTLS de certificados A1.", logo: "img/itau.svg" },
+  { id: "sicoob", name: "Sicoob", color: "#00843D", protocol: "V3 mTLS", desc: "Conversão de certificados para gateway V3 e Open Finance.", logo: "img/sicoob.svg" },
+  { id: "sicredi", name: "Sicredi", color: "#005A36", protocol: "V2 Modular", desc: "Padrão de certificados A1 para integração Cobrança e PIX.", logo: "img/sicredi.svg" },
+  { id: "santander", name: "Santander", color: "#EC0000", protocol: "OAuth2 Direct", desc: "Conversão para portal Developer Santander Empresas.", logo: "img/santander.svg" },
+  { id: "bradesco", name: "Bradesco", color: "#CC092F", protocol: "ShopFácil API", desc: "Geração de chaves públicas e privadas para comércio eletrônico.", logo: "img/bradesco.svg" }
+];
 
-      <div class="field">
-        <label for="pemPassword">Senha do certificado</label>
-        <input type="text" id="pemPassword" name="password" placeholder="••••••••" required>
-      </div>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
 
-      <div class="field">
-        <label for="pemNomeCert">Chave Pública</label>
-        <input type="text" id="pemNomeCert" name="nomeCert" placeholder="Ex: PROVEDORNET26">
-      </div>
-
-      <div class="field">
-        <label for="pemNomeChave">Chave Privada</label>
-        <input type="text" id="pemNomeChave" name="nomeChave" placeholder="Ex: PROVEDORNET26">
-      </div>
-
-      <button type="submit" class="btn-primary">Converter Chaves</button>
-    </form>
-  </section>
-
-  <section id="panel-next" role="tabpanel" aria-labelledby="tab-next" class="tab-panel" hidden>
-    <form id="formNext" class="form" novalidate>
-      <div class="field">
-        <label for="nextFile">Certificado original (.PFX / .P12)</label>
-        <div class="file-drop">
-          <input type="file" id="nextFile" name="pfxfile" accept=".pfx,.p12" required>
-          <button type="button" class="btn-clear" aria-label="Remover arquivo">✕</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="nextPassword">Senha atual do certificado</label>
-        <input type="password" id="nextPassword" name="password" placeholder="••••••••" required>
-      </div>
-
-      <div class="field">
-        <label for="nextNovaSenha">Nova senha</label>
-        <input type="password" id="nextNovaSenha" name="novaSenha" placeholder="••••••••">
-      </div>
-
-      <div class="field">
-        <label for="nextNomeSaida">Nome do novo arquivo final</label>
-        <input type="text" id="nextNomeSaida" name="nomeSaida" placeholder="Ex: certificadonovo26">
-      </div>
-
-      <button type="submit" class="btn-primary">Converter PFX</button>
-    </form>
-  </section>
-
-</main>
-
-<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
-
-<script type="module">
+function applyDynamicTheme(bankColor) {
+  const isDark = document.documentElement.dataset.theme === "dark";
   const root = document.documentElement;
-  const themeToggle = document.getElementById('themeToggle');
-  const STORAGE_KEY = 'cert-tool-theme';
 
-  function efetivo(theme) {
-    if (theme === 'dark' || theme === 'light') return theme;
-    return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
+  if (bankColor) {
+    root.style.setProperty("--brand-primary", bankColor);
+    root.style.setProperty("--border-focus", bankColor);
 
-  function aplicarTema(theme) {
-    if (theme === 'light' || theme === 'dark') {
-      root.dataset.theme = theme;
+    if (isDark) {
+      root.style.setProperty("--bg-base", `color-mix(in srgb, ${bankColor} 14%, #090d16)`);
+      root.style.setProperty("--bg-surface", `color-mix(in srgb, ${bankColor} 18%, #111827)`);
+      root.style.setProperty("--bg-surface-elevated", `color-mix(in srgb, ${bankColor} 24%, #1e293b)`);
+      root.style.setProperty("--border-subtle", `color-mix(in srgb, ${bankColor} 30%, #1e293b)`);
     } else {
-      delete root.dataset.theme;
+      root.style.setProperty("--bg-base", `color-mix(in srgb, ${bankColor} 7%, #f8fafc)`);
+      root.style.setProperty("--bg-surface", `#ffffff`);
+      root.style.setProperty("--bg-surface-elevated", `color-mix(in srgb, ${bankColor} 10%, #f1f5f9)`);
+      root.style.setProperty("--border-subtle", `color-mix(in srgb, ${bankColor} 18%, #e2e8f0)`);
     }
-    const efetivoAtual = efetivo(theme);
-    themeToggle.setAttribute('aria-pressed', String(efetivoAtual === 'dark'));
+  } else {
+    root.style.setProperty("--brand-primary", "#2563eb");
+    root.style.setProperty("--border-focus", isDark ? "#60a5fa" : "#3b82f6");
+    root.style.removeProperty("--bg-base");
+    root.style.removeProperty("--bg-surface");
+    root.style.removeProperty("--bg-surface-elevated");
+    root.style.removeProperty("--border-subtle");
   }
+}
 
-  aplicarTema(localStorage.getItem(STORAGE_KEY) ?? 'auto');
+function renderCards() {
+  $("#bankGrid").innerHTML = BANKS.map(b => `
+    <a class="bank-card" href="#banco/${b.id}" style="--b-accent: ${b.color}">
+      <div>
+        <div class="card-top">
+          <div class="bank-logo-wrap">
+            <img src="${b.logo}" alt="${b.name}" class="bank-logo-img">
+          </div>
+          <span class="protocol-tag">${b.protocol}</span>
+        </div>
+        <div class="card-body">
+          <h3>${b.name}</h3>
+          <p>${b.desc}</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>Abrir Ferramenta</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+  `).join("");
+}
 
-  themeToggle.addEventListener('click', () => {
-    const proximo = efetivo(root.dataset.theme) === 'dark' ? 'light' : 'dark';
-    const trocar = () => {
-      aplicarTema(proximo);
-      localStorage.setItem(STORAGE_KEY, proximo);
-    };
-    document.startViewTransition ? document.startViewTransition(trocar) : trocar();
-  });
+function renderBankView(id) {
+  const b = BANKS.find(x => x.id === id) || BANKS[0];
+  applyDynamicTheme(b.color);
 
-  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
-  const paineis = {
-    'tab-pem': document.getElementById('panel-pem'),
-    'tab-next': document.getElementById('panel-next'),
+  $("#bankViewContainer").innerHTML = `
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:28px;">
+      <div class="bank-logo-wrap" style="width:56px; height:56px;">
+        <img src="${b.logo}" alt="${b.name}" class="bank-logo-img">
+      </div>
+      <div>
+        <h1 style="font-size:24px; font-weight:800;">${b.name}</h1>
+        <p style="font-size:13px; color:var(--text-muted);">${b.desc}</p>
+      </div>
+    </div>
+
+    <div class="converter-shell">
+      <div class="converter-card">
+        <div class="converter-tabs">
+          <button class="tab-btn active" data-tab="pem">PFX → Chaves PEM (.key / .crt)</button>
+          <button class="tab-btn" data-tab="next">Re-encodar PFX (Compatibilidade)</button>
+        </div>
+        <div class="converter-body">
+          <form id="formConverter" class="form-grid">
+            <div class="form-group">
+              <label>Arquivo do Certificado (.PFX / .P12)</label>
+              <div class="dropzone" id="dropArea">
+                <input type="file" id="pfxInput" accept=".pfx,.p12" required>
+                <div class="dropzone-content">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <strong>Clique ou arraste o certificado A1 aqui</strong>
+                  <span>Formatos suportados: PKCS#12 (.pfx, .p12)</span>
+                </div>
+              </div>
+              <div class="file-badge" id="fileBadge">
+                <span style="color:var(--brand-primary)">📄</span>
+                <div class="file-badge-info">
+                  <div id="fileName">certificado.pfx</div>
+                  <div class="file-badge-size" id="fileSize">0 KB</div>
+                </div>
+                <button type="button" class="btn-remove-file" id="btnRemoveFile">Remover</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Senha do Certificado Digital</label>
+              <input type="password" id="pfxPass" placeholder="••••••••••••" required>
+            </div>
+
+            <div class="form-row" id="fieldNames">
+              <div class="form-group">
+                <label>Nome Chave Pública</label>
+                <input type="text" value="ChavePublica">
+              </div>
+              <div class="form-group">
+                <label>Nome Chave Privada</label>
+                <input type="text" value="ChavePrivada">
+              </div>
+            </div>
+
+            <button class="btn-submit" type="submit" id="btnSubmit">
+              Converter e Extrair Chaves
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const pfxInput = $("#pfxInput"), dropArea = $("#dropArea"), fileBadge = $("#fileBadge");
+  pfxInput.onchange = () => {
+    const f = pfxInput.files[0];
+    if(f){
+      $("#fileName").textContent = f.name;
+      $("#fileSize").textContent = (f.size/1024).toFixed(1) + " KB";
+      dropArea.style.display = "none";
+      fileBadge.classList.add("active");
+    }
+  };
+  $("#btnRemoveFile").onclick = () => {
+    pfxInput.value = "";
+    fileBadge.classList.remove("active");
+    dropArea.style.display = "block";
   };
 
-  function selecionarAba(tab) {
-    const trocar = () => {
-      tabs.forEach((t) => {
-        const selecionada = t === tab;
-        t.setAttribute('aria-selected', String(selecionada));
-        t.tabIndex = selecionada ? 0 : -1;
-        paineis[t.id].hidden = !selecionada;
-      });
-    };
-    document.startViewTransition ? document.startViewTransition(trocar) : trocar();
-    tab.focus();
-  }
-
-  document.querySelector('.tabs').addEventListener('click', (e) => {
-    const tab = e.target.closest('[role="tab"]');
-    if (!tab) return;
-    controladorAtivo?.abort();
-    selecionarAba(tab);
-  });
-
-  document.querySelector('.tabs').addEventListener('keydown', (e) => {
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    const atual = tabs.indexOf(document.activeElement);
-    if (atual === -1) return;
-    const proximo = e.key === 'ArrowRight'
-      ? (atual + 1) % tabs.length
-      : (atual - 1 + tabs.length) % tabs.length;
-    selecionarAba(tabs[proximo]);
-  });
-
-  document.querySelectorAll('.btn-clear').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const input = btn.closest('.file-drop').querySelector('input[type="file"]');
-      input.value = '';
-    });
-  });
-
-  // ---------- Sistema de Toasts ----------
-  const toastContainer = document.getElementById('toastContainer');
-  const TOAST_DURATION = 4500;
-
-  const ICON_CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    '<path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '</svg>';
-
-  const ICON_WARN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    '<path d="M12 8.5v5M12 17h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>' +
-    '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>' +
-    '</svg>';
-
-  const ICON_FILE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    '<path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<path d="M14 3v4h4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '</svg>';
-
-  function removerToast(toastEl) {
-    if (!toastEl.isConnected) return;
-    toastEl.classList.remove('is-visible');
-    toastEl.classList.add('is-leaving');
-
-    const finalizar = () => toastEl.remove();
-    toastEl.addEventListener('transitionend', finalizar, { once: true });
-    setTimeout(finalizar, 500); // fallback caso a transição não dispare
-  }
-
-  function mostrarFeedback(tipo, mensagem, arquivos) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.dataset.variant = tipo;
-    toast.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
-
-    const titulo = tipo === 'success' ? 'Conversão concluída!' : 'Algo deu errado';
-    const icone = tipo === 'success' ? ICON_CHECK : ICON_WARN;
-
-    let listaHTML = '';
-    if (tipo === 'success' && Array.isArray(arquivos) && arquivos.length > 0) {
-      const itens = arquivos.map((nome) =>
-        '<li>' + ICON_FILE + '<span>' + nome + '</span></li>'
-      ).join('');
-      listaHTML = '<ul class="toast-files">' + itens + '</ul>';
-    }
-
-    toast.innerHTML =
-      '<div class="toast-icon">' + icone + '</div>' +
-      '<div class="toast-body">' +
-        '<p class="toast-title">' + titulo + '</p>' +
-        '<p class="toast-message">' + mensagem + '</p>' +
-        listaHTML +
-      '</div>' +
-      '<button type="button" class="toast-close" aria-label="Fechar notificação">✕</button>';
-
-    toast.querySelector('.toast-close').addEventListener('click', () => removerToast(toast));
-
-    toastContainer.append(toast);
-    requestAnimationFrame(() => toast.classList.add('is-visible'));
-
-    setTimeout(() => removerToast(toast), TOAST_DURATION);
-  }
-
-  function dispararDownload(conteudo, nomeArquivo, tipoMime) {
-    const blob = conteudo instanceof Blob ? conteudo : new Blob([conteudo], { type: tipoMime ?? 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nomeArquivo;
-    a.style.display = 'none';
-    document.body.append(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  let controladorAtivo = null;
-
-  document.getElementById('formPem').addEventListener('submit', async (e) => {
+  $("#formConverter").onsubmit = async (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const btn = form.querySelector('.btn-primary');
-    const formData = new FormData(form);
-
-    controladorAtivo?.abort();
-    controladorAtivo = new AbortController();
-
+    const btn = $("#btnSubmit");
     btn.disabled = true;
-    btn.textContent = 'Convertendo...';
+    btn.textContent = "Processando em memória...";
+
+    const formData = new FormData();
+    formData.append("pfxfile", pfxInput.files[0]);
+    formData.append("password", $("#pfxPass").value);
 
     try {
-      const response = await fetch('/convert-pem', {
-        method: 'POST',
-        body: formData,
-        signal: controladorAtivo.signal,
-      });
+      const res = await fetch("/convert-pem", { method: "POST", body: formData });
+      const data = await res.json();
+      if(!data.sucesso) throw new Error(data.erro || "Falha na extração");
 
-      const data = await response.json();
-
-      if (!data?.sucesso) {
-        mostrarFeedback('error', data?.erro ?? 'Falha desconhecida ao converter.');
-        return;
-      }
-
-      dispararDownload(data.certPem, data.nomeCert, 'application/x-pem-file');
-      setTimeout(() => dispararDownload(data.keyPem, data.nomeChave, 'application/x-pem-file'), 300);
-
-      form.reset();
-      mostrarFeedback('success', 'Seus arquivos estão prontos para uso.', [data.nomeCert, data.nomeChave]);
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-      mostrarFeedback('error', 'Erro ao se comunicar com a aplicação.');
+      toast("success", "Conversão Concluída!", `${b.name}: Chaves geradas com sucesso.`);
+    } catch(err) {
+      toast("error", "Erro no Certificado", err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Converter Chaves';
+      btn.textContent = "Converter e Extrair Chaves";
     }
-  });
+  };
+}
 
-  document.getElementById('formNext').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const btn = form.querySelector('.btn-primary');
-    const formData = new FormData(form);
+function route() {
+  const hash = location.hash.slice(1) || "dashboard";
+  const [view, param] = hash.split("/");
 
-    controladorAtivo?.abort();
-    controladorAtivo = new AbortController();
+  $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === view));
+  $$("[data-nav]").forEach(a => a.toggleAttribute("aria-current", a.dataset.nav === view));
 
-    btn.disabled = true;
-    btn.textContent = 'Convertendo...';
+  if (view === "banco") {
+    renderBankView(param);
+  } else {
+    applyDynamicTheme(null);
+  }
+}
 
-    try {
-      const response = await fetch('/convert-next', {
-        method: 'POST',
-        body: formData,
-        signal: controladorAtivo.signal,
-      });
+function toast(type, title, desc) {
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.innerHTML = `
+    <div style="font-size:18px;">${type === 'success' ? '✅' : '❌'}</div>
+    <div>
+      <div class="toast-title">${title}</div>
+      <div class="toast-desc">${desc}</div>
+    </div>
+  `;
+  $("#toasts").appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    el.style.transition = 'all 0.3s';
+    setTimeout(() => el.remove(), 300);
+  }, 4500);
+}
 
-      const contentType = response.headers.get('Content-Type') ?? '';
+$("#themeToggle").onclick = () => {
+  const isDark = document.documentElement.dataset.theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "light" : "dark";
+  localStorage.setItem("hub_theme", isDark ? "light" : "dark");
+  
+  const hash = location.hash.slice(1) || "dashboard";
+  const [view, param] = hash.split("/");
+  if (view === "banco") {
+    const b = BANKS.find(x => x.id === param) || BANKS[0];
+    applyDynamicTheme(b.color);
+  } else {
+    applyDynamicTheme(null);
+  }
+};
+document.documentElement.dataset.theme = localStorage.getItem("hub_theme") || "light";
 
-      if (contentType.includes('application/json')) {
-        const data = await response.json();
-        mostrarFeedback('error', data?.erro ?? 'Falha desconhecida ao converter.');
-        return;
-      }
-
-      const blob = await response.blob();
-      const disposition = response.headers.get('Content-Disposition') ?? '';
-      const nomeArquivo = disposition.match(/filename="(.+?)"/)?.[1] ?? 'certificadonovo.pfx';
-
-      dispararDownload(blob, nomeArquivo);
-
-      form.reset();
-      mostrarFeedback('success', 'Seu certificado convertido está pronto.', [nomeArquivo]);
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-      mostrarFeedback('error', 'Erro ao se comunicar com a aplicação.');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Converter PFX';
-    }
-  });
+window.onhashchange = route;
+renderCards();
+route();
 </script>
 </body>
 </html>
