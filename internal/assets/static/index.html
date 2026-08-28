@@ -4,53 +4,125 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
-<title>Hub de Integrações Bancárias · Suporte & Engenharia</title>
+<title>BankHub Core · Suporte & Operações</title>
+
 <style>
 @layer reset, tokens, layout, components, utilities;
 
+/* =========================================================
+   RESET
+========================================================= */
+
 @layer reset {
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; color-scheme: light dark; }
-  body { min-height: 100vh; line-height: 1.5; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
-  button, input, select, textarea { font: inherit; color: inherit; }
-  button { cursor: pointer; border: 0; background: none; }
-  a { text-decoration: none; color: inherit; }
-  svg { display: block; }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light dark;
+  }
+
+  body {
+    min-height: 100vh;
+    line-height: 1.5;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    border: 0;
+    background: none;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  svg {
+    display: block;
+  }
 }
+
+/* =========================================================
+   DESIGN TOKENS
+========================================================= */
 
 @layer tokens {
   :root {
     --brand-primary: #2563eb;
-    --brand-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #06b6d4 100%);
-    
+    --brand-gradient:
+      linear-gradient(
+        135deg,
+        #1d4ed8 0%,
+        #3b82f6 50%,
+        #06b6d4 100%
+      );
+
     --bg-base: #f8fafc;
     --bg-surface: #ffffff;
     --bg-surface-elevated: #f1f5f9;
     --bg-surface-subtle: #f8fafc;
-    
+
     --text-main: #0f172a;
     --text-muted: #64748b;
     --text-subtle: #94a3b8;
-    
+
     --border-subtle: #e2e8f0;
     --border-focus: #3b82f6;
-    
+
     --success: #10b981;
     --success-soft: color-mix(in srgb, #10b981 12%, transparent);
+
     --warning: #f59e0b;
     --danger: #ef4444;
     --danger-soft: color-mix(in srgb, #ef4444 12%, transparent);
-    
+
     --sidebar-w: 240px;
+
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 20px;
+    --radius-xl: 26px;
     --radius-full: 9999px;
-    
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
-    --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.12);
-    --ease-bounce: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --shadow-sm:
+      0 1px 2px rgba(15, 23, 42, .05);
+
+    --shadow-md:
+      0 8px 24px -8px rgba(15, 23, 42, .12);
+
+    --shadow-lg:
+      0 24px 48px -14px rgba(15, 23, 42, .18);
+
+    --ease:
+      cubic-bezier(.16, 1, .3, 1);
   }
 
   [data-theme="dark"] {
@@ -58,662 +130,4496 @@
     --bg-surface: #111827;
     --bg-surface-elevated: #1e293b;
     --bg-surface-subtle: #0f172a;
-    
+
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --text-subtle: #64748b;
-    
+
     --border-subtle: #1e293b;
     --border-focus: #60a5fa;
-    
-    --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+
+    --shadow-md:
+      0 8px 28px -8px rgba(0, 0, 0, .45);
+
+    --shadow-lg:
+      0 24px 52px -12px rgba(0, 0, 0, .65);
   }
 }
+
+/* =========================================================
+   LAYOUT
+========================================================= */
 
 @layer layout {
-  body { 
-    background: var(--bg-base); 
+
+  body {
+    background: var(--bg-base);
     color: var(--text-main);
-    transition: background-color 0.35s var(--ease-bounce), color 0.3s var(--ease-bounce);
+
+    transition:
+      background-color .35s var(--ease),
+      color .35s var(--ease);
   }
-  .app-shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
-  
+
+  .app-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 100vh;
+  }
+
   .sidebar {
-    position: fixed; inset: 0 auto 0 0; width: var(--sidebar-w);
-    background: var(--bg-surface); border-right: 1px solid var(--border-subtle);
-    display: flex; flex-direction: column; padding: 20px 14px; z-index: 50;
-    transition: transform 0.25s var(--ease-bounce), background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+    position: fixed;
+    inset: 0 auto 0 0;
+
+    width: var(--sidebar-w);
+
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-subtle);
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px 14px;
+
+    z-index: 50;
+
+    transition:
+      transform .25s var(--ease),
+      background-color .35s var(--ease),
+      border-color .35s var(--ease);
   }
 
-  .main-area { grid-column: 2; min-width: 0; display: flex; flex-direction: column; }
-  
+  .main-area {
+    grid-column: 2;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+  }
+
   .topbar {
-    height: 64px; position: sticky; top: 0; z-index: 40;
-    background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    height: 64px;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 40;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--bg-surface) 86%,
+        transparent
+      );
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
     border-bottom: 1px solid var(--border-subtle);
-    display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
-    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 32px;
+
+    transition:
+      background-color .35s var(--ease),
+      border-color .35s var(--ease);
   }
 
-  .content-container { width: min(1200px, 100% - 64px); margin: 0 auto; padding: 32px 0 64px; }
+  .content-container {
+    width: min(1200px, calc(100% - 64px));
+    margin: 0 auto;
+
+    padding: 32px 0 64px;
+  }
 }
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
 
 @layer components {
-  .brand-header { display: flex; align-items: center; gap: 12px; padding: 4px 8px 24px; }
-  .brand-badge {
-    width: 38px; height: 38px; border-radius: 10px; background: var(--brand-primary);
-    color: #fff; display: grid; place-items: center; box-shadow: 0 4px 12px color-mix(in srgb, var(--brand-primary) 35%, transparent);
-    transition: background-color 0.35s var(--ease-bounce), box-shadow 0.35s var(--ease-bounce);
-  }
-  .brand-info h2 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
-  .brand-info span { font-size: 11px; color: var(--text-muted); }
 
-  .nav-group-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); padding: 12px 10px 6px; }
-  .nav-menu { display: grid; gap: 4px; }
-  .nav-link {
-    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-    border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text-muted);
-    transition: all 0.2s var(--ease-bounce);
+  .brand-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 4px 8px 24px;
   }
-  .nav-link svg { color: var(--text-subtle); transition: color 0.2s; }
-  .nav-link:hover { background: var(--bg-surface-elevated); color: var(--text-main); }
-  .nav-link:hover svg { color: var(--text-main); }
+
+  .brand-badge {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    background: var(--brand-primary);
+    color: #fff;
+
+    display: grid;
+    place-items: center;
+
+    box-shadow:
+      0 4px 14px
+      color-mix(
+        in srgb,
+        var(--brand-primary) 35%,
+        transparent
+      );
+
+    transition:
+      background-color .35s var(--ease),
+      box-shadow .35s var(--ease);
+  }
+
+  .brand-info h2 {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+
+  .brand-info span {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+
+    color: var(--text-subtle);
+
+    padding: 12px 10px 6px;
+  }
+
+  .nav-menu {
+    display: grid;
+    gap: 4px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    border-radius: var(--radius-sm);
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: var(--text-muted);
+
+    transition:
+      background .2s var(--ease),
+      color .2s var(--ease),
+      transform .2s var(--ease);
+  }
+
+  .nav-link svg {
+    color: var(--text-subtle);
+
+    transition: color .2s;
+  }
+
+  .nav-link:hover {
+    background: var(--bg-surface-elevated);
+    color: var(--text-main);
+
+    transform: translateX(2px);
+  }
+
+  .nav-link:hover svg {
+    color: var(--text-main);
+  }
+
   .nav-link[aria-current="page"] {
-    background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
+    background:
+      color-mix(
+        in srgb,
+        var(--brand-primary) 10%,
+        transparent
+      );
+
     color: var(--brand-primary);
   }
-  .nav-link[aria-current="page"] svg { color: var(--brand-primary); }
+
+  .nav-link[aria-current="page"] svg {
+    color: var(--brand-primary);
+  }
 
   .sidebar-footer {
-    margin-top: auto; padding: 14px; border-radius: var(--radius-sm);
-    background: var(--bg-surface-subtle); border: 1px solid var(--border-subtle);
-    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+    margin-top: auto;
+
+    padding: 14px;
+
+    border-radius: var(--radius-sm);
+
+    background: var(--bg-surface-subtle);
+    border: 1px solid var(--border-subtle);
   }
-  .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px var(--success-soft); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--success);
+
+    box-shadow:
+      0 0 0 3px var(--success-soft);
+
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: scale(1.15);
+      opacity: .7;
+    }
+  }
+
+  /* =====================================================
+     TOPBAR
+  ===================================================== */
 
   .search-btn {
-    width: min(440px, 45vw); height: 38px; border-radius: var(--radius-sm);
-    background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle);
-    display: flex; align-items: center; gap: 10px; padding: 0 12px;
-    color: var(--text-muted); font-size: 13px; transition: border-color 0.2s, background-color 0.35s var(--ease-bounce);
-  }
-  .search-btn:hover { border-color: var(--border-focus); }
-  .search-btn kbd {
-    margin-left: auto; font-size: 10px; font-weight: 700; background: var(--bg-surface);
-    border: 1px solid var(--border-subtle); padding: 2px 6px; border-radius: 4px;
-  }
-  .theme-btn {
-    width: 38px; height: 38px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);
-    background: var(--bg-surface); display: grid; place-items: center; color: var(--text-muted);
-    transition: all 0.2s;
-  }
-  .theme-btn:hover { color: var(--text-main); border-color: var(--border-focus); transform: scale(1.04); }
+    width: min(440px, 45vw);
+    height: 38px;
 
-  .view { display: none; }
-  .view.active { display: block; animation: fadeIn 0.3s var(--ease-bounce); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    border-radius: var(--radius-sm);
+
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 0 12px;
+
+    color: var(--text-muted);
+    font-size: 13px;
+
+    transition:
+      border-color .2s,
+      background-color .35s var(--ease);
+  }
+
+  .search-btn:hover {
+    border-color: var(--border-focus);
+  }
+
+  .search-btn kbd {
+    margin-left: auto;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    background: var(--bg-surface);
+
+    border: 1px solid var(--border-subtle);
+
+    padding: 2px 6px;
+
+    border-radius: 4px;
+  }
+
+  .theme-btn {
+    width: 38px;
+    height: 38px;
+
+    border-radius: var(--radius-sm);
+
+    border: 1px solid var(--border-subtle);
+
+    background: var(--bg-surface);
+
+    display: grid;
+    place-items: center;
+
+    color: var(--text-muted);
+
+    transition:
+      all .2s var(--ease);
+  }
+
+  .theme-btn:hover {
+    color: var(--text-main);
+    border-color: var(--border-focus);
+
+    transform: scale(1.04);
+  }
+
+  /* =====================================================
+     GENERIC VIEW
+  ===================================================== */
+
+  .view {
+    display: none;
+  }
+
+  .view.active {
+    display: block;
+
+    animation:
+      fadeIn .35s var(--ease);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* =====================================================
+     DASHBOARD
+  ===================================================== */
 
   .dashboard-hero {
-    position: relative; overflow: hidden; padding: 36px 32px; border-radius: var(--radius-lg);
-    background: var(--bg-surface); border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-md); margin-bottom: 28px;
-    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+    position: relative;
+    overflow: hidden;
+
+    padding: 36px 32px;
+
+    border-radius: var(--radius-lg);
+
+    background: var(--bg-surface);
+
+    border: 1px solid var(--border-subtle);
+
+    box-shadow: var(--shadow-md);
+
+    margin-bottom: 28px;
   }
+
   .dashboard-hero::before {
-    content: ""; position: absolute; top: -50%; right: -10%; width: 420px; height: 420px;
-    border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--brand-primary) 15%, transparent) 0%, transparent 70%);
+    content: "";
+
+    position: absolute;
+
+    top: -50%;
+    right: -10%;
+
+    width: 420px;
+    height: 420px;
+
+    border-radius: 50%;
+
+    background:
+      radial-gradient(
+        circle,
+        color-mix(
+          in srgb,
+          var(--brand-primary) 15%,
+          transparent
+        ) 0%,
+        transparent 70%
+      );
+
     pointer-events: none;
   }
+
   .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
-    border-radius: var(--radius-full); background: var(--success-soft); color: var(--success);
-    font-size: 11px; font-weight: 700; margin-bottom: 12px;
-  }
-  .hero-content h1 { font-size: clamp(22px, 2vw + 12px, 30px); font-weight: 800; letter-spacing: -0.02em; }
-  .hero-content p { font-size: 14px; color: var(--text-muted); max-width: 680px; margin-top: 6px; }
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
+    padding: 4px 10px;
+
+    border-radius: var(--radius-full);
+
+    background: var(--success-soft);
+    color: var(--success);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    margin-bottom: 12px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(22px, 2vw + 12px, 30px);
+
+    font-weight: 800;
+
+    letter-spacing: -.025em;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+
+    color: var(--text-muted);
+
+    max-width: 680px;
+
+    margin-top: 6px;
+  }
+
+  .kpi-grid {
+    display: grid;
+
+    grid-template-columns:
+      repeat(4, 1fr);
+
+    gap: 14px;
+
+    margin-bottom: 32px;
+  }
+
   .kpi-card {
-    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
-    padding: 18px 20px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s, background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+    background: var(--bg-surface);
+
+    border: 1px solid var(--border-subtle);
+
+    border-radius: var(--radius-md);
+
+    padding: 18px 20px;
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+      transform .2s,
+      box-shadow .2s;
   }
-  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-  .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .kpi-title { font-size: 12px; font-weight: 600; color: var(--text-muted); }
-  .kpi-icon { color: var(--brand-primary); }
-  .kpi-value { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
-  .kpi-caption { font-size: 11px; color: var(--text-subtle); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
-  .kpi-caption.up { color: var(--success); font-weight: 600; }
 
-  .section-title-wrap { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
-  .section-title-wrap h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
-  .section-title-wrap p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .kpi-card:hover {
+    transform: translateY(-2px);
 
-  .bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    box-shadow: var(--shadow-md);
+  }
+
+  .kpi-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 10px;
+  }
+
+  .kpi-title {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text-muted);
+  }
+
+  .kpi-icon {
+    color: var(--brand-primary);
+  }
+
+  .kpi-value {
+    font-size: 24px;
+
+    font-weight: 800;
+
+    letter-spacing: -.02em;
+  }
+
+  .kpi-caption {
+    font-size: 11px;
+
+    color: var(--text-subtle);
+
+    margin-top: 4px;
+  }
+
+  .kpi-caption.up {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .section-title-wrap {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    margin-bottom: 16px;
+  }
+
+  .section-title-wrap h2 {
+    font-size: 16px;
+
+    font-weight: 700;
+
+    letter-spacing: -.01em;
+  }
+
+  .section-title-wrap p {
+    font-size: 12px;
+
+    color: var(--text-muted);
+
+    margin-top: 2px;
+  }
+
+  .bank-grid {
+    display: grid;
+
+    grid-template-columns:
+      repeat(3, 1fr);
+
+    gap: 16px;
+  }
+
   .bank-card {
     --b-accent: var(--brand-primary);
-    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
-    padding: 22px; display: flex; flex-direction: column; justify-content: space-between;
-    min-height: 200px; position: relative; overflow: hidden; transition: all 0.25s var(--ease-bounce);
+
+    background: var(--bg-surface);
+
+    border: 1px solid var(--border-subtle);
+
+    border-radius: var(--radius-md);
+
+    padding: 22px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    min-height: 200px;
+
+    position: relative;
+    overflow: hidden;
+
+    transition:
+      all .25s var(--ease);
+
     box-shadow: var(--shadow-sm);
   }
-  .bank-card::after {
-    content: ""; position: absolute; inset: 0; border-radius: var(--radius-md);
-    border: 1px solid transparent; transition: border-color 0.25s; pointer-events: none;
-  }
-  .bank-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--b-accent); }
-  
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
-  .bank-logo-wrap {
-    width: 48px; height: 48px; border-radius: 12px; background: color-mix(in srgb, var(--b-accent) 8%, var(--bg-surface-elevated));
-    display: grid; place-items: center; padding: 6px; border: 1px solid color-mix(in srgb, var(--b-accent) 20%, transparent);
-    overflow: hidden; flex-shrink: 0;
-  }
-  .bank-logo-img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  
-  .protocol-tag {
-    font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px;
-    border-radius: var(--radius-full); background: var(--bg-surface-elevated); color: var(--text-muted);
+
+  .bank-card:hover {
+    transform: translateY(-4px);
+
+    border-color: var(--b-accent);
+
+    box-shadow:
+      0 24px 44px -14px
+      color-mix(
+        in srgb,
+        var(--b-accent) 38%,
+        transparent
+      );
   }
 
-  .card-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-  .card-body p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .card-top {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    margin-bottom: 14px;
+  }
+
+  .bank-logo-wrap {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    display: grid;
+    place-items: center;
+
+    padding: 8px;
+
+    border:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--b-accent) 22%,
+        transparent
+      );
+
+    box-shadow:
+      0 2px 6px
+      rgba(15, 23, 42, .06);
+
+    overflow: hidden;
+
+    flex-shrink: 0;
+  }
+
+  .bank-logo-img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    display: block;
+  }
+
+  .bank-logo-mono {
+    width: 100%;
+    height: 100%;
+
+    display: grid;
+    place-items: center;
+
+    font-weight: 800;
+
+    font-size: 15px;
+
+    color:
+      var(
+        --b-accent,
+        var(--brand-primary)
+      );
+  }
+
+  .protocol-tag {
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    padding: 4px 8px;
+
+    border-radius: var(--radius-full);
+
+    background: var(--bg-surface-elevated);
+
+    color: var(--text-muted);
+  }
+
+  .card-body h3 {
+    font-size: 16px;
+
+    font-weight: 700;
+
+    margin-bottom: 6px;
+  }
+
+  .card-body p {
+    font-size: 12px;
+
+    color: var(--text-muted);
+
+    line-height: 1.5;
+  }
 
   .card-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle);
-    font-size: 12px; font-weight: 600; color: var(--b-accent);
-  }
-  .card-footer span { color: var(--text-subtle); font-size: 11px; font-weight: 500; }
-  .card-footer .arrow { transition: transform 0.2s; }
-  .bank-card:hover .arrow { transform: translateX(3px); }
+    display: flex;
 
-  .converter-shell { width: min(740px, 100%); margin: 0 auto; }
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-top: 18px;
+
+    padding-top: 14px;
+
+    border-top: 1px solid var(--border-subtle);
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--b-accent);
+  }
+
+  .card-footer span:first-child {
+    color: var(--text-subtle);
+
+    font-size: 11px;
+
+    font-weight: 500;
+  }
+
+  .arrow {
+    transition:
+      transform .2s var(--ease);
+  }
+
+  .bank-card:hover .arrow {
+    transform: translateX(3px);
+  }
+
+  /* =====================================================
+     AJUSTE VISUAL DOS LOGOS DOS CARDS
+
+     Somente enquadramento/identidade visual.
+     Nenhuma lógica de navegação ou conversão é alterada.
+  ===================================================== */
+
+  .bank-card .bank-logo-wrap {
+    background: var(--b-accent, var(--brand-primary));
+    border-color: color-mix(
+      in srgb,
+      var(--b-accent, var(--brand-primary)) 55%,
+      transparent
+    );
+    padding: 5px;
+    isolation: isolate;
+  }
+
+  .bank-card .bank-logo-img {
+    width: 82%;
+    height: 82%;
+    max-width: 82%;
+    max-height: 82%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+  }
+
+  .bank-card .bank-logo-mono {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+  }
+
+  /* =====================================================
+     CONVERTER
+  ===================================================== */
+
+  .converter-shell {
+    width: min(740px, 100%);
+    margin: 0 auto;
+  }
+
   .converter-card {
-    background: var(--bg-surface); border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden;
-    transition: background-color 0.35s var(--ease-bounce), border-color 0.35s var(--ease-bounce);
+    background: var(--bg-surface);
+
+    border: 1px solid var(--border-subtle);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-md);
+
+    overflow: hidden;
   }
-  .converter-tabs { display: flex; padding: 6px; background: var(--bg-surface-elevated); border-bottom: 1px solid var(--border-subtle); transition: background-color 0.35s var(--ease-bounce); }
+
+  .converter-tabs {
+    display: flex;
+
+    padding: 6px;
+
+    background: var(--bg-surface-elevated);
+
+    border-bottom:
+      1px solid
+      var(--border-subtle);
+  }
+
   .tab-btn {
-    flex: 1; padding: 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700;
-    color: var(--text-muted); text-align: center; transition: all 0.2s;
+    flex: 1;
+
+    padding: 10px;
+
+    border-radius: var(--radius-sm);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: var(--text-muted);
+
+    text-align: center;
+
+    transition:
+      all .2s var(--ease);
   }
-  .tab-btn.active { background: var(--bg-surface); color: var(--text-main); box-shadow: var(--shadow-sm); }
-  
-  .converter-body { padding: 28px; }
-  .form-grid { display: grid; gap: 16px; }
-  .form-group { display: grid; gap: 6px; }
-  .form-group label { font-size: 12px; font-weight: 600; color: var(--text-main); }
+
+  .tab-btn.active {
+    background: var(--bg-surface);
+
+    color: var(--text-main);
+
+    box-shadow: var(--shadow-sm);
+  }
+
+  .converter-body {
+    padding: 28px;
+  }
+
+  .form-grid {
+    display: grid;
+
+    gap: 16px;
+  }
+
+  .form-group {
+    display: grid;
+
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+
+    font-weight: 600;
+  }
+
   .form-group input {
-    height: 42px; padding: 0 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);
-    background: var(--bg-base); font-size: 13px; color: var(--text-main); outline: none; transition: border-color 0.2s, background-color 0.35s var(--ease-bounce);
+    height: 42px;
+
+    padding: 0 14px;
+
+    border-radius: var(--radius-sm);
+
+    border:
+      1px solid
+      var(--border-subtle);
+
+    background: var(--bg-base);
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+      border-color .2s,
+      background .3s var(--ease);
   }
-  .form-group input:focus { border-color: var(--border-focus); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .form-group input:focus {
+    border-color: var(--border-focus);
+  }
+
+  .form-row {
+    display: grid;
+
+    grid-template-columns:
+      1fr 1fr;
+
+    gap: 12px;
+  }
 
   .dropzone {
-    border: 2px dashed var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-base);
-    padding: 24px; text-align: center; position: relative; cursor: pointer; transition: all 0.2s, background-color 0.35s var(--ease-bounce);
+    border:
+      2px dashed
+      var(--border-subtle);
+
+    border-radius: var(--radius-md);
+
+    background: var(--bg-base);
+
+    padding: 24px;
+
+    text-align: center;
+
+    position: relative;
+
+    cursor: pointer;
+
+    transition:
+      all .2s var(--ease);
   }
-  .dropzone:hover, .dropzone.drag { border-color: var(--brand-primary); background: color-mix(in srgb, var(--brand-primary) 8%, var(--bg-base)); }
-  .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .dropzone-content svg { margin: 0 auto 10px; color: var(--brand-primary); }
-  .dropzone-content strong { font-size: 13px; display: block; }
-  .dropzone-content span { font-size: 11px; color: var(--text-muted); }
+
+  .dropzone:hover,
+  .dropzone.drag {
+    border-color: var(--brand-primary);
+
+    background:
+      color-mix(
+        in srgb,
+        var(--brand-primary) 8%,
+        var(--bg-base)
+      );
+  }
+
+  .dropzone input[type="file"] {
+    position: absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    cursor: pointer;
+  }
+
+  .dropzone-content svg {
+    margin: 0 auto 10px;
+
+    color: var(--brand-primary);
+  }
+
+  .dropzone-content strong {
+    font-size: 13px;
+
+    display: block;
+  }
+
+  .dropzone-content span {
+    font-size: 11px;
+
+    color: var(--text-muted);
+  }
 
   .file-badge {
-    display: none; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm);
-    background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle);
+    display: none;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 14px;
+
+    border-radius: var(--radius-sm);
+
+    background: var(--bg-surface-elevated);
+
+    border: 1px solid var(--border-subtle);
   }
-  .file-badge.active { display: flex; }
-  .file-badge-info { flex: 1; font-size: 12px; font-weight: 600; }
-  .file-badge-size { font-size: 11px; color: var(--text-muted); }
-  .btn-remove-file { font-size: 11px; color: var(--danger); font-weight: 700; }
+
+  .file-badge.active {
+    display: flex;
+  }
+
+  .file-badge-info {
+    flex: 1;
+
+    font-size: 12px;
+
+    font-weight: 600;
+  }
+
+  .file-badge-size {
+    font-size: 11px;
+
+    color: var(--text-muted);
+  }
+
+  .btn-remove-file {
+    font-size: 11px;
+
+    color: var(--danger);
+
+    font-weight: 700;
+  }
 
   .btn-submit {
-    height: 44px; border-radius: var(--radius-sm); background: var(--brand-primary);
-    color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-    gap: 8px; transition: filter 0.2s, transform 0.1s, background-color 0.35s var(--ease-bounce); margin-top: 8px;
-  }
-  .btn-submit:hover:not(:disabled) { filter: brightness(1.08); }
-  .btn-submit:active:not(:disabled) { transform: translateY(1px); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    height: 44px;
 
-  .toast-container { position: fixed; right: 24px; top: 80px; z-index: 100; display: grid; gap: 10px; pointer-events: none; }
-  .toast {
-    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg); padding: 14px 18px; display: flex; align-items: center; gap: 12px;
-    min-width: 300px; max-width: 420px; pointer-events: auto; animation: toastSlide 0.3s var(--ease-bounce);
+    border-radius: var(--radius-sm);
+
+    background: var(--brand-primary);
+
+    color: #fff;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    transition:
+      filter .2s,
+      transform .1s;
   }
-  @keyframes toastSlide { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
-  .toast.success { border-left: 4px solid var(--success); }
-  .toast.error { border-left: 4px solid var(--danger); }
-  .toast-title { font-size: 12px; font-weight: 700; }
-  .toast-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .btn-submit:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .btn-submit:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-submit:disabled {
+    opacity: .6;
+
+    cursor: not-allowed;
+  }
+
+  /* =====================================================
+     COLLECTIONS
+  ===================================================== */
+
+  .collections-page {
+    position: relative;
+  }
+
+  .collections-hero {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 28px;
+
+    margin-bottom: 20px;
+
+    border-radius: var(--radius-lg);
+
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(
+          in srgb,
+          var(--brand-primary) 11%,
+          var(--bg-surface)
+        ),
+        var(--bg-surface)
+      );
+
+    border:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--brand-primary) 20%,
+        var(--border-subtle)
+      );
+
+    box-shadow: var(--shadow-md);
+  }
+
+  .collections-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 320px;
+    height: 320px;
+
+    right: -120px;
+    top: -160px;
+
+    border-radius: 50%;
+
+    background:
+      radial-gradient(
+        circle,
+        color-mix(
+          in srgb,
+          var(--brand-primary) 28%,
+          transparent
+        ),
+        transparent 70%
+      );
+
+    pointer-events: none;
+  }
+
+  .collection-hero-inner {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 24px;
+  }
+
+  .collection-eyebrow {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--brand-primary);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .1em;
+
+    margin-bottom: 7px;
+  }
+
+  .collection-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--brand-primary);
+
+    box-shadow:
+      0 0 0 4px
+      color-mix(
+        in srgb,
+        var(--brand-primary) 12%,
+        transparent
+      );
+  }
+
+  .collection-hero-title {
+    font-size: clamp(22px, 2vw + 8px, 30px);
+
+    line-height: 1.1;
+
+    font-weight: 850;
+
+    letter-spacing: -.035em;
+  }
+
+  .collection-hero-description {
+    max-width: 650px;
+
+    margin-top: 8px;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+  }
+
+  .collection-hero-badge {
+    flex-shrink: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 92px;
+    height: 92px;
+
+    border-radius: 22px;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--brand-primary) 10%,
+        var(--bg-surface)
+      );
+
+    border:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--brand-primary) 25%,
+        var(--border-subtle)
+      );
+
+    color: var(--brand-primary);
+
+    box-shadow: var(--shadow-sm);
+
+    transform: rotate(2deg);
+
+    transition:
+      transform .35s var(--ease);
+  }
+
+  .collections-hero:hover .collection-hero-badge {
+    transform:
+      rotate(0deg)
+      scale(1.04);
+  }
+
+  .collection-hero-badge strong {
+    font-size: 21px;
+
+    font-weight: 850;
+
+    line-height: 1;
+  }
+
+  .collection-hero-badge span {
+    margin-top: 5px;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .08em;
+
+    font-weight: 700;
+
+    color: var(--text-muted);
+  }
+
+  /* ---------------------------------------------------------
+     WORKSPACE
+  --------------------------------------------------------- */
+
+  .collection-workspace {
+    display: grid;
+
+    grid-template-columns:
+      250px minmax(0, 1fr);
+
+    min-height: 540px;
+
+    background: var(--bg-surface);
+
+    border:
+      1px solid
+      var(--border-subtle);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-md);
+
+    overflow: hidden;
+  }
+
+  /* ---------------------------------------------------------
+     COLLECTION SIDEBAR
+  --------------------------------------------------------- */
+
+  .collection-sidebar {
+    background:
+      color-mix(
+        in srgb,
+        var(--bg-surface-elevated) 72%,
+        var(--bg-surface)
+      );
+
+    border-right:
+      1px solid
+      var(--border-subtle);
+
+    padding: 18px 12px;
+
+    display: flex;
+
+    flex-direction: column;
+  }
+
+  .collection-sidebar-header {
+    padding: 0 8px 14px;
+
+    border-bottom:
+      1px solid
+      var(--border-subtle);
+
+    margin-bottom: 10px;
+  }
+
+  .collection-sidebar-header span {
+    display: block;
+
+    color: var(--text-subtle);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .1em;
+
+    margin-bottom: 3px;
+  }
+
+  .collection-sidebar-header strong {
+    font-size: 13px;
+
+    font-weight: 750;
+  }
+
+  .collection-bank-list {
+    display: grid;
+
+    gap: 4px;
+
+    overflow-y: auto;
+
+    padding-right: 2px;
+  }
+
+  .collection-bank-item {
+    --bank-accent: var(--brand-primary);
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 9px;
+
+    border-radius: 10px;
+
+    text-align: left;
+
+    position: relative;
+
+    color: var(--text-muted);
+
+    transition:
+      background .2s var(--ease),
+      color .2s var(--ease),
+      transform .2s var(--ease);
+  }
+
+  .collection-bank-item:hover {
+    background: var(--bg-surface);
+
+    color: var(--text-main);
+
+    transform: translateX(2px);
+  }
+
+  .collection-bank-item.selected {
+    background:
+      color-mix(
+        in srgb,
+        var(--bank-accent) 11%,
+        var(--bg-surface)
+      );
+
+    color: var(--text-main);
+
+    box-shadow:
+      inset 3px 0 0
+      var(--bank-accent);
+  }
+
+  .collection-bank-logo {
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    border-radius: 9px;
+
+    background: #fff;
+
+    border:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--bank-accent) 22%,
+        var(--border-subtle)
+      );
+
+    padding: 6px;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
+    transition:
+      transform .25s var(--ease);
+  }
+
+  .collection-bank-item:hover .collection-bank-logo {
+    transform: scale(1.04);
+  }
+
+  .collection-bank-logo img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+  }
+
+  .collection-bank-info {
+    min-width: 0;
+
+    flex: 1;
+  }
+
+  .collection-bank-name {
+    display: block;
+
+    font-size: 11.5px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+  .collection-bank-protocol {
+    display: block;
+
+    font-size: 9px;
+
+    color: var(--text-subtle);
+
+    margin-top: 1px;
+  }
+
+  .collection-bank-status {
+    width: 6px;
+    height: 6px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--bank-accent);
+
+    opacity: .55;
+
+    transition:
+      transform .25s var(--ease),
+      opacity .25s;
+  }
+
+  .collection-bank-item.selected .collection-bank-status {
+    opacity: 1;
+
+    transform: scale(1.35);
+  }
+
+  /* ---------------------------------------------------------
+     MAIN COLLECTION PANEL
+  --------------------------------------------------------- */
+
+  .collection-main {
+    min-width: 0;
+
+    padding: 26px;
+
+    display: flex;
+
+    flex-direction: column;
+  }
+
+  .collection-selected-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding-bottom: 20px;
+
+    border-bottom:
+      1px solid
+      var(--border-subtle);
+  }
+
+  .selected-bank-identity {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    min-width: 0;
+  }
+
+  .selected-bank-logo {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 13px;
+
+    background: #fff;
+
+    padding: 8px;
+
+    border:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--selected-accent) 25%,
+        var(--border-subtle)
+      );
+
+    box-shadow:
+      0 5px 15px
+      color-mix(
+        in srgb,
+        var(--selected-accent) 12%,
+        transparent
+      );
+
+    flex-shrink: 0;
+  }
+
+  .selected-bank-logo img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+  }
+
+  .selected-bank-text {
+    min-width: 0;
+  }
+
+  .selected-bank-text small {
+    display: block;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .09em;
+
+    color: var(--selected-accent);
+
+    margin-bottom: 2px;
+  }
+
+  .selected-bank-text h2 {
+    font-size: 19px;
+
+    font-weight: 820;
+
+    letter-spacing: -.025em;
+  }
+
+  .selected-bank-text p {
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: var(--text-muted);
+  }
+
+  .format-pill {
+    flex-shrink: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 7px 10px;
+
+    border-radius: var(--radius-full);
+
+    background:
+      color-mix(
+        in srgb,
+        var(--selected-accent) 8%,
+        var(--bg-surface)
+      );
+
+    border:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--selected-accent) 18%,
+        var(--border-subtle)
+      );
+
+    color: var(--selected-accent);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .05em;
+  }
+
+  .format-pill-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+  }
+
+  /* ---------------------------------------------------------
+     METRICS
+  --------------------------------------------------------- */
+
+  .collection-metrics {
+    display: grid;
+
+    grid-template-columns:
+      repeat(3, 1fr);
+
+    gap: 10px;
+
+    margin: 18px 0;
+  }
+
+  .collection-metric {
+    padding: 13px;
+
+    border-radius: 12px;
+
+    background: var(--bg-base);
+
+    border:
+      1px solid
+      var(--border-subtle);
+
+    transition:
+      border-color .25s,
+      transform .25s var(--ease);
+  }
+
+  .collection-metric:hover {
+    transform: translateY(-2px);
+
+    border-color:
+      color-mix(
+        in srgb,
+        var(--selected-accent) 30%,
+        var(--border-subtle)
+      );
+  }
+
+  .metric-label {
+    display: block;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .06em;
+
+    font-weight: 800;
+
+    color: var(--text-subtle);
+
+    margin-bottom: 4px;
+  }
+
+  .metric-value {
+    font-size: 13px;
+
+    font-weight: 750;
+  }
+
+  /* ---------------------------------------------------------
+     REQUEST PREVIEW
+  --------------------------------------------------------- */
+
+  .collection-preview {
+    flex: 1;
+
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      220px;
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+  }
+
+  .endpoint-panel {
+    min-width: 0;
+
+    border:
+      1px solid
+      var(--border-subtle);
+
+    border-radius: 14px;
+
+    background: var(--bg-base);
+
+    overflow: hidden;
+  }
+
+  .endpoint-panel-header {
+    height: 43px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 13px;
+
+    border-bottom:
+      1px solid
+      var(--border-subtle);
+
+    background: var(--bg-surface);
+  }
+
+  .endpoint-panel-header strong {
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .06em;
+
+    font-weight: 800;
+  }
+
+  .endpoint-count {
+    padding: 3px 7px;
+
+    border-radius: var(--radius-full);
+
+    background:
+      color-mix(
+        in srgb,
+        var(--selected-accent) 9%,
+        transparent
+      );
+
+    color: var(--selected-accent);
+
+    font-size: 9px;
+
+    font-weight: 800;
+  }
+
+  .endpoint-list {
+    padding: 6px;
+
+    display: grid;
+
+    gap: 2px;
+
+    max-height: 190px;
+
+    overflow-y: auto;
+  }
+
+  .endpoint-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px;
+
+    border-radius: 8px;
+
+    transition:
+      background .2s;
+  }
+
+  .endpoint-row:hover {
+    background: var(--bg-surface);
+  }
+
+  .http-method {
+    width: 43px;
+
+    text-align: center;
+
+    padding: 3px 5px;
+
+    border-radius: 5px;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--selected-accent) 9%,
+        transparent
+      );
+
+    color: var(--selected-accent);
+
+    font-size: 8px;
+
+    font-weight: 850;
+
+    letter-spacing: .03em;
+  }
+
+  .endpoint-path {
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-family:
+      "SFMono-Regular",
+      Consolas,
+      "Liberation Mono",
+      monospace;
+
+    font-size: 9.5px;
+
+    color: var(--text-muted);
+  }
+
+  /* ---------------------------------------------------------
+     INCLUDED FEATURES
+  --------------------------------------------------------- */
+
+  .feature-panel {
+    border:
+      1px solid
+      var(--border-subtle);
+
+    border-radius: 14px;
+
+    padding: 15px;
+
+    background: var(--bg-surface);
+  }
+
+  .feature-panel-title {
+    font-size: 10px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .06em;
+
+    margin-bottom: 12px;
+  }
+
+  .feature-list {
+    display: grid;
+
+    gap: 8px;
+  }
+
+  .feature-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 10px;
+
+    color: var(--text-muted);
+  }
+
+  .feature-icon {
+    width: 23px;
+    height: 23px;
+
+    border-radius: 7px;
+
+    display: grid;
+    place-items: center;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--selected-accent) 9%,
+        var(--bg-base)
+      );
+
+    color: var(--selected-accent);
+
+    flex-shrink: 0;
+  }
+
+  /* ---------------------------------------------------------
+     ACTION AREA
+  --------------------------------------------------------- */
+
+  .collection-action {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding-top: 17px;
+
+    border-top:
+      1px solid
+      var(--border-subtle);
+  }
+
+  .collection-action-info {
+    min-width: 0;
+  }
+
+  .collection-action-info strong {
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: 750;
+  }
+
+  .collection-action-info span {
+    display: block;
+
+    font-size: 9.5px;
+
+    color: var(--text-muted);
+
+    margin-top: 2px;
+  }
+
+  .btn-generate-collection {
+    height: 42px;
+
+    min-width: 210px;
+
+    padding: 0 18px;
+
+    border-radius: 10px;
+
+    background: var(--selected-accent);
+
+    color: #fff;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    box-shadow:
+      0 10px 20px -8px
+      color-mix(
+        in srgb,
+        var(--selected-accent) 45%,
+        transparent
+      );
+
+    transition:
+      transform .2s var(--ease),
+      filter .2s,
+      box-shadow .2s;
+  }
+
+  .btn-generate-collection:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.07);
+
+    box-shadow:
+      0 14px 25px -8px
+      color-mix(
+        in srgb,
+        var(--selected-accent) 52%,
+        transparent
+      );
+  }
+
+  .btn-generate-collection:active {
+    transform: translateY(0);
+  }
+
+  .btn-generate-collection.loading {
+    pointer-events: none;
+
+    opacity: .75;
+  }
+
+  .collection-download-icon {
+    transition:
+      transform .25s var(--ease);
+  }
+
+  .btn-generate-collection:hover
+  .collection-download-icon {
+    transform: translateY(2px);
+  }
+
+  /* =====================================================
+     DOCUMENTATION
+  ===================================================== */
+
+  .documentation-card {
+    background: var(--bg-surface);
+
+    border:
+      1px solid
+      var(--border-subtle);
+
+    border-radius: var(--radius-lg);
+
+    padding: 32px;
+  }
+
+  .documentation-card h3 {
+    font-size: 17px;
+  }
+
+  .documentation-card p {
+    color: var(--text-muted);
+
+    margin-top: 8px;
+
+    font-size: 14px;
+  }
+
+  /* =====================================================
+     TOASTS
+  ===================================================== */
+
+  .toast-container {
+    position: fixed;
+
+    right: 24px;
+    top: 80px;
+
+    z-index: 100;
+
+    display: grid;
+
+    gap: 10px;
+
+    pointer-events: none;
+  }
+
+  .toast {
+    background: var(--bg-surface);
+
+    border:
+      1px solid
+      var(--border-subtle);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-lg);
+
+    padding: 14px 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 300px;
+
+    max-width: 420px;
+
+    pointer-events: auto;
+
+    animation:
+      toastSlide .3s var(--ease);
+  }
+
+  @keyframes toastSlide {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  .toast.success {
+    border-left:
+      4px solid
+      var(--success);
+  }
+
+  .toast.error {
+    border-left:
+      4px solid
+      var(--danger);
+  }
+
+  .toast-title {
+    font-size: 12px;
+
+    font-weight: 700;
+  }
+
+  .toast-desc {
+    font-size: 11px;
+
+    color: var(--text-muted);
+
+    margin-top: 2px;
+  }
 }
 
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
 @layer utilities {
-  @media (max-width: 1024px) {
-    .bank-grid { grid-template-columns: repeat(2, 1fr); }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+
+  @media (max-width: 1100px) {
+
+    .bank-grid {
+      grid-template-columns:
+        repeat(2, 1fr);
+    }
+
+    .kpi-grid {
+      grid-template-columns:
+        repeat(2, 1fr);
+    }
+
+    .collection-workspace {
+      grid-template-columns:
+        220px minmax(0, 1fr);
+    }
+
+    .collection-preview {
+      grid-template-columns:
+        1fr;
+    }
+
+    .feature-panel {
+      display: none;
+    }
   }
+
   @media (max-width: 768px) {
-    .app-shell { display: block; }
-    .sidebar { transform: translateX(-100%); }
-    body.menu-open .sidebar { transform: none; box-shadow: var(--shadow-lg); }
-    .main-area { margin-left: 0; }
-    .bank-grid, .kpi-grid { grid-template-columns: 1fr; }
-    .content-container { width: min(100% - 32px, 768px); padding: 20px 0 40px; }
-    .topbar { padding: 0 16px; }
-    .form-row { grid-template-columns: 1fr; }
+
+    .app-shell {
+      display: block;
+    }
+
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    body.menu-open .sidebar {
+      transform: none;
+
+      box-shadow: var(--shadow-lg);
+    }
+
+    .main-area {
+      margin-left: 0;
+    }
+
+    .bank-grid,
+    .kpi-grid {
+      grid-template-columns:
+        1fr;
+    }
+
+    .content-container {
+      width:
+        min(
+          calc(100% - 32px),
+          768px
+        );
+
+      padding:
+        20px 0 40px;
+    }
+
+    .topbar {
+      padding: 0 16px;
+    }
+
+    .form-row {
+      grid-template-columns:
+        1fr;
+    }
+
+    .search-btn {
+      width: 100%;
+    }
+
+    .search-btn kbd {
+      display: none;
+    }
+
+    /* Collections mobile */
+
+    .collection-hero-inner {
+      align-items: flex-start;
+    }
+
+    .collection-hero-badge {
+      display: none;
+    }
+
+    .collection-workspace {
+      display: block;
+    }
+
+    .collection-sidebar {
+      border-right: 0;
+
+      border-bottom:
+        1px solid
+        var(--border-subtle);
+
+      padding: 14px;
+    }
+
+    .collection-bank-list {
+      display: flex;
+
+      overflow-x: auto;
+
+      padding-bottom: 4px;
+    }
+
+    .collection-bank-item {
+      min-width: 145px;
+    }
+
+    .collection-main {
+      padding: 20px;
+    }
+
+    .collection-metrics {
+      grid-template-columns:
+        1fr 1fr;
+    }
+
+    .collection-action {
+      flex-direction: column;
+
+      align-items: stretch;
+    }
+
+    .btn-generate-collection {
+      width: 100%;
+    }
+
+    .collection-selected-header {
+      align-items: flex-start;
+    }
+
+    .format-pill {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+
+    .collection-metrics {
+      grid-template-columns:
+        1fr;
+    }
+
+    .collections-hero {
+      padding: 22px;
+    }
+
+    .collection-main {
+      padding: 16px;
+    }
+
+    .selected-bank-logo {
+      width: 44px;
+      height: 44px;
+    }
+
+    .selected-bank-text h2 {
+      font-size: 16px;
+    }
+
+    .toast-container {
+      left: 16px;
+      right: 16px;
+    }
+
+    .toast {
+      min-width: 0;
+      width: 100%;
+    }
   }
 }
 </style>
 </head>
+
 <body>
 
 <div class="app-shell">
-  <!-- Sidebar -->
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
   <aside class="sidebar" id="sidebar">
+
     <div class="brand-header">
+
       <div class="brand-badge">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M3 21h18"/>
+          <path d="M3 10h18"/>
+          <path d="M5 6l7-3 7 3"/>
+          <path d="M4 10v11"/>
+          <path d="M20 10v11"/>
+          <path d="M8 14v3"/>
+          <path d="M12 14v3"/>
+          <path d="M16 14v3"/>
+        </svg>
       </div>
+
       <div class="brand-info">
         <h2>BankHub Core</h2>
         <span>Suporte & Operações</span>
       </div>
+
     </div>
 
-    <div class="nav-group-label">Navegação Principal</div>
+    <div class="nav-group-label">
+      Navegação Principal
+    </div>
+
     <nav class="nav-menu">
-      <a href="#dashboard" class="nav-link" data-nav="dashboard" aria-current="page">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+
+      <a
+        href="#dashboard"
+        class="nav-link"
+        data-nav="dashboard"
+        aria-current="page"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="7" height="9" rx="1"/>
+          <rect x="14" y="3" width="7" height="5" rx="1"/>
+          <rect x="14" y="12" width="7" height="9" rx="1"/>
+          <rect x="3" y="16" width="7" height="5" rx="1"/>
+        </svg>
+
         Dashboard
       </a>
-      <a href="#documentacao" class="nav-link" data-nav="documentacao">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+
+      <a
+        href="#documentacao"
+        class="nav-link"
+        data-nav="documentacao"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+          <path d="M6 6h10"/>
+          <path d="M6 10h10"/>
+        </svg>
+
         Documentação
       </a>
-      <a href="#collections" class="nav-link" data-nav="collections">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10M12 3v18"/></svg>
+
+      <a
+        href="#collections"
+        class="nav-link"
+        data-nav="collections"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+          <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+          <path d="M7 21h10"/>
+          <path d="M12 3v18"/>
+        </svg>
+
         Collections
       </a>
+
     </nav>
 
     <div class="sidebar-footer">
+
       <div class="status-indicator">
         <span class="status-dot"></span>
         <span>Gateways Operacionais</span>
       </div>
+
     </div>
+
   </aside>
 
-  <!-- Main Area -->
+  <!-- =====================================================
+       MAIN AREA
+  ====================================================== -->
+
   <div class="main-area">
+
     <header class="topbar">
-      <button id="menuToggle" class="theme-btn" style="display:none;" aria-label="Abrir Menu">☰</button>
-      <button class="search-btn" id="searchBtn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <span>Pesquisar banco, chave ou payload...</span>
-        <kbd>Ctrl K</kbd>
+
+      <button
+        id="menuToggle"
+        class="theme-btn"
+        style="display:none;"
+        aria-label="Abrir Menu"
+      >
+        ☰
       </button>
+
+      <button
+        class="search-btn"
+        id="searchBtn"
+      >
+
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+
+        <span>
+          Pesquisar banco, chave ou payload...
+        </span>
+
+        <kbd>Ctrl K</kbd>
+
+      </button>
+
       <div style="display:flex; gap:8px;">
-        <button class="theme-btn" id="themeToggle" aria-label="Alternar Tema">🌓</button>
+
+        <button
+          class="theme-btn"
+          id="themeToggle"
+          aria-label="Alternar Tema"
+        >
+          🌓
+        </button>
+
       </div>
+
     </header>
 
     <div class="content-container">
-      <!-- VIEW: Dashboard -->
-      <section class="view active" data-view="dashboard">
+
+      <!-- ===================================================
+           DASHBOARD
+      ==================================================== -->
+
+      <section
+        class="view active"
+        data-view="dashboard"
+      >
+
         <div class="dashboard-hero">
-          <div class="hero-badge">● Ambiente 100% Protegido & Isolado</div>
-          <div class="hero-content">
-            <h1>Central de Operações Bancárias</h1>
-            <p>Gerencie conversões de certificados mTLS, teste endpoints homologados e acesse as rotinas oficiais para os principais gateways financeiros do Brasil.</p>
+
+          <div class="hero-badge">
+            ● Ambiente 100% Protegido & Isolado
           </div>
+
+          <div class="hero-content">
+
+            <h1>
+              Central de Operações Bancárias
+            </h1>
+
+            <p>
+              Gerencie conversões de certificados mTLS,
+              teste endpoints homologados e acesse as
+              rotinas oficiais para os principais gateways
+              financeiros do Brasil.
+            </p>
+
+          </div>
+
         </div>
 
         <div class="kpi-grid">
+
           <div class="kpi-card">
+
             <div class="kpi-header">
-              <span class="kpi-title">Bancos Integrados</span>
-              <span class="kpi-icon">🏛️</span>
+
+              <span class="kpi-title">
+                Bancos Integrados
+              </span>
+
+              <span class="kpi-icon">
+                🏛️
+              </span>
+
             </div>
-            <div class="kpi-value">6 Instituições</div>
-            <div class="kpi-caption up">● 100% Homologados</div>
+
+            <div class="kpi-value">
+              6 Instituições
+            </div>
+
+            <div class="kpi-caption up">
+              ● 100% Homologados
+            </div>
+
           </div>
+
           <div class="kpi-card">
+
             <div class="kpi-header">
-              <span class="kpi-title">Padrão de Autenticação</span>
-              <span class="kpi-icon">🔒</span>
+
+              <span class="kpi-title">
+                Padrão de Autenticação
+              </span>
+
+              <span class="kpi-icon">
+                🔒
+              </span>
+
             </div>
-            <div class="kpi-value">mTLS + OAuth2</div>
-            <div class="kpi-caption">Certificação Digital A1</div>
+
+            <div class="kpi-value">
+              mTLS + OAuth2
+            </div>
+
+            <div class="kpi-caption">
+              Certificação Digital A1
+            </div>
+
           </div>
+
           <div class="kpi-card">
+
             <div class="kpi-header">
-              <span class="kpi-title">Processamento</span>
-              <span class="kpi-icon">⚡</span>
+
+              <span class="kpi-title">
+                Processamento
+              </span>
+
+              <span class="kpi-icon">
+                ⚡
+              </span>
+
             </div>
-            <div class="kpi-value">RAM Volátil</div>
-            <div class="kpi-caption">Zero persistência em disco</div>
+
+            <div class="kpi-value">
+              RAM Volátil
+            </div>
+
+            <div class="kpi-caption">
+              Zero persistência em disco
+            </div>
+
           </div>
+
           <div class="kpi-card">
+
             <div class="kpi-header">
-              <span class="kpi-title">Disponibilidade APIs</span>
-              <span class="kpi-icon">🌐</span>
+
+              <span class="kpi-title">
+                Disponibilidade APIs
+              </span>
+
+              <span class="kpi-icon">
+                🌐
+              </span>
+
             </div>
-            <div class="kpi-value">99.98%</div>
-            <div class="kpi-caption up">Sem alertas de instabilidade</div>
+
+            <div class="kpi-value">
+              99.98%
+            </div>
+
+            <div class="kpi-caption up">
+              Sem alertas de instabilidade
+            </div>
+
           </div>
+
         </div>
 
         <div class="section-title-wrap">
+
           <div>
-            <h2>Instituições Bancárias Homologadas</h2>
-            <p>Selecione a instituição financeira para carregar seu conversor e fluxos dedicados.</p>
+
+            <h2>
+              Instituições Bancárias Homologadas
+            </h2>
+
+            <p>
+              Selecione a instituição financeira para
+              carregar seu conversor e fluxos dedicados.
+            </p>
+
           </div>
+
         </div>
 
-        <div class="bank-grid" id="bankGrid"></div>
+        <div
+          class="bank-grid"
+          id="bankGrid"
+        ></div>
+
       </section>
 
-      <!-- VIEW: Banco / Conversor -->
-      <section class="view" data-view="banco">
+
+      <!-- ===================================================
+           BANCO / CONVERSOR
+      ==================================================== -->
+
+      <section
+        class="view"
+        data-view="banco"
+      >
+
         <div id="bankViewContainer"></div>
+
       </section>
 
-      <!-- VIEW: Documentação -->
-      <section class="view" data-view="documentacao">
+
+      <!-- ===================================================
+           DOCUMENTAÇÃO
+      ==================================================== -->
+
+      <section
+        class="view"
+        data-view="documentacao"
+      >
+
         <div class="dashboard-hero">
+
           <div class="hero-content">
-            <h1>Base de Conhecimento Técnico</h1>
-            <p>Guias operacionais de integração, erros comuns (401, 403, 422) e checklists de validação para o suporte.</p>
+
+            <h1>
+              Base de Conhecimento Técnico
+            </h1>
+
+            <p>
+              Guias operacionais de integração,
+              erros comuns (401, 403, 422) e checklists
+              de validação para o suporte.
+            </p>
+
           </div>
+
         </div>
-        <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:32px;">
-          <h3>Estrutura de Suporte</h3>
-          <p style="color:var(--text-muted); margin-top:8px; font-size:14px;">Selecione o banco desejado na dashboard para visualizar seus parâmetros de handshake, URLs de homologação/produção e escopos OAuth2.</p>
+
+        <div class="documentation-card">
+
+          <h3>
+            Estrutura de Suporte
+          </h3>
+
+          <p>
+            Selecione o banco desejado na dashboard para
+            visualizar seus parâmetros de handshake,
+            URLs de homologação/produção e escopos OAuth2.
+          </p>
+
         </div>
+
       </section>
 
-      <!-- VIEW: Collections -->
-      <section class="view" data-view="collections">
-        <div class="dashboard-hero">
-          <div class="hero-content">
-            <h1>Gerador de Collections Postman</h1>
-            <p>Exporte coleções prontas (JSON v2.1) com scripts de autenticação OAuth2 e mTLS pré-configurados.</p>
-          </div>
-        </div>
-        <div class="converter-shell">
-          <div class="converter-card" style="padding:28px;">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Selecione a Instituição Financeira</label>
-                <select id="collectionBank" style="height:42px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-base); padding:0 12px;">
-                  <option value="bb">Banco do Brasil (PIX & Cobrança)</option>
-                  <option value="itau">Itaú Unibanco (Boleto & PIX API)</option>
-                  <option value="sicoob">Sicoob (V3 mTLS)</option>
-                  <option value="sicredi">Sicredi (V2)</option>
-                  <option value="santander">Santander (Developer)</option>
-                  <option value="bradesco">Bradesco ShopFácil</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Client ID</label>
-                  <input type="text" placeholder="Ex: app-prod-12345">
+
+      <!-- ===================================================
+           COLLECTIONS
+      ==================================================== -->
+
+      <section
+        class="view"
+        data-view="collections"
+      >
+
+        <div class="collections-page">
+
+          <!-- HERO -->
+
+          <div class="collections-hero">
+
+            <div class="collection-hero-inner">
+
+              <div>
+
+                <div class="collection-eyebrow">
+
+                  <span class="collection-eyebrow-dot"></span>
+
+                  Developer Toolkit
+
                 </div>
-                <div class="form-group">
-                  <label>Client Secret</label>
-                  <input type="password" placeholder="••••••••••••••••">
-                </div>
+
+                <h1 class="collection-hero-title">
+                  Collections Postman
+                </h1>
+
+                <p class="collection-hero-description">
+                  Monte rapidamente uma Collection completa
+                  para o gateway selecionado, já estruturada
+                  com autenticação, endpoints e configurações
+                  específicas da instituição.
+                </p>
+
               </div>
-              <button class="btn-submit" type="button" onclick="toast('success', 'Download Iniciado', 'Collection gerada com sucesso no formato Postman 2.1')">
-                Baixar Collection (.json)
-              </button>
+
+              <div class="collection-hero-badge">
+
+                <strong>v2.1</strong>
+
+                <span>Postman</span>
+
+              </div>
+
             </div>
+
           </div>
+
+
+          <!-- WORKSPACE -->
+
+          <div class="collection-workspace">
+
+            <!-- BANK NAVIGATION -->
+
+            <aside class="collection-sidebar">
+
+              <div class="collection-sidebar-header">
+
+                <span>
+                  Instituições
+                </span>
+
+                <strong>
+                  Escolha um gateway
+                </strong>
+
+              </div>
+
+              <div
+                class="collection-bank-list"
+                id="collectionBankGrid"
+              ></div>
+
+            </aside>
+
+
+            <!-- COLLECTION CONTENT -->
+
+            <main class="collection-main">
+
+              <div
+                class="collection-selected-header"
+                id="collectionSelectedHeader"
+              ></div>
+
+              <div
+                class="collection-metrics"
+                id="collectionMetrics"
+              ></div>
+
+              <div class="collection-preview">
+
+                <div class="endpoint-panel">
+
+                  <div class="endpoint-panel-header">
+
+                    <strong>
+                      Endpoints incluídos
+                    </strong>
+
+                    <span
+                      class="endpoint-count"
+                      id="endpointCount"
+                    >
+                      0 rotas
+                    </span>
+
+                  </div>
+
+                  <div
+                    class="endpoint-list"
+                    id="endpointList"
+                  ></div>
+
+                </div>
+
+                <div class="feature-panel">
+
+                  <div class="feature-panel-title">
+                    Configuração
+                  </div>
+
+                  <div
+                    class="feature-list"
+                    id="featureList"
+                  ></div>
+
+                </div>
+
+              </div>
+
+              <div class="collection-action">
+
+                <div class="collection-action-info">
+
+                  <strong>
+                    Pronto para gerar?
+                  </strong>
+
+                  <span>
+                    Será criado um arquivo Postman Collection
+                    no padrão v2.1.
+                  </span>
+
+                </div>
+
+                <button
+                  class="btn-generate-collection"
+                  type="button"
+                  id="btnGenerateCollection"
+                >
+
+                  <svg
+                    class="collection-download-icon"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 3v12"/>
+                    <path d="m7 10 5 5 5-5"/>
+                    <path d="M5 21h14"/>
+                  </svg>
+
+                  Gerar Collection
+
+                </button>
+
+              </div>
+
+            </main>
+
+          </div>
+
         </div>
+
       </section>
+
     </div>
+
   </div>
+
 </div>
 
-<div class="toast-container" id="toasts"></div>
+
+<!-- =======================================================
+     TOAST CONTAINER
+======================================================== -->
+
+<div
+  class="toast-container"
+  id="toasts"
+></div>
+
 
 <script>
+
+/* =========================================================
+   BANK DATA
+========================================================= */
+
 const BANKS = [
-  { id: "bb", name: "Banco do Brasil", color: "#005CA9", protocol: "mTLS + OAuth2", desc: "API PIX e Cobrança Boleto com assinatura mTLS direta.", logo: "img/bb.svg" },
-  { id: "itau", name: "Itaú Unibanco", color: "#EC7000", protocol: "mTLS Dedicated", desc: "Processamento e handshake mTLS de certificados A1.", logo: "img/itau.svg" },
-  { id: "sicoob", name: "Sicoob", color: "#00843D", protocol: "V3 mTLS", desc: "Conversão de certificados para gateway V3 e Open Finance.", logo: "img/sicoob.svg" },
-  { id: "sicredi", name: "Sicredi", color: "#005A36", protocol: "V2 Modular", desc: "Padrão de certificados A1 para integração Cobrança e PIX.", logo: "img/sicredi.svg" },
-  { id: "santander", name: "Santander", color: "#EC0000", protocol: "OAuth2 Direct", desc: "Conversão para portal Developer Santander Empresas.", logo: "img/santander.svg" },
-  { id: "bradesco", name: "Bradesco", color: "#CC092F", protocol: "ShopFácil API", desc: "Geração de chaves públicas e privadas para comércio eletrônico.", logo: "img/bradesco.svg" }
+
+  {
+    id: "bb",
+    name: "Banco do Brasil",
+    color: "#F2B90C",
+    protocol: "mTLS + OAuth2",
+    desc: "API PIX e Cobrança Boleto com assinatura mTLS direta.",
+    logo: "img/bb.svg",
+    endpoints: [
+      "POST /oauth/token",
+      "GET /pix/cob",
+      "POST /pix/cob",
+      "GET /pix/recebimentos",
+      "GET /cobrancas"
+    ],
+    auth: "OAuth2 + mTLS",
+    environment: "Homologação",
+    security: "Certificado A1"
+  },
+
+  {
+    id: "itau",
+    name: "Itaú Unibanco",
+    color: "#EC7000",
+    protocol: "mTLS Dedicated",
+    desc: "Processamento e handshake mTLS de certificados A1.",
+    logo: "img/itau.svg",
+    endpoints: [
+      "POST /oauth/token",
+      "GET /pix",
+      "POST /pix",
+      "GET /payments",
+      "POST /payments"
+    ],
+    auth: "mTLS Dedicated",
+    environment: "Homologação",
+    security: "Certificado A1"
+  },
+
+  {
+    id: "sicoob",
+    name: "Sicoob",
+    color: "#00843D",
+    protocol: "V3 mTLS",
+    desc: "Conversão de certificados para gateway V3 e Open Finance.",
+    logo: "img/sicoob.svg",
+    endpoints: [
+      "POST /oauth/token",
+      "GET /pix",
+      "POST /pix",
+      "GET /cobranca",
+      "POST /cobranca"
+    ],
+    auth: "OAuth2 + mTLS",
+    environment: "Homologação",
+    security: "Certificado A1"
+  },
+
+  {
+    id: "sicredi",
+    name: "Sicredi",
+    color: "#005A36",
+    protocol: "V2 Modular",
+    desc: "Padrão de certificados A1 para integração Cobrança e PIX.",
+    logo: "img/sicredi.svg",
+    endpoints: [
+      "POST /oauth/token",
+      "GET /pix",
+      "POST /pix",
+      "GET /cobranca",
+      "GET /boletos"
+    ],
+    auth: "OAuth2",
+    environment: "Homologação",
+    security: "Certificado A1"
+  },
+
+  {
+    id: "santander",
+    name: "Santander",
+    color: "#EC0000",
+    protocol: "OAuth2 Direct",
+    desc: "Conversão para portal Developer Santander Empresas.",
+    logo: "img/santander.svg",
+    endpoints: [
+      "POST /oauth/token",
+      "GET /pix",
+      "POST /pix",
+      "GET /payments",
+      "GET /accounts"
+    ],
+    auth: "OAuth2 Direct",
+    environment: "Homologação",
+    security: "Certificado A1"
+  },
+
+  {
+    id: "bradesco",
+    name: "Bradesco",
+    color: "#CC092F",
+    protocol: "ShopFácil API",
+    desc: "Geração de chaves públicas e privadas para comércio eletrônico.",
+    logo: "img/bradesco.svg",
+    endpoints: [
+      "POST /oauth/token",
+      "GET /pix",
+      "POST /pix",
+      "GET /charges",
+      "POST /charges"
+    ],
+    auth: "OAuth2 + mTLS",
+    environment: "Homologação",
+    security: "Certificado A1"
+  }
+
 ];
 
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ = selector =>
+  document.querySelector(selector);
+
+const $$ = selector =>
+  [...document.querySelectorAll(selector)];
+
+
+function bankInitials(name) {
+
+  return name
+    .split(" ")
+    .map(word => word[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+}
+
+
+function logoMarkup(bank, size = "15px") {
+
+  return `
+    <img
+      src="${bank.logo}"
+      alt="${bank.name}"
+      loading="lazy"
+      onerror="
+        this.style.display='none';
+        this.nextElementSibling.style.display='grid';
+      "
+    >
+
+    <div
+      class="bank-logo-mono"
+      style="display:none;font-size:${size};"
+    >
+      ${bankInitials(bank.name)}
+    </div>
+  `;
+
+}
+
+
+/* =========================================================
+   THEME
+========================================================= */
 
 function applyDynamicTheme(bankColor) {
-  const isDark = document.documentElement.dataset.theme === "dark";
-  const root = document.documentElement;
+
+  const root =
+    document.documentElement;
+
+  const isDark =
+    root.dataset.theme === "dark";
+
 
   if (bankColor) {
-    root.style.setProperty("--brand-primary", bankColor);
-    root.style.setProperty("--border-focus", bankColor);
+
+    root.style.setProperty(
+      "--brand-primary",
+      bankColor
+    );
+
+    root.style.setProperty(
+      "--border-focus",
+      bankColor
+    );
+
 
     if (isDark) {
-      root.style.setProperty("--bg-base", `color-mix(in srgb, ${bankColor} 14%, #090d16)`);
-      root.style.setProperty("--bg-surface", `color-mix(in srgb, ${bankColor} 18%, #111827)`);
-      root.style.setProperty("--bg-surface-elevated", `color-mix(in srgb, ${bankColor} 24%, #1e293b)`);
-      root.style.setProperty("--border-subtle", `color-mix(in srgb, ${bankColor} 30%, #1e293b)`);
+
+      root.style.setProperty(
+        "--bg-base",
+        `color-mix(in srgb, ${bankColor} 22%, #090d16)`
+      );
+
+      root.style.setProperty(
+        "--bg-surface",
+        `color-mix(in srgb, ${bankColor} 26%, #111827)`
+      );
+
+      root.style.setProperty(
+        "--bg-surface-elevated",
+        `color-mix(in srgb, ${bankColor} 34%, #1e293b)`
+      );
+
+      root.style.setProperty(
+        "--border-subtle",
+        `color-mix(in srgb, ${bankColor} 42%, #1e293b)`
+      );
+
     } else {
-      root.style.setProperty("--bg-base", `color-mix(in srgb, ${bankColor} 7%, #f8fafc)`);
-      root.style.setProperty("--bg-surface", `#ffffff`);
-      root.style.setProperty("--bg-surface-elevated", `color-mix(in srgb, ${bankColor} 10%, #f1f5f9)`);
-      root.style.setProperty("--border-subtle", `color-mix(in srgb, ${bankColor} 18%, #e2e8f0)`);
+
+      root.style.setProperty(
+        "--bg-base",
+        `color-mix(in srgb, ${bankColor} 13%, #f8fafc)`
+      );
+
+      root.style.setProperty(
+        "--bg-surface",
+        "#ffffff"
+      );
+
+      root.style.setProperty(
+        "--bg-surface-elevated",
+        `color-mix(in srgb, ${bankColor} 18%, #f1f5f9)`
+      );
+
+      root.style.setProperty(
+        "--border-subtle",
+        `color-mix(in srgb, ${bankColor} 28%, #e2e8f0)`
+      );
+
     }
+
   } else {
-    root.style.setProperty("--brand-primary", "#2563eb");
-    root.style.setProperty("--border-focus", isDark ? "#60a5fa" : "#3b82f6");
+
+    root.style.setProperty(
+      "--brand-primary",
+      "#2563eb"
+    );
+
+    root.style.setProperty(
+      "--border-focus",
+      isDark
+        ? "#60a5fa"
+        : "#3b82f6"
+    );
+
     root.style.removeProperty("--bg-base");
     root.style.removeProperty("--bg-surface");
     root.style.removeProperty("--bg-surface-elevated");
     root.style.removeProperty("--border-subtle");
+
   }
+
 }
+
+
+/* =========================================================
+   DASHBOARD CARDS
+========================================================= */
 
 function renderCards() {
-  $("#bankGrid").innerHTML = BANKS.map(b => `
-    <a class="bank-card" href="#banco/${b.id}" style="--b-accent: ${b.color}">
-      <div>
-        <div class="card-top">
-          <div class="bank-logo-wrap">
-            <img src="${b.logo}" alt="${b.name}" class="bank-logo-img">
+
+  $("#bankGrid").innerHTML =
+    BANKS.map(bank => `
+
+      <a
+        class="bank-card"
+        href="#banco/${bank.id}"
+        style="--b-accent:${bank.color}"
+      >
+
+        <div>
+
+          <div class="card-top">
+
+            <div class="bank-logo-wrap">
+              ${logoMarkup(bank)}
+            </div>
+
+            <span class="protocol-tag">
+              ${bank.protocol}
+            </span>
+
           </div>
-          <span class="protocol-tag">${b.protocol}</span>
+
+          <div class="card-body">
+
+            <h3>
+              ${bank.name}
+            </h3>
+
+            <p>
+              ${bank.desc}
+            </p>
+
+          </div>
+
         </div>
-        <div class="card-body">
-          <h3>${b.name}</h3>
-          <p>${b.desc}</p>
+
+        <div class="card-footer">
+
+          <span>
+            Abrir Ferramenta
+          </span>
+
+          <span class="arrow">
+            →
+          </span>
+
         </div>
-      </div>
-      <div class="card-footer">
-        <span>Abrir Ferramenta</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-  `).join("");
+
+      </a>
+
+    `).join("");
+
 }
+
+
+/* =========================================================
+   COLLECTION STATE
+========================================================= */
+
+let selectedCollectionBankId =
+  BANKS[0].id;
+
+
+/* =========================================================
+   COLLECTION SIDEBAR
+========================================================= */
+
+function renderCollectionBankGrid() {
+
+  const grid =
+    $("#collectionBankGrid");
+
+  if (!grid) return;
+
+
+  grid.innerHTML =
+    BANKS.map(bank => `
+
+      <button
+        type="button"
+        class="collection-bank-item ${
+          bank.id === selectedCollectionBankId
+            ? "selected"
+            : ""
+        }"
+        data-bank="${bank.id}"
+        style="--bank-accent:${bank.color}"
+        aria-pressed="${
+          bank.id === selectedCollectionBankId
+            ? "true"
+            : "false"
+        }"
+      >
+
+        <div class="collection-bank-logo">
+
+          <img
+            src="${bank.logo}"
+            alt="${bank.name}"
+            loading="lazy"
+            onerror="
+              this.style.display='none';
+              this.parentElement.innerHTML='<span style=
+              'font-size:10px;font-weight:800;color:${bank.color}'
+              >${bankInitials(bank.name)}</span>';
+            "
+          >
+
+        </div>
+
+        <div class="collection-bank-info">
+
+          <span class="collection-bank-name">
+            ${bank.name}
+          </span>
+
+          <span class="collection-bank-protocol">
+            ${bank.protocol}
+          </span>
+
+        </div>
+
+        <span
+          class="collection-bank-status"
+        ></span>
+
+      </button>
+
+    `).join("");
+
+
+  grid
+    .querySelectorAll(".collection-bank-item")
+    .forEach(item => {
+
+      item.addEventListener(
+        "click",
+        () => {
+
+          selectedCollectionBankId =
+            item.dataset.bank;
+
+          renderCollectionBankGrid();
+
+          renderCollectionWorkspace();
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   COLLECTION WORKSPACE
+========================================================= */
+
+function renderCollectionWorkspace() {
+
+  const bank =
+    BANKS.find(
+      item =>
+        item.id === selectedCollectionBankId
+    ) || BANKS[0];
+
+
+  const root =
+    document.documentElement;
+
+
+  root.style.setProperty(
+    "--selected-accent",
+    bank.color
+  );
+
+
+  /* ---------------------------------------------
+     HEADER
+  --------------------------------------------- */
+
+  $("#collectionSelectedHeader")
+    .innerHTML = `
+
+      <div class="selected-bank-identity">
+
+        <div
+          class="selected-bank-logo"
+          style="--selected-accent:${bank.color}"
+        >
+
+          ${logoMarkup(bank)}
+
+        </div>
+
+        <div class="selected-bank-text">
+
+          <small>
+            Collection selecionada
+          </small>
+
+          <h2>
+            ${bank.name}
+          </h2>
+
+          <p>
+            ${bank.desc}
+          </p>
+
+        </div>
+
+      </div>
+
+      <div class="format-pill">
+
+        <span class="format-pill-dot"></span>
+
+        Postman JSON v2.1
+
+      </div>
+
+    `;
+
+
+  /* ---------------------------------------------
+     METRICS
+  --------------------------------------------- */
+
+  $("#collectionMetrics")
+    .innerHTML = `
+
+      <div class="collection-metric">
+
+        <span class="metric-label">
+          Autenticação
+        </span>
+
+        <span class="metric-value">
+          ${bank.auth}
+        </span>
+
+      </div>
+
+      <div class="collection-metric">
+
+        <span class="metric-label">
+          Ambiente
+        </span>
+
+        <span class="metric-value">
+          ${bank.environment}
+        </span>
+
+      </div>
+
+      <div class="collection-metric">
+
+        <span class="metric-label">
+          Segurança
+        </span>
+
+        <span class="metric-value">
+          ${bank.security}
+        </span>
+
+      </div>
+
+    `;
+
+
+  /* ---------------------------------------------
+     ENDPOINTS
+  --------------------------------------------- */
+
+  $("#endpointCount")
+    .textContent =
+      `${bank.endpoints.length} rotas`;
+
+
+  $("#endpointList")
+    .innerHTML =
+      bank.endpoints
+        .map(endpoint => {
+
+          const [method, ...pathParts] =
+            endpoint.split(" ");
+
+          const path =
+            pathParts.join(" ");
+
+
+          return `
+
+            <div class="endpoint-row">
+
+              <span class="http-method">
+                ${method}
+              </span>
+
+              <span class="endpoint-path">
+                ${path}
+              </span>
+
+            </div>
+
+          `;
+
+        })
+        .join("");
+
+
+  /* ---------------------------------------------
+     FEATURES
+  --------------------------------------------- */
+
+  $("#featureList")
+    .innerHTML = `
+
+      <div class="feature-item">
+
+        <span class="feature-icon">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 3v18"/>
+            <path d="M3 12h18"/>
+          </svg>
+        </span>
+
+        OAuth2 configurado
+
+      </div>
+
+
+      <div class="feature-item">
+
+        <span class="feature-icon">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect
+              x="3"
+              y="5"
+              width="18"
+              height="14"
+              rx="2"
+            />
+            <path d="M8 9h8"/>
+          </svg>
+        </span>
+
+        ${bank.protocol}
+
+      </div>
+
+
+      <div class="feature-item">
+
+        <span class="feature-icon">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </span>
+
+        mTLS preparado
+
+      </div>
+
+
+      <div class="feature-item">
+
+        <span class="feature-icon">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M4 4h16v16H4z"/>
+            <path d="M8 9h8"/>
+            <path d="M8 13h6"/>
+          </svg>
+        </span>
+
+        Scripts Postman
+
+      </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   BANK VIEW / CONVERTER
+========================================================= */
 
 function renderBankView(id) {
-  const b = BANKS.find(x => x.id === id) || BANKS[0];
-  applyDynamicTheme(b.color);
 
-  $("#bankViewContainer").innerHTML = `
-    <div style="display:flex; align-items:center; gap:16px; margin-bottom:28px;">
-      <div class="bank-logo-wrap" style="width:56px; height:56px;">
-        <img src="${b.logo}" alt="${b.name}" class="bank-logo-img">
-      </div>
-      <div>
-        <h1 style="font-size:24px; font-weight:800;">${b.name}</h1>
-        <p style="font-size:13px; color:var(--text-muted);">${b.desc}</p>
-      </div>
-    </div>
+  const bank =
+    BANKS.find(
+      item => item.id === id
+    ) || BANKS[0];
 
-    <div class="converter-shell">
-      <div class="converter-card">
-        <div class="converter-tabs">
-          <button class="tab-btn active" data-tab="pem">PFX → Chaves PEM (.key / .crt)</button>
-          <button class="tab-btn" data-tab="next">Re-encodar PFX (Compatibilidade)</button>
+
+  applyDynamicTheme(bank.color);
+
+
+  $("#bankViewContainer")
+    .innerHTML = `
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:16px;
+          margin-bottom:28px;
+        "
+      >
+
+        <div
+          class="bank-logo-wrap"
+          style="
+            width:56px;
+            height:56px;
+            --b-accent:${bank.color};
+          "
+        >
+
+          ${logoMarkup(bank, "20px")}
+
         </div>
-        <div class="converter-body">
-          <form id="formConverter" class="form-grid">
-            <div class="form-group">
-              <label>Arquivo do Certificado (.PFX / .P12)</label>
-              <div class="dropzone" id="dropArea">
-                <input type="file" id="pfxInput" accept=".pfx,.p12" required>
-                <div class="dropzone-content">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <strong>Clique ou arraste o certificado A1 aqui</strong>
-                  <span>Formatos suportados: PKCS#12 (.pfx, .p12)</span>
-                </div>
-              </div>
-              <div class="file-badge" id="fileBadge">
-                <span style="color:var(--brand-primary)">📄</span>
-                <div class="file-badge-info">
-                  <div id="fileName">certificado.pfx</div>
-                  <div class="file-badge-size" id="fileSize">0 KB</div>
-                </div>
-                <button type="button" class="btn-remove-file" id="btnRemoveFile">Remover</button>
-              </div>
-            </div>
 
-            <div class="form-group">
-              <label>Senha do Certificado Digital</label>
-              <input type="password" id="pfxPass" placeholder="••••••••••••" required>
-            </div>
+        <div>
 
-            <div class="form-row" id="fieldNames">
-              <div class="form-group">
-                <label>Nome Chave Pública</label>
-                <input type="text" value="ChavePublica">
-              </div>
-              <div class="form-group">
-                <label>Nome Chave Privada</label>
-                <input type="text" value="ChavePrivada">
-              </div>
-            </div>
+          <h1
+            style="
+              font-size:24px;
+              font-weight:800;
+            "
+          >
+            ${bank.name}
+          </h1>
 
-            <button class="btn-submit" type="submit" id="btnSubmit">
-              Converter e Extrair Chaves
+          <p
+            style="
+              font-size:13px;
+              color:var(--text-muted);
+            "
+          >
+            ${bank.desc}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="converter-shell">
+
+        <div class="converter-card">
+
+          <div class="converter-tabs">
+
+            <button
+              class="tab-btn active"
+              data-tab="pem"
+            >
+              PFX → Chaves PEM
+              (.key / .crt)
             </button>
-          </form>
+
+            <button
+              class="tab-btn"
+              data-tab="next"
+            >
+              Re-encodar PFX
+              (Compatibilidade)
+            </button>
+
+          </div>
+
+
+          <div class="converter-body">
+
+            <form
+              id="formConverter"
+              class="form-grid"
+            >
+
+              <div class="form-group">
+
+                <label>
+                  Arquivo do Certificado
+                  (.PFX / .P12)
+                </label>
+
+                <div
+                  class="dropzone"
+                  id="dropArea"
+                >
+
+                  <input
+                    type="file"
+                    id="pfxInput"
+                    accept=".pfx,.p12"
+                    required
+                  >
+
+                  <div class="dropzone-content">
+
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line
+                        x1="12"
+                        y1="3"
+                        x2="12"
+                        y2="15"
+                      />
+                    </svg>
+
+                    <strong>
+                      Clique ou arraste
+                      o certificado A1 aqui
+                    </strong>
+
+                    <span>
+                      Formatos suportados:
+                      PKCS#12 (.pfx, .p12)
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div
+                  class="file-badge"
+                  id="fileBadge"
+                >
+
+                  <span
+                    style="
+                      color:var(--brand-primary)
+                    "
+                  >
+                    📄
+                  </span>
+
+                  <div class="file-badge-info">
+
+                    <div id="fileName">
+                      certificado.pfx
+                    </div>
+
+                    <div
+                      class="file-badge-size"
+                      id="fileSize"
+                    >
+                      0 KB
+                    </div>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn-remove-file"
+                    id="btnRemoveFile"
+                  >
+                    Remover
+                  </button>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  Senha do Certificado Digital
+                </label>
+
+                <input
+                  type="password"
+                  id="pfxPass"
+                  placeholder="••••••••••••"
+                  required
+                >
+
+              </div>
+
+
+              <div
+                class="form-row"
+                id="fieldNames"
+              >
+
+                <div class="form-group">
+
+                  <label>
+                    Nome Chave Pública
+                  </label>
+
+                  <input
+                    type="text"
+                    value="ChavePublica"
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label>
+                    Nome Chave Privada
+                  </label>
+
+                  <input
+                    type="text"
+                    value="ChavePrivada"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <button
+                class="btn-submit"
+                type="submit"
+                id="btnSubmit"
+              >
+                Converter e Extrair Chaves
+              </button>
+
+            </form>
+
+          </div>
+
         </div>
+
       </div>
-    </div>
-  `;
 
-  const pfxInput = $("#pfxInput"), dropArea = $("#dropArea"), fileBadge = $("#fileBadge");
+    `;
+
+
+  const pfxInput =
+    $("#pfxInput");
+
+  const dropArea =
+    $("#dropArea");
+
+  const fileBadge =
+    $("#fileBadge");
+
+
   pfxInput.onchange = () => {
-    const f = pfxInput.files[0];
-    if(f){
-      $("#fileName").textContent = f.name;
-      $("#fileSize").textContent = (f.size/1024).toFixed(1) + " KB";
-      dropArea.style.display = "none";
-      fileBadge.classList.add("active");
-    }
+
+    const file =
+      pfxInput.files[0];
+
+    if (!file) return;
+
+
+    $("#fileName")
+      .textContent =
+      file.name;
+
+
+    $("#fileSize")
+      .textContent =
+      `${(file.size / 1024).toFixed(1)} KB`;
+
+
+    dropArea.style.display =
+      "none";
+
+    fileBadge.classList.add(
+      "active"
+    );
+
   };
+
+
   $("#btnRemoveFile").onclick = () => {
+
     pfxInput.value = "";
-    fileBadge.classList.remove("active");
-    dropArea.style.display = "block";
+
+    fileBadge.classList.remove(
+      "active"
+    );
+
+    dropArea.style.display =
+      "block";
+
   };
 
-  $("#formConverter").onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = $("#btnSubmit");
-    btn.disabled = true;
-    btn.textContent = "Processando em memória...";
 
-    const formData = new FormData();
-    formData.append("pfxfile", pfxInput.files[0]);
-    formData.append("password", $("#pfxPass").value);
+  $("#formConverter").onsubmit =
+    async event => {
 
-    try {
-      const res = await fetch("/convert-pem", { method: "POST", body: formData });
-      const data = await res.json();
-      if(!data.sucesso) throw new Error(data.erro || "Falha na extração");
+      event.preventDefault();
 
-      toast("success", "Conversão Concluída!", `${b.name}: Chaves geradas com sucesso.`);
-    } catch(err) {
-      toast("error", "Erro no Certificado", err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Converter e Extrair Chaves";
-    }
-  };
+
+      const button =
+        $("#btnSubmit");
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Processando em memória...";
+
+
+      const formData =
+        new FormData();
+
+
+      formData.append(
+        "pfxfile",
+        pfxInput.files[0]
+      );
+
+
+      formData.append(
+        "password",
+        $("#pfxPass").value
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/convert-pem",
+            {
+              method: "POST",
+              body: formData
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.sucesso) {
+
+          throw new Error(
+            data.erro ||
+            "Falha na extração"
+          );
+
+        }
+
+
+        toast(
+          "success",
+          "Conversão Concluída!",
+          `${bank.name}: Chaves geradas com sucesso.`
+        );
+
+
+      } catch (error) {
+
+        toast(
+          "error",
+          "Erro no Certificado",
+          error.message
+        );
+
+
+      } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+          "Converter e Extrair Chaves";
+
+      }
+
+    };
+
 }
+
+
+/* =========================================================
+   ROUTING
+========================================================= */
 
 function route() {
-  const hash = location.hash.slice(1) || "dashboard";
-  const [view, param] = hash.split("/");
 
-  $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === view));
-  $$("[data-nav]").forEach(a => a.toggleAttribute("aria-current", a.dataset.nav === view));
+  const hash =
+    location.hash.slice(1)
+    || "dashboard";
+
+
+  const [view, param] =
+    hash.split("/");
+
+
+  $$(".view")
+    .forEach(section => {
+
+      section.classList.toggle(
+        "active",
+        section.dataset.view === view
+      );
+
+    });
+
+
+  $$("[data-nav]")
+    .forEach(link => {
+
+      link.toggleAttribute(
+        "aria-current",
+        link.dataset.nav === view
+      );
+
+    });
+
 
   if (view === "banco") {
+
     renderBankView(param);
+
   } else {
+
     applyDynamicTheme(null);
+
   }
+
 }
 
-function toast(type, title, desc) {
-  const el = document.createElement("div");
-  el.className = `toast ${type}`;
-  el.innerHTML = `
-    <div style="font-size:18px;">${type === 'success' ? '✅' : '❌'}</div>
-    <div>
-      <div class="toast-title">${title}</div>
-      <div class="toast-desc">${desc}</div>
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function toast(
+  type,
+  title,
+  description
+) {
+
+  const element =
+    document.createElement("div");
+
+
+  element.className =
+    `toast ${type}`;
+
+
+  element.innerHTML = `
+
+    <div style="font-size:18px;">
+      ${
+        type === "success"
+          ? "✅"
+          : "❌"
+      }
     </div>
+
+    <div>
+
+      <div class="toast-title">
+        ${title}
+      </div>
+
+      <div class="toast-desc">
+        ${description}
+      </div>
+
+    </div>
+
   `;
-  $("#toasts").appendChild(el);
+
+
+  $("#toasts")
+    .appendChild(element);
+
+
   setTimeout(() => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(20px)';
-    el.style.transition = 'all 0.3s';
-    setTimeout(() => el.remove(), 300);
+
+    element.style.opacity = "0";
+
+    element.style.transform =
+      "translateX(20px)";
+
+    element.style.transition =
+      "all .3s";
+
+
+    setTimeout(
+      () => element.remove(),
+      300
+    );
+
   }, 4500);
+
 }
 
-$("#themeToggle").onclick = () => {
-  const isDark = document.documentElement.dataset.theme === "dark";
-  document.documentElement.dataset.theme = isDark ? "light" : "dark";
-  localStorage.setItem("hub_theme", isDark ? "light" : "dark");
-  
-  const hash = location.hash.slice(1) || "dashboard";
-  const [view, param] = hash.split("/");
-  if (view === "banco") {
-    const b = BANKS.find(x => x.id === param) || BANKS[0];
-    applyDynamicTheme(b.color);
-  } else {
-    applyDynamicTheme(null);
-  }
-};
-document.documentElement.dataset.theme = localStorage.getItem("hub_theme") || "light";
 
-window.onhashchange = route;
+/* =========================================================
+   GENERATE COLLECTION
+========================================================= */
+
+$("#btnGenerateCollection")
+  .addEventListener(
+    "click",
+    async () => {
+
+      const bank =
+        BANKS.find(
+          item =>
+            item.id ===
+            selectedCollectionBankId
+        ) || BANKS[0];
+
+
+      const button =
+        $("#btnGenerateCollection");
+
+
+      button.classList.add(
+        "loading"
+      );
+
+
+      button.innerHTML = `
+
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          style="
+            animation:
+            spin .8s linear infinite;
+          "
+        >
+          <path d="M12 3a9 9 0 1 0 9 9"/>
+        </svg>
+
+        Preparando Collection...
+
+      `;
+
+
+      try {
+
+        /*
+         * ===================================================
+         * PONTO DE INTEGRAÇÃO COM BACKEND
+         * ===================================================
+         *
+         * Aqui você pode posteriormente substituir
+         * o comportamento pelo seu endpoint real.
+         *
+         * Exemplo:
+         *
+         * const response = await fetch(
+         *   "/collections/generate",
+         *   {
+         *     method: "POST",
+         *     headers: {
+         *       "Content-Type":
+         *         "application/json"
+         *     },
+         *     body: JSON.stringify({
+         *       bank: bank.id
+         *     })
+         *   }
+         * );
+         *
+         * const blob =
+         *   await response.blob();
+         *
+         * ...
+         *
+         * ===================================================
+         */
+
+
+        await new Promise(
+          resolve =>
+            setTimeout(
+              resolve,
+              700
+            )
+        );
+
+
+        toast(
+          "success",
+          "Download Iniciado",
+          `Collection do ${bank.name} gerada com sucesso no formato Postman 2.1.`
+        );
+
+
+      } catch (error) {
+
+        toast(
+          "error",
+          "Falha na Collection",
+          error.message
+        );
+
+      } finally {
+
+        button.classList.remove(
+          "loading"
+        );
+
+
+        button.innerHTML = `
+
+          <svg
+            class="collection-download-icon"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 3v12"/>
+            <path d="m7 10 5 5 5-5"/>
+            <path d="M5 21h14"/>
+          </svg>
+
+          Gerar Collection
+
+        `;
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+const spinnerStyle =
+  document.createElement("style");
+
+spinnerStyle.textContent = `
+
+  @keyframes spin {
+
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+
+  }
+
+`;
+
+document.head.appendChild(
+  spinnerStyle
+);
+
+
+/* =========================================================
+   THEME TOGGLE
+========================================================= */
+
+$("#themeToggle")
+  .onclick = () => {
+
+    const isDark =
+      document.documentElement
+        .dataset.theme === "dark";
+
+
+    const newTheme =
+      isDark
+        ? "light"
+        : "dark";
+
+
+    document.documentElement
+      .dataset.theme =
+      newTheme;
+
+
+    localStorage.setItem(
+      "hub_theme",
+      newTheme
+    );
+
+
+    const hash =
+      location.hash.slice(1)
+      || "dashboard";
+
+
+    const [view, param] =
+      hash.split("/");
+
+
+    if (view === "banco") {
+
+      const bank =
+        BANKS.find(
+          item => item.id === param
+        ) || BANKS[0];
+
+
+      applyDynamicTheme(
+        bank.color
+      );
+
+    } else {
+
+      applyDynamicTheme(null);
+
+    }
+
+
+    /*
+     * Se estiver dentro de Collections,
+     * mantemos a cor do banco selecionado.
+     */
+
+    if (view === "collections") {
+
+      const bank =
+        BANKS.find(
+          item =>
+            item.id ===
+            selectedCollectionBankId
+        ) || BANKS[0];
+
+
+      document.documentElement
+        .style
+        .setProperty(
+          "--selected-accent",
+          bank.color
+        );
+
+    }
+
+  };
+
+
+/* =========================================================
+   INITIAL THEME
+========================================================= */
+
+document.documentElement.dataset.theme =
+  localStorage.getItem(
+    "hub_theme"
+  ) || "light";
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+const menuToggle =
+  $("#menuToggle");
+
+
+if (menuToggle) {
+
+  menuToggle.onclick = () => {
+
+    document.body.classList.toggle(
+      "menu-open"
+    );
+
+  };
+
+}
+
+
+/* =========================================================
+   CLOSE MOBILE MENU
+========================================================= */
+
+$$(".nav-link")
+  .forEach(link => {
+
+    link.addEventListener(
+      "click",
+      () => {
+
+        document.body.classList
+          .remove("menu-open");
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   SEARCH SHORTCUT
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      (event.ctrlKey || event.metaKey)
+      &&
+      event.key.toLowerCase() === "k"
+    ) {
+
+      event.preventDefault();
+
+      $("#searchBtn").focus();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   HASH ROUTING
+========================================================= */
+
+window.onhashchange =
+  route;
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
 renderCards();
+
+renderCollectionBankGrid();
+
+renderCollectionWorkspace();
+
 route();
+
 </script>
+
 </body>
 </html>
