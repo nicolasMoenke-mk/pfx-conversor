@@ -2583,7 +2583,7 @@
 
       <div class="status-indicator">
         <span class="status-dot"></span>
-        <span>Gateways Operacionais</span>
+        <span>Suporte MK Solutions</span>
       </div>
 
     </div>
@@ -3082,13 +3082,14 @@ const BANKS = [
     logo: "img/bb.svg",
     endpoints: [
       "POST /oauth/token",
-      "GET /pix/cob",
-      "POST /pix/cob",
-      "GET /pix/recebimentos",
-      "GET /cobrancas"
+      "POST /boletos?gw-app-key={{app_key}}",
+      "POST /boletos/{{nosso_numero}}/baixar?gw-app-key={{app_key}}",
+      "POST /oauth/token",
+      "PUT /v2/cobv/{{txid}}?gw-dev-app-key={{app_key}}",
+      "PATCH /v2/cobv/{{txid}}?gw-dev-app-key={{app_key}}"
     ],
     auth: "OAuth2 + mTLS",
-    environment: "Homologação",
+    environment: "Produção",
     security: "Certificado A1"
   },
 
@@ -3107,7 +3108,7 @@ const BANKS = [
       "POST /payments"
     ],
     auth: "mTLS Dedicated",
-    environment: "Homologação",
+    environment: "Produção",
     security: "Certificado A1"
   },
 
@@ -3119,14 +3120,15 @@ const BANKS = [
     desc: "Conversão de certificados para gateway V3 e Open Finance.",
     logo: "img/sicoob.svg",
     endpoints: [
-      "POST /oauth/token",
-      "GET /pix",
-      "POST /pix",
-      "GET /cobranca",
-      "POST /cobranca"
+      "POST /openid-connect/token",
+      "POST /v3/boletos",
+      "POST /boletos/{{nosso_numero}}",
+      "POST /openid-connect/token",
+      "PUT /v2/cobv/{{txid}}",
+      "PATCH /v2/cobv/{{txid}}"
     ],
     auth: "OAuth2 + mTLS",
-    environment: "Homologação",
+    environment: "Produção",
     security: "Certificado A1"
   },
 
@@ -3138,14 +3140,15 @@ const BANKS = [
     desc: "Padrão de certificados A1 para integração Cobrança e PIX.",
     logo: "img/sicredi.svg",
     endpoints: [
+      "POST /openapi/token",
+      "POST /v1/boletos",
+      "PATCH /boletos/{{nosso_numero}}/baixa",
       "POST /oauth/token",
-      "GET /pix",
-      "POST /pix",
-      "GET /cobranca",
-      "GET /boletos"
+      "PUT /v2/cobv/{{txid}}",
+      "PATCH /v2/cobv/{{txid}}"
     ],
     auth: "OAuth2",
-    environment: "Homologação",
+    environment: "Produção",
     security: "Certificado A1"
   },
 
@@ -3157,14 +3160,15 @@ const BANKS = [
     desc: "Conversão para portal Developer Santander Empresas.",
     logo: "img/santander.svg",
     endpoints: [
-      "POST /oauth/token",
-      "GET /pix",
-      "POST /pix",
-      "GET /payments",
-      "GET /accounts"
+      "POST /v2/token",
+      "POST /workspace/{{workspace_id}}/bank_slips",
+      "PATCH /workspace/{{workspace_id}}/bank_slips",
+      "POST /oauth/token?grant_type=client_credentials",
+      "PUT /v1/cobv/{{txid}}",
+      "PATCH /v1/cobv/{{txid}}"
     ],
     auth: "OAuth2 Direct",
-    environment: "Homologação",
+    environment: "Produção",
     security: "Certificado A1"
   },
 
@@ -3176,14 +3180,15 @@ const BANKS = [
     desc: "Geração de chaves públicas e privadas para comércio eletrônico.",
     logo: "img/bradesco.svg",
     endpoints: [
+      "POST /v2/token",
+      "POST /v1/cobranca",
+      "POST /v1/baixar",
       "POST /oauth/token",
-      "GET /pix",
-      "POST /pix",
-      "GET /charges",
-      "POST /charges"
+      "PUT /v2/cobv/{{txid}}",
+      "PATCH /v2/cobv/{{txid}}"
     ],
     auth: "OAuth2 + mTLS",
-    environment: "Homologação",
+    environment: "Produção",
     security: "Certificado A1"
   }
 
@@ -3829,7 +3834,7 @@ function renderBankView(id) {
               data-tab="pem"
             >
               PFX → Chaves PEM
-              (.key / .crt)
+              (.pem)
             </button>
 
             <button
@@ -3854,7 +3859,7 @@ function renderBankView(id) {
 
                 <label>
                   Arquivo do Certificado
-                  (.PFX / .P12)
+                  (.pfx / .p12)
                 </label>
 
                 <div
@@ -3974,7 +3979,7 @@ function renderBankView(id) {
 
                   <input
                     type="text"
-                    value="ChavePublica"
+                    placeholder="Ex: PROVEDORNET26"
                   >
 
                 </div>
@@ -3987,7 +3992,7 @@ function renderBankView(id) {
 
                   <input
                     type="text"
-                    value="ChavePrivada"
+                    placeholder="Ex: PROVEDORNET26"
                   >
 
                 </div>
