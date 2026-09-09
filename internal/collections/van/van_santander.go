@@ -83,10 +83,75 @@ func CreateSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 
 func RemoveSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 
+	removeBody := b.BaixaBoletoSantander{
+		ConventCode: cfg.SantanderConventNumb,
+		BankNumber:  cfg.SantanderBankNumb,
+		Operation:   "BAIXA",
+	}
+
+	rm, err := json.MarshalIndent(removeBody, "", "  ")
+	if err != nil {
+		return c.PostmanItem{}, errors.New("Erro ao serializar o body da requisição!")
+	}
+
 	return c.PostmanItem{
 		Name: "Remover Boleto",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
+			Header: []c.PostmanHeader{
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
+				{Key: "X-Application-Key", Value: cfg.SantanderAppKey, Type: "string"},
+			},
+			Body: &c.PostmanBody{
+				Mode: "raw",
+				Raw:  string(rm),
+			},
+			Url: c.PostmanURL{
+				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/" + cfg.SantanderWkId + "/bank_slips",
+				Host: []string{santanderVanHost},
+				Path: []string{"collection_bill_management", "v2", "workspaces", cfg.SantanderWkId, "bank_slips"},
+			},
 		},
 	}, nil
+}
+
+func SantanderVanCollection(cfg SantanderVanConfig) ([]byte, error) {
+
+	auth := AuthVanSantander(cfg)
+
+	create, err := CreateSantanderVan(cfg)
+	if err != nil {
+		return nil, errors.New("Erro inesperado")
+	}
+
+	remove, err := RemoveSantanderVan(cfg)
+	if err != nil {
+		return nil, errors.New("Erro inesperado")
+	}
+
+	collection := c.PostmanCollection{
+		Info: c.PostmanInfo{
+			Name:        "Collection Van Santander",
+			Description: "Criar boletos com QR Code Dinâmico por API",
+			Schema:      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		},
+		Variable: []c.PostmanVariable{
+			{Key: "bearer_token", Value: "Bearer {{bearer_token}}", Type: "string"},
+			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
+			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
+			{Key: "X-Application-Key", Value: cfg.SantanderAppKey, Type: "string"},
+			{Key: "santander_app_key", Value: cfg.SantanderAppKey, Type: "string"},
+			{Key: "santander_workspace_id", Value: cfg.SantanderWkId, Type: "string"},
+			{Key: "santander_client_number", Value: cfg.SantanderClientNumber, Type: "string"},
+			{Key: "santander_bank_number", Value: cfg.SantanderBankNumb, Type: "string"},
+			{Key: "santander_convent_code", Value: cfg.SantanderConventNumb, Type: "string"},
+		},
+		Item: []c.PostmanItem{
+			auth,
+			create,
+			remove,
+		},
+	}
+	return json.MarshalIndent(collection, "", "  ")
 }

@@ -47,3 +47,9 @@ type PagadorSantander struct {
 	State        string `json:"state"`
 	ZipCode      string `json:"zipCode"`
 }
+
+type BaixaBoletoSantander struct {
+	ConventCode string
+	BankNumber  string
+	Operation   string
+}
