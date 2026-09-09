@@ -14,13 +14,13 @@ const (
 	bradescoBaseUrl = "https://" + bradescoHost
 )
 
-type BradescoConfig struct {
+type BradescoVanConfig struct {
 	ClientId     string                `json:"client_id"`
 	ClientSecret string                `json:"client_secret"`
 	Dados        b.DadosBoletoBradesco `json:"dados_bradesco"`
 }
 
-func AuthVanBradesco(cfg BradescoConfig) c.PostmanItem {
+func AuthVanBradesco(cfg BradescoVanConfig) c.PostmanItem {
 
 	return c.PostmanItem{
 		Name: "Autenticação Van Gerar Bearer Token ",
@@ -54,7 +54,7 @@ func AuthVanBradesco(cfg BradescoConfig) c.PostmanItem {
 
 }
 
-func CreateBradescoVan(cfg BradescoConfig) (c.PostmanItem, error) {
+func CreateBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 
 	createBody := b.BoletoBradesco{
 		BoletoBradesco: b.DadosBoletoBradesco{
@@ -143,7 +143,7 @@ func CreateBradescoVan(cfg BradescoConfig) (c.PostmanItem, error) {
 
 }
 
-func RemoveBradescoVan(cfg BradescoConfig) (c.PostmanItem, error) {
+func RemoveBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 
 	rm := b.BaixaBoletoBradesco{
 		CpfCnpj: b.DocPagadorBradesco{
@@ -184,7 +184,7 @@ func RemoveBradescoVan(cfg BradescoConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func BradescoVanCollection(cfg BradescoConfig) ([]byte, error) {
+func BradescoVanCollection(cfg BradescoVanConfig) ([]byte, error) {
 
 	auth := AuthVanBradesco(cfg)
 

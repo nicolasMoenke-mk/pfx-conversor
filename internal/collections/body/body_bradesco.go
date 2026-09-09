@@ -84,3 +84,34 @@ type BaixaBoletoBradesco struct {
 	Sequencia   int                `json:"sequencia"`
 	CodigoBaixa int                `json:"codigoBaixa"`
 }
+
+// ------------------- PIX Bradesco ------------------- //
+
+type BradescoCalendario struct {
+	DtVencimento          string `json:"dataDeVencimento"`
+	ValidadePosVencimento uint   `json:"ValidadeAposVencimento"`
+}
+
+type BradescoChavePix struct {
+	ChavePix string `json:"chave"`
+}
+
+type BradescoPixDevedor struct {
+	Cpf  string `json:"cpf"`
+	Nome string `json:"nome"`
+}
+
+type BradescoPixValor struct {
+	Valor string `json:"original"`
+}
+
+type BradescoStatusPix struct {
+	Status string `json:"status"`
+}
+
+type BradescoCriarPix struct {
+	Calendario BradescoCalendario `json:"calendario"`
+	Chave      BradescoChavePix   `json:"chave"`
+	Devedor    BradescoPixDevedor `json:"devedor"`
+	Valor      BradescoPixValor   `json:"valor"`
+}

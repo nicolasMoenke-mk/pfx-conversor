@@ -72,10 +72,10 @@ type SicoobValor struct {
 }
 
 type SicoobCriarPix struct {
-	Calendario SicoobCalendario
-	Chave      SicoobChavePix
-	Devedor    SicoobDevedor
-	Valor      SicoobValor
+	Calendario SicoobCalendario `json:"calendario"`
+	Chave      SicoobChavePix   `json:"chave"`
+	Devedor    SicoobDevedor    `json:"devedor"`
+	Valor      SicoobValor      `json:"valor"`
 }
 
 type SicoobStatusPix struct {
