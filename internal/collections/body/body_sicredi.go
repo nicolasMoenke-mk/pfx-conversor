@@ -22,3 +22,34 @@ type DadosBoletoSicredi struct {
 	Juros           string
 	Multa           string
 }
+
+// ----------------- PIX ----------------- //
+
+type SicrediCalendario struct {
+	DtVencimento          string
+	ValidadePosVencimento uint
+}
+
+type SicrediChavePix struct {
+	Chave string
+}
+
+type SicrediDevedor struct {
+	Cpf  string
+	Nome string
+}
+
+type SicrediValor struct {
+	Valor string
+}
+
+type SicrediCriarPix struct {
+	Calendario SicrediCalendario
+	ChavePix   SicrediChavePix
+	Devedor    SicrediDevedor
+	Valor      SicrediValor
+}
+
+type SicrediStatusPix struct {
+	Status string
+}
