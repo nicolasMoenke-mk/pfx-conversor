@@ -21,6 +21,8 @@ type SantanderVanConfig struct {
 	SantanderClientNumber string
 	SantanderBankNumb     string
 	SantanderConventNumb  string
+	SantanderType         string
+	SantanderDictKey      string
 }
 
 func AuthVanSantander(cfg SantanderVanConfig) c.PostmanItem {
@@ -52,7 +54,54 @@ func AuthVanSantander(cfg SantanderVanConfig) c.PostmanItem {
 
 func CreateSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 
-	createBody := b.DadosBoletoSantander{}
+	createBody := b.DadosBoletoSantander{
+		ClientNumber: cfg.SantanderClientNumber,
+		NsuCode:      cfg.SantanderBankNumb,
+		CovenantCode: cfg.SantanderConventNumb,
+		BankNumber:   cfg.SantanderBankNumb,
+		DueDate:      "2027-02-02",
+		NsuDate:      "2026-09-15",
+		IssueDate:    "2026-09-15",
+		Key: b.ChavePix{
+			Type:    cfg.SantanderType,
+			DictKey: cfg.SantanderDictKey,
+		},
+		Environment:     "PRODUCAO",
+		ParticipantCode: nil,
+		NominalValue:    "10.00",
+		Payer: b.PagadorSantander{
+			Name:         "CLIENTE TESTE MK",
+			DocumentType: "CPF",
+			Document:     "96050176876",
+			Address:      "Rua Amazonas",
+			Neighborhood: "Patrimonio Novo",
+			City:         "Votuporanga",
+			State:        "SP",
+			ZipCode:      "15500-004",
+		},
+		Beneficiary:          nil,
+		DocumentKind:         "DUPLICATA_MERCANTIL",
+		FinePercentage:       "2.00",
+		FineQuantityDays:     "0",
+		InterestPercentage:   "0.99",
+		DeductionValue:       nil,
+		ProtestType:          "SEM_PROTESTO",
+		ProtestQuantityDays:  nil,
+		WriteOffQuantityDays: nil,
+		PaymentType:          "REGISTRO",
+		ParcelsQuantity:      nil,
+		ValueType:            nil,
+		MinValueOrPercentage: nil,
+		MaxValueOrPercentage: nil,
+		IofPercentage:        nil,
+		Sharing:              nil,
+		DigitableLine:        "",
+		Barcode:              "",
+		QrCodePix:            "",
+		QrCodeUrl:            "",
+		Txid:                 nil,
+		Messages:             nil,
+	}
 
 	body, err := json.MarshalIndent(createBody, "", "  ")
 	if err != nil {
@@ -146,6 +195,8 @@ func SantanderVanCollection(cfg SantanderVanConfig) ([]byte, error) {
 			{Key: "santander_client_number", Value: cfg.SantanderClientNumber, Type: "string"},
 			{Key: "santander_bank_number", Value: cfg.SantanderBankNumb, Type: "string"},
 			{Key: "santander_convent_code", Value: cfg.SantanderConventNumb, Type: "string"},
+			{Key: "santander_dict_type", Value: cfg.SantanderType, Type: "string"},
+			{Key: "santander_dict_key", Value: cfg.SantanderDictKey, Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,

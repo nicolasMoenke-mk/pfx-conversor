@@ -1,40 +1,8 @@
 package body
 
-type DadosBoletoSantander struct {
-	ClientNumber   string
-	NsuCode        string
-	ConventCode    string
-	BankNumber     string
-	DueDate        string
-	NsuDate        string
-	IssueDate      string
-	Key            string
-	Enviroment     string
-	PartCode       string
-	NominalVl      string
-	Payer          PagadorSantander
-	Beneficiary    string
-	DocumentKind   string
-	FinePercentage string
-	FineQtDays     string
-	InterestPerc   string
-	DeductionVl    string
-	ProtestType    string
-	ProtestQtDays  string
-	WriteOffQtDays string
-	PaymentType    string
-	ParcelsQt      string
-	VlType         string
-	MinVlPerc      string
-	MaxVlPerc      string
-	IofPerc        string
-	Sharing        string
-	DigLine        string
-	Barcode        string
-	QrCodePix      string
-	QrCodeUrl      string
-	Txid           string
-	Message        string
+type ChavePix struct {
+	Type    string `json:"type"`
+	DictKey string `json:"dictKey"`
 }
 
 type PagadorSantander struct {
@@ -48,8 +16,76 @@ type PagadorSantander struct {
 	ZipCode      string `json:"zipCode"`
 }
 
+type DadosBoletoSantander struct {
+	ClientNumber         string           `json:"clientNumber"`
+	NsuCode              string           `json:"nsuCode"`
+	CovenantCode         string           `json:"covenantCode"`
+	BankNumber           string           `json:"bankNumber"`
+	DueDate              string           `json:"dueDate"`
+	NsuDate              string           `json:"nsuDate"`
+	IssueDate            string           `json:"issueDate"`
+	Key                  ChavePix         `json:"key"`
+	Environment          string           `json:"environment"`
+	ParticipantCode      *string          `json:"participantCode"`
+	NominalValue         string           `json:"nominalValue"`
+	Payer                PagadorSantander `json:"payer"`
+	Beneficiary          *string          `json:"beneficiary"`
+	DocumentKind         string           `json:"documentKind"`
+	FinePercentage       string           `json:"finePercentage"`
+	FineQuantityDays     string           `json:"fineQuantityDays"`
+	InterestPercentage   string           `json:"interestPercentage"`
+	DeductionValue       *string          `json:"deductionValue"`
+	ProtestType          string           `json:"protestType"`
+	ProtestQuantityDays  *string          `json:"protestQuantityDays"`
+	WriteOffQuantityDays *string          `json:"writeOffQuantityDays"`
+	PaymentType          string           `json:"paymentType"`
+	ParcelsQuantity      *string          `json:"parcelsQuantity"`
+	ValueType            *string          `json:"valueType"`
+	MinValueOrPercentage *string          `json:"minValueOrPercentage"`
+	MaxValueOrPercentage *string          `json:"maxValueOrPercentage"`
+	IofPercentage        *string          `json:"iofPercentage"`
+	Sharing              *string          `json:"sharing"`
+	DigitableLine        string           `json:"digitableLine"`
+	Barcode              string           `json:"barcode"`
+	QrCodePix            string           `json:"qrCodePix"`
+	QrCodeUrl            string           `json:"qrCodeUrl"`
+	Txid                 *string          `json:"txid"`
+	Messages             *string          `json:"messages"`
+}
+
 type BaixaBoletoSantander struct {
 	ConventCode string
 	BankNumber  string
 	Operation   string
+}
+
+// ------------------ PIX ------------------ //
+
+type SantanderCalendario struct {
+	DtVencimento          string
+	ValidadePosVencimento uint
+}
+
+type SantanderChavePix struct {
+	Chave string
+}
+
+type SantanderPixDevedor struct {
+	Cpf  string
+	Nome string
+}
+
+type SantanderPixValor struct {
+	Valor string
+}
+
+type SantanderStatusPix struct {
+	Status string
+}
+
+type SantanderCriarPix struct {
+	Calendario SantanderCalendario `json:"calendario"`
+	Chave      SantanderChavePix   `json:"chave"`
+	Devedor    SantanderPixDevedor `json:"devedor"`
+	Valor      SantanderPixValor   `json:"valor"`
 }

@@ -39,7 +39,7 @@ func AuthVanSicoob(cfg SicoobVanConfig) c.PostmanItem {
 			},
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/x-www-urlencoded"},
+				{Key: "Content-Type", Value: "application/x-www-urlencoded"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
