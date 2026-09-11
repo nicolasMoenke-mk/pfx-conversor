@@ -93,7 +93,7 @@ type BradescoCalendario struct {
 }
 
 type BradescoChavePix struct {
-	ChavePix string `json:"chave"`
+	ChavePix string `json:"chave_pix"`
 }
 
 type BradescoPixDevedor struct {

@@ -107,5 +107,69 @@ func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
 func RemovePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
-	return c.PostmanItem{}, nil
+	removeBody := b.BBStatusPix{
+		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
+	}
+
+	rm, err := json.MarshalIndent(removeBody, "", "  ")
+	if err != nil {
+		return c.PostmanItem{}, errors.New("Erro ao serializar o body da requisição!")
+	}
+
+	return c.PostmanItem{
+		Name: "Remover Pix BB",
+		Request: &c.PostmanRequest{
+			Method: "PATCH",
+			Header: []c.PostmanHeader{
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
+			},
+			Body: &c.PostmanBody{
+				Mode: "raw",
+				Raw:  string(rm),
+			},
+			Url: c.PostmanURL{
+				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key=" + cfg.BBAppKey,
+				Host: []string{bbPixHost},
+				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", cfg.BBAppKey},
+			},
+		},
+	}, nil
+}
+
+func BBPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
+
+	auth := AuthPixBB(cfg)
+
+	create, err := CreatePixBB(cfg)
+	if err != nil {
+		return nil, errors.New("Erro inesperado")
+	}
+
+	remove, err := RemovePixBB(cfg)
+	if err != nil {
+		return nil, errors.New("Erro inesperado")
+	}
+
+	collection := c.PostmanCollection{
+		Info: c.PostmanInfo{
+			Name:        "Pix BB",
+			Description: "Collection completa BB",
+			Schema:      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		},
+		Variable: []c.PostmanVariable{
+			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
+			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
+			{Key: "bb_dev_app_key", Value: cfg.BBAppKey, Type: "string"},
+			{Key: "chave_pix", Value: cfg.BBChavePix, Type: "string"},
+			{Key: "pix_txid", Value: bbTXID, Type: "string"},
+			{Key: "scope", Value: cfg.Scope, Type: "string"},
+		},
+		Item: []c.PostmanItem{
+			auth,
+			create,
+			remove,
+		},
+	}
+	return json.MarshalIndent(collection, "", "  ")
 }

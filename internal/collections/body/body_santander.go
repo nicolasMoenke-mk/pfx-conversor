@@ -54,33 +54,33 @@ type DadosBoletoSantander struct {
 }
 
 type BaixaBoletoSantander struct {
-	ConventCode string
-	BankNumber  string
-	Operation   string
+	ConventCode string `json:"convenantCode"`
+	BankNumber  string `json:"bankNumber"`
+	Operation   string `json:"operation"`
 }
 
 // ------------------ PIX ------------------ //
 
 type SantanderCalendario struct {
-	DtVencimento          string
-	ValidadePosVencimento uint
+	DtVencimento          string `json:"dataDeVencimento"`
+	ValidadePosVencimento uint   `json:"validadeAposVencimento"`
 }
 
 type SantanderChavePix struct {
-	Chave string
+	Chave string `json:"chave_pix"`
 }
 
 type SantanderPixDevedor struct {
-	Cpf  string
-	Nome string
+	Cpf  string `json:"cpf"`
+	Nome string `json:"nome"`
 }
 
 type SantanderPixValor struct {
-	Valor string
+	Valor string `json:"original"`
 }
 
 type SantanderStatusPix struct {
-	Status string
+	Status string `json:"status"`
 }
 
 type SantanderCriarPix struct {

@@ -26,30 +26,30 @@ type DadosBoletoSicredi struct {
 // ----------------- PIX ----------------- //
 
 type SicrediCalendario struct {
-	DtVencimento          string
-	ValidadePosVencimento uint
+	DtVencimento          string `json:"dataDevencimento"`
+	ValidadePosVencimento uint   `json:"validadeAposVencimento"`
 }
 
 type SicrediChavePix struct {
-	Chave string
+	Chave string `json:"chave_pix"`
 }
 
 type SicrediDevedor struct {
-	Cpf  string
-	Nome string
+	Cpf  string `json:"cpf"`
+	Nome string `json:"nome"`
 }
 
 type SicrediValor struct {
-	Valor string
+	Valor string `json:"original"`
 }
 
 type SicrediCriarPix struct {
-	Calendario SicrediCalendario
-	ChavePix   SicrediChavePix
-	Devedor    SicrediDevedor
-	Valor      SicrediValor
+	Calendario SicrediCalendario `json:"calendario"`
+	ChavePix   SicrediChavePix   `json:"chave"`
+	Devedor    SicrediDevedor    `json:"devedor"`
+	Valor      SicrediValor      `json:"valor"`
 }
 
 type SicrediStatusPix struct {
-	Status string
+	Status string `json:"status"`
 }

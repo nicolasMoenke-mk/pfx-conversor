@@ -156,6 +156,13 @@ func main() {
 
 	})
 
+	http.HandleFunc("/collections", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
+
+	})
+
 	go abrirNavegador("http://localhost:8080")
 
 	fmt.Println("Servidor inicializado em http://localhost:8080")

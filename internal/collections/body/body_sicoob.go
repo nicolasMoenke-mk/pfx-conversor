@@ -59,7 +59,7 @@ type SicoobCalendario struct {
 }
 
 type SicoobChavePix struct {
-	Chave string `json:"chave,omitempty"`
+	Chave string `json:"chave_pix,omitempty"`
 }
 
 type SicoobDevedor struct {

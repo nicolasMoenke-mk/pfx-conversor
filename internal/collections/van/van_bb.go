@@ -59,6 +59,7 @@ func CreateBBVan(cfg BancoDoBrasilVanConfig) (c.PostmanItem, error) {
 
 	createBody := b.DadosBoletoBB{
 		NumConvenio:            cfg.BbConvenio,
+		NumCarteira:            cfg.BbNumCarteira,
 		NumVariacaoCart:        cfg.BbVariacaoCart,
 		CodigoModalidade:       cfg.BbModalidade,
 		DtEmissao:              "2026-09-15",
