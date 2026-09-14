@@ -40,7 +40,7 @@ func AuthPixBB(cfg BancoDoBrasilPixConfig) c.PostmanItem {
 			},
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "Content-Type", Value: "x-www-form-urlencoded", Type: "string"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
@@ -137,7 +137,7 @@ func RemovePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func BBPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
+func BancoDoBrasilPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
 
 	auth := AuthPixBB(cfg)
 

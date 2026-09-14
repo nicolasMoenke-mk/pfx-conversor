@@ -14,14 +14,14 @@ const (
 	bradescoTXID    = "HUAJDKJSIOHHUAHSUGD"
 )
 
-type BradescoConfig struct {
+type BradescoPixConfig struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 	ChavePix     string `json:"chave_pix"`
 	Scope        string `json:"scope"`
 }
 
-func AuthBradescoPix(cfg BradescoConfig) c.PostmanItem {
+func AuthBradescoPix(cfg BradescoPixConfig) c.PostmanItem {
 
 	cfg.Scope = "pix.read pix.write cobv.read cobv.write webhook.write webhook.read"
 
@@ -58,7 +58,7 @@ func AuthBradescoPix(cfg BradescoConfig) c.PostmanItem {
 
 }
 
-func CreatePixBradesco(cfg BradescoConfig) (c.PostmanItem, error) {
+func CreatePixBradesco(cfg BradescoPixConfig) (c.PostmanItem, error) {
 
 	createBody := b.BradescoCriarPix{
 		Calendario: b.BradescoCalendario{
@@ -104,7 +104,7 @@ func CreatePixBradesco(cfg BradescoConfig) (c.PostmanItem, error) {
 
 }
 
-func RemoverPixBradesco(cfg BradescoConfig) (c.PostmanItem, error) {
+func RemoverPixBradesco(cfg BradescoPixConfig) (c.PostmanItem, error) {
 
 	removeBody := b.BradescoStatusPix{
 		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -136,7 +136,7 @@ func RemoverPixBradesco(cfg BradescoConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func BradescoPixCollection(cfg BradescoConfig) ([]byte, error) {
+func BradescoPixCollection(cfg BradescoPixConfig) ([]byte, error) {
 
 	auth := AuthBradescoPix(cfg)
 

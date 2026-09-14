@@ -54,9 +54,9 @@ type DadosBoletoSantander struct {
 }
 
 type BaixaBoletoSantander struct {
-	ConventCode string `json:"convenantCode"`
-	BankNumber  string `json:"bankNumber"`
-	Operation   string `json:"operation"`
+	ConvenantCode string `json:"convenantCode"`
+	BankNumber    string `json:"bankNumber"`
+	Operation     string `json:"operation"`
 }
 
 // ------------------ PIX ------------------ //

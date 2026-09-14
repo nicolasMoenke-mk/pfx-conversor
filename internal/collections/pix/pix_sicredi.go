@@ -3,6 +3,7 @@ package pix
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
 	b "io.github.com/conv-pfx/internal/collections/body"
@@ -10,8 +11,9 @@ import (
 
 const (
 	sicrediPixHost = "api-parceiro.sicredi.com.br"
-	sicrediPixBase = "https://" + santanderPixHost
+	sicrediPixBase = "https://" + sicrediPixHost
 	sicrediTXID    = "HAUSKJLDSIJUKDHSK"
+	sicrediScope   = "cobv.write cobv.read pix.read"
 )
 
 type SicrediPixConfig struct {
@@ -24,9 +26,7 @@ type SicrediPixConfig struct {
 	Scope              string
 }
 
-func AuthSicrediPix(cfg SicrediPixConfig) c.PostmanItem {
-
-	cfg.Scope = "cobv.write cobv.read pix.read"
+func AuthSicrediPix() c.PostmanItem {
 
 	return c.PostmanItem{
 		Name: "Autenticar Pix Sicredi",
@@ -34,19 +34,19 @@ func AuthSicrediPix(cfg SicrediPixConfig) c.PostmanItem {
 			Auth: &c.PostmanAuth{
 				Type: "basic",
 				Basic: []c.PostmanAuthParam{
-					{Key: "username", Value: cfg.SicrediPixUsername, Type: "string"},
-					{Key: "password", Value: cfg.SicrediPiXPassword, Type: "string"},
+					{Key: "username", Value: "{{username}}", Type: "string"},
+					{Key: "password", Value: "{{password}}", Type: "string"},
 				},
 			},
 			Header: []c.PostmanHeader{
-				{Key: "Content-Type", Value: "x-www-form-urlencoded", Type: "string"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: cfg.SicrediPixUsername, Type: "string"},
-					{Key: "scope", Value: cfg.Scope, Type: "string"},
+					{Key: "client_id", Value: "{{username}}", Type: "string"},
+					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -58,7 +58,7 @@ func AuthSicrediPix(cfg SicrediPixConfig) c.PostmanItem {
 	}
 }
 
-func CreatePixSicredi(cfg SicrediPixConfig) (c.PostmanItem, error) {
+func CreatePixSicredi() (c.PostmanItem, error) {
 
 	createBody := b.SicrediCriarPix{
 		Calendario: b.SicrediCalendario{
@@ -66,7 +66,7 @@ func CreatePixSicredi(cfg SicrediPixConfig) (c.PostmanItem, error) {
 			ValidadePosVencimento: 1,
 		},
 		ChavePix: b.SicrediChavePix{
-			Chave: cfg.SicrediChavePix,
+			Chave: "{{chave_pix}}",
 		},
 		Devedor: b.SicrediDevedor{
 			Cpf:  "96050176876",
@@ -95,15 +95,15 @@ func CreatePixSicredi(cfg SicrediPixConfig) (c.PostmanItem, error) {
 				Raw:  string(body),
 			},
 			Url: c.PostmanURL{
-				Raw:  sicrediPixBase + "/api/v2/cobv/" + sicrediTXID,
+				Raw:  sicrediPixBase + "/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicrediPixHost},
-				Path: []string{"api", "v2", "cobv", sicrediTXID},
+				Path: []string{"api", "v2", "cobv", "{{pix_txid}}"},
 			},
 		},
 	}, nil
 }
 
-func RemoverPixSicredi(cfg SicrediPixConfig) (c.PostmanItem, error) {
+func RemoverPixSicredi() (c.PostmanItem, error) {
 
 	removeBody := b.SicrediStatusPix{
 		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -127,27 +127,36 @@ func RemoverPixSicredi(cfg SicrediPixConfig) (c.PostmanItem, error) {
 				Raw:  string(rm),
 			},
 			Url: c.PostmanURL{
-				Raw:  sicrediPixBase + "/api/v2/cobv/" + sicrediTXID,
+				Raw:  sicrediPixBase + "/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicrediPixHost},
-				Path: []string{"api", "v2", "cobv", sicrediTXID},
+				Path: []string{"api", "v2", "cobv", "{{pix_txid}}"},
 			},
 		},
 	}, nil
 
 }
 
-func SicrediPixCollection(cfg SicrediPixConfig) ([]byte, error) {
+func SicrediPixCollection(cfg *SicrediPixConfig) ([]byte, error) {
 
-	auth := AuthSicrediPix(cfg)
-
-	create, err := CreatePixSicredi(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula")
 	}
 
-	remove, err := RemoverPixSicredi(cfg)
+	scope := cfg.Scope
+	if scope == "" {
+		scope = sicrediScope
+	}
+
+	auth := AuthSicrediPix()
+
+	create, err := CreatePixSicredi()
 	if err != nil {
-		return nil, errors.New("Erro inesperado")
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix': %w", err)
+	}
+
+	remove, err := RemoverPixSicredi()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix': %w", err)
 	}
 
 	collection := c.PostmanCollection{
@@ -165,7 +174,7 @@ func SicrediPixCollection(cfg SicrediPixConfig) ([]byte, error) {
 			{Key: "posto", Value: cfg.SicrediPixPosto, Type: "string"},
 			{Key: "chave_pix", Value: cfg.SicrediChavePix, Type: "string"},
 			{Key: "pix_txid", Value: sicrediTXID, Type: "string"},
-			{Key: "scope", Value: cfg.Scope, Type: "string"},
+			{Key: "scope", Value: scope, Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,

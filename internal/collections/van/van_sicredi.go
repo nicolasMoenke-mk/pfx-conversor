@@ -33,7 +33,7 @@ func AuthVanSicredi(cfg SicrediVanConfig) c.PostmanItem {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "Content-Type", Value: "x-www-form-urlencoded", Type: "string"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded", Type: "string"},
 				{Key: "x-api-key", Value: cfg.SicrediApiKey, Type: "string"},
 				{Key: "context", Value: "COBRANCA", Type: "string"},
 			},
@@ -132,7 +132,7 @@ func RemoveSicrediVan(cfg SicrediVanConfig) c.PostmanItem {
 
 }
 
-func SicrediCollectionVan(cfg SicrediVanConfig) ([]byte, error) {
+func SicrediVanCollection(cfg SicrediVanConfig) ([]byte, error) {
 
 	auth := AuthVanSicredi(cfg)
 

@@ -32,7 +32,7 @@ func AuthVanSantander(cfg SantanderVanConfig) c.PostmanItem {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "Content-Type", Value: "x-www-form-urlencoded"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
@@ -133,9 +133,9 @@ func CreateSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 func RemoveSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 
 	removeBody := b.BaixaBoletoSantander{
-		ConventCode: cfg.SantanderConventNumb,
-		BankNumber:  cfg.SantanderBankNumb,
-		Operation:   "BAIXA",
+		ConvenantCode: cfg.SantanderConventNumb,
+		BankNumber:    cfg.SantanderBankNumb,
+		Operation:     "BAIXA",
 	}
 
 	rm, err := json.MarshalIndent(removeBody, "", "  ")

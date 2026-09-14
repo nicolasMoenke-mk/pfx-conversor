@@ -16,14 +16,14 @@ const (
 	sicoobTXID        = "JHAUDHFJANXUGVFUABND"
 )
 
-type SicoobConfig struct {
+type SicoobPixConfig struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 	ChavePix     string `json:"chave_pix"`
 	Scope        string `json:"scope"`
 }
 
-func AuthPixSicoob(cfg SicoobConfig) c.PostmanItem {
+func AuthPixSicoob(cfg SicoobPixConfig) c.PostmanItem {
 
 	cfg.Scope = "cobv.write cobv.read pix.read"
 
@@ -58,7 +58,7 @@ func AuthPixSicoob(cfg SicoobConfig) c.PostmanItem {
 	}
 }
 
-func CreatePixSicoob(cfg SicoobConfig) (c.PostmanItem, error) {
+func CreatePixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
 
 	createBody := b.SicoobCriarPix{
 		Calendario: b.SicoobCalendario{
@@ -104,7 +104,7 @@ func CreatePixSicoob(cfg SicoobConfig) (c.PostmanItem, error) {
 
 }
 
-func RemoverPixSicoob(cfg SicoobConfig) (c.PostmanItem, error) {
+func RemoverPixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
 
 	rm := b.SicoobStatusPix{
 		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -137,7 +137,7 @@ func RemoverPixSicoob(cfg SicoobConfig) (c.PostmanItem, error) {
 
 }
 
-func SicoobPixCollection(cfg SicoobConfig) ([]byte, error) {
+func SicoobPixCollection(cfg SicoobPixConfig) ([]byte, error) {
 
 	auth := AuthPixSicoob(cfg)
 

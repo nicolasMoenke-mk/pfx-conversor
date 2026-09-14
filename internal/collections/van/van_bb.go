@@ -36,7 +36,7 @@ func AuthVanBB(cfg BancoDoBrasilVanConfig) c.PostmanItem {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "Content-Type", Value: "x-www-form-urlencoded", Type: "string"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded", Type: "string"},
 				{Key: "Authorization", Value: cfg.BbBasicToken, Type: "string"},
 			},
 			Body: &c.PostmanBody{
