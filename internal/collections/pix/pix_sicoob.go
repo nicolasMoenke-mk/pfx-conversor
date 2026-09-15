@@ -3,6 +3,7 @@ package pix
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
 	b "io.github.com/conv-pfx/internal/collections/body"
@@ -14,6 +15,7 @@ const (
 	sicoobBaseUrlAuth = "https://" + sicoobHostAuth
 	sicoobBaseUrlApi  = "https://" + sicoobHostApi
 	sicoobTXID        = "JHAUDHFJANXUGVFUABND"
+	sicoobScope       = "cobv.write cobv.read pix.read"
 )
 
 type SicoobPixConfig struct {
@@ -23,9 +25,7 @@ type SicoobPixConfig struct {
 	Scope        string `json:"scope"`
 }
 
-func AuthPixSicoob(cfg SicoobPixConfig) c.PostmanItem {
-
-	cfg.Scope = "cobv.write cobv.read pix.read"
+func AuthPixSicoob() c.PostmanItem {
 
 	return c.PostmanItem{
 		Name: "Autenticação Gerar Bearer Token",
@@ -33,20 +33,20 @@ func AuthPixSicoob(cfg SicoobPixConfig) c.PostmanItem {
 			Auth: &c.PostmanAuth{
 				Type: "basic",
 				Basic: []c.PostmanAuthParam{
-					{Key: "username", Value: cfg.ClientId, Type: "string"},
-					{Key: "password", Value: cfg.ClientSecret, Type: "string"},
+					{Key: "username", Value: "{{client_id}}", Type: "string"},
+					{Key: "password", Value: "{{client_secret}}", Type: "string"},
 				},
 			},
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/x-www-form-urlencoded"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials"},
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "scope", Value: cfg.Scope},
+					{Key: "client_id", Value: "{{client_id}}", Type: "string"},
+					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -58,7 +58,7 @@ func AuthPixSicoob(cfg SicoobPixConfig) c.PostmanItem {
 	}
 }
 
-func CreatePixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
+func CreatePixSicoob() (c.PostmanItem, error) {
 
 	createBody := b.SicoobCriarPix{
 		Calendario: b.SicoobCalendario{
@@ -66,7 +66,7 @@ func CreatePixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
 			Validade:     1,
 		},
 		Chave: b.SicoobChavePix{
-			Chave: cfg.ChavePix,
+			Chave: "{{chave_pix}}",
 		},
 		Devedor: b.SicoobDevedor{
 			Cpf:  "96050176876",
@@ -87,24 +87,24 @@ func CreatePixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
 		Request: &c.PostmanRequest{
 			Method: "PUT",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/json", Type: "string"},
-				{Key: "authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
 				Raw:  string(cBody),
 			},
 			Url: c.PostmanURL{
-				Raw:  sicoobBaseUrlApi + "/pix/api/v2/cobv/" + sicoobTXID,
+				Raw:  sicoobBaseUrlApi + "/pix/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicoobHostApi},
-				Path: []string{"pix", "api", "v2", "cobv", sicoobTXID},
+				Path: []string{"pix", "api", "v2", "cobv", "{{pix_txid}}"},
 			},
 		},
 	}, nil
 
 }
 
-func RemoverPixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
+func RemoverPixSicoob() (c.PostmanItem, error) {
 
 	rm := b.SicoobStatusPix{
 		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -120,38 +120,45 @@ func RemoverPixSicoob(cfg SicoobPixConfig) (c.PostmanItem, error) {
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/json", Type: "string"},
-				{Key: "authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
 				Raw:  string(remove),
 			},
 			Url: c.PostmanURL{
-				Raw:  sicoobBaseUrlApi + "/pix/api/v2/cobv/" + sicoobTXID,
+				Raw:  sicoobBaseUrlApi + "/pix/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicoobHostApi},
-				Path: []string{"pix", "api", "v2", "cobv", sicoobTXID},
+				Path: []string{"pix", "api", "v2", "cobv", "{{pix_txid}}"},
 			},
 		},
 	}, nil
 
 }
 
-func SicoobPixCollection(cfg SicoobPixConfig) ([]byte, error) {
+func SicoobPixCollection(cfg *SicoobPixConfig) ([]byte, error) {
 
-	auth := AuthPixSicoob(cfg)
-
-	create, err := CreatePixSicoob(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula!")
 	}
 
-	remove, err := RemoverPixSicoob(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	scope := cfg.Scope
+	if scope == "" {
+		scope = sicoobScope
 	}
 
-	txid := sicoobTXID
+	auth := AuthPixSicoob()
+
+	create, err := CreatePixSicoob()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix': %w", err)
+	}
+
+	remove, err := RemoverPixSicoob()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix': %w", err)
+	}
 
 	collection := c.PostmanCollection{
 		Info: c.PostmanInfo{
@@ -163,8 +170,9 @@ func SicoobPixCollection(cfg SicoobPixConfig) ([]byte, error) {
 			{Key: "bearer_token", Value: "", Type: "string"},
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
-			{Key: "pix_txid", Value: txid, Type: "string"},
-			{Key: "chave_pix_conta", Value: cfg.ChavePix, Type: "string"},
+			{Key: "pix_txid", Value: sicoobTXID, Type: "string"},
+			{Key: "chave_pix", Value: cfg.ChavePix, Type: "string"},
+			{Key: "scope", Value: scope, Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,

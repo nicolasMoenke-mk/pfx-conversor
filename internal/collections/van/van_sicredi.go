@@ -3,6 +3,7 @@ package van
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
 	b "io.github.com/conv-pfx/internal/collections/body"
@@ -11,6 +12,7 @@ import (
 const (
 	sicrediVanHost = "api-parceiro.sicredi.com.br"
 	sicrediVanBase = "https://" + sicrediVanHost
+	sicrediScope   = "cobranca"
 )
 
 type SicrediVanConfig struct {
@@ -24,9 +26,7 @@ type SicrediVanConfig struct {
 	Scope           string
 }
 
-func AuthVanSicredi(cfg SicrediVanConfig) c.PostmanItem {
-
-	cfg.Scope = "cobranca"
+func AuthVanSicredi() c.PostmanItem {
 
 	return c.PostmanItem{
 		Name: "Autenticar Van Sicredi",
@@ -34,16 +34,16 @@ func AuthVanSicredi(cfg SicrediVanConfig) c.PostmanItem {
 			Method: "POST",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/x-www-form-urlencoded", Type: "string"},
-				{Key: "x-api-key", Value: cfg.SicrediApiKey, Type: "string"},
+				{Key: "x-api-key", Value: "{{sicredi_api_key}}", Type: "string"},
 				{Key: "context", Value: "COBRANCA", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
-					{Key: "username", Value: cfg.SicrediUsername, Type: "string"},
-					{Key: "password", Value: cfg.SicrediPassword, Type: "string"},
+					{Key: "username", Value: "{{username}}", Type: "string"},
+					{Key: "password", Value: "{{password}}", Type: "string"},
 					{Key: "grant_type", Value: "password", Type: "string"},
-					{Key: "scope", Value: cfg.Scope, Type: "string"},
+					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -56,10 +56,10 @@ func AuthVanSicredi(cfg SicrediVanConfig) c.PostmanItem {
 
 }
 
-func CreateSicrediVan(cfg SicrediVanConfig) (c.PostmanItem, error) {
+func CreateSicrediVan() (c.PostmanItem, error) {
 
 	createBody := b.DadosBoletoSicredi{
-		CodBeneficiario: cfg.SicrediCodBenef,
+		CodBeneficiario: "{{sicredi_cod_benef}}",
 		DtVencimento:    "2027-02-02",
 		SeuNumero:       "251454",
 		EspecieDoc:      "DUPLICATA_MERCANTIL_INDICACAO",
@@ -91,9 +91,9 @@ func CreateSicrediVan(cfg SicrediVanConfig) (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "Cooperativa", Value: cfg.SicrediCoop, Type: "string"},
-				{Key: "Posto", Value: cfg.SicrediPosto, Type: "string"},
-				{Key: "X-Api-Key", Value: cfg.SicrediApiKey, Type: "string"},
+				{Key: "Cooperativa", Value: "{{sicredi_coop}}", Type: "string"},
+				{Key: "Posto", Value: "{{sicredi_posto}}", Type: "string"},
+				{Key: "X-Api-Key", Value: "{{sicredi_api_key}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
@@ -108,7 +108,7 @@ func CreateSicrediVan(cfg SicrediVanConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func RemoveSicrediVan(cfg SicrediVanConfig) c.PostmanItem {
+func RemoveSicrediVan() c.PostmanItem {
 
 	return c.PostmanItem{
 		Name: "Remover boleto Sicredi",
@@ -117,31 +117,40 @@ func RemoveSicrediVan(cfg SicrediVanConfig) c.PostmanItem {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "Cooperativa", Value: cfg.SicrediCoop, Type: "string"},
-				{Key: "Posto", Value: cfg.SicrediPosto, Type: "string"},
-				{Key: "X-Api-Key", Value: cfg.SicrediApiKey, Type: "string"},
-				{Key: "CodigoBeneficiario", Value: cfg.SicrediCodBenef, Type: "string"},
+				{Key: "Cooperativa", Value: "{{sicredi_coop}}", Type: "string"},
+				{Key: "Posto", Value: "{{sicredi_posto}}", Type: "string"},
+				{Key: "X-Api-Key", Value: "{{sicredi_api_key}}", Type: "string"},
+				{Key: "CodigoBeneficiario", Value: "{{sicredi_cod_benef}}", Type: "string"},
 			},
 			Url: c.PostmanURL{
-				Raw:  sicrediVanBase + "/cobranca/boleto/v1/boletos/" + cfg.SicrediNN + "/baixa",
+				Raw:  sicrediVanBase + "/cobranca/boleto/v1/boletos/{{sicredi_nn}}/baixa",
 				Host: []string{sicrediVanHost},
-				Path: []string{"cobranca", "boleto", "v1", "boletos", cfg.SicrediNN, "baixa"},
+				Path: []string{"cobranca", "boleto", "v1", "boletos", "{{sicredi_nn}}", "baixa"},
 			},
 		},
 	}
 
 }
 
-func SicrediVanCollection(cfg SicrediVanConfig) ([]byte, error) {
+func SicrediVanCollection(cfg *SicrediVanConfig) ([]byte, error) {
 
-	auth := AuthVanSicredi(cfg)
-
-	create, err := CreateSicrediVan(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula")
 	}
 
-	remove := RemoveSicrediVan(cfg)
+	scope := cfg.Scope
+	if scope == "" {
+		scope = sicrediScope
+	}
+
+	auth := AuthVanSicredi()
+
+	create, err := CreateSicrediVan()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Boleto': %w", err)
+	}
+
+	remove := RemoveSicrediVan()
 
 	collection := c.PostmanCollection{
 		Info: c.PostmanInfo{
@@ -158,7 +167,7 @@ func SicrediVanCollection(cfg SicrediVanConfig) ([]byte, error) {
 			{Key: "posto", Value: cfg.SicrediPosto, Type: "string"},
 			{Key: "sicredi_cod_benef", Value: cfg.SicrediCodBenef, Type: "string"},
 			{Key: "sicredi_nn", Value: cfg.SicrediNN, Type: "string"},
-			{Key: "scope", Value: cfg.Scope, Type: "string"},
+			{Key: "scope", Value: scope, Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,

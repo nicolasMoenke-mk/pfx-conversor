@@ -1,26 +1,26 @@
 package body
 
 type SicrediPagador struct {
-	Documento  string
-	Nome       string
-	TipoPessoa string
-	Endereco   string
-	Cidade     string
-	Cep        string
-	Uf         string
+	Documento  string `json:"documento"`
+	Nome       string `json:"nome"`
+	TipoPessoa string `json:"tipoPessoa"`
+	Endereco   string `json:"endereco"`
+	Cidade     string `json:"cidade"`
+	Cep        string `json:"cep"`
+	Uf         string `json:"uf"`
 }
 
 type DadosBoletoSicredi struct {
-	CodBeneficiario string
-	DtVencimento    string
-	SeuNumero       string
-	EspecieDoc      string
-	Pagador         SicrediPagador
-	TipoConbranca   string
-	Valor           string
-	TipoJuros       string
-	Juros           string
-	Multa           string
+	CodBeneficiario string         `json:"codigoBeneficiario"`
+	DtVencimento    string         `json:"dataVencimento"`
+	SeuNumero       string         `json:"seuNumero"`
+	EspecieDoc      string         `json:"especieDocumento"`
+	Pagador         SicrediPagador `json:"pagador"`
+	TipoConbranca   string         `json:"tipoCobranca"`
+	Valor           string         `Json:"valor"`
+	TipoJuros       string         `Json:"tipoJuros"`
+	Juros           string         `Json:"juros"`
+	Multa           string         `Json:"multa"`
 }
 
 // ----------------- PIX ----------------- //
