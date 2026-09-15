@@ -14,6 +14,7 @@ const (
 	sicoobHostApiVan  = "api.sicoob.com.br"
 	sicoobBaseUrlAuth = "https://" + sicoobHostAuthVan
 	sicoobBaseUrlApi  = "https://" + sicoobHostApiVan
+	sicoobScope       = "boletos_inclusao boletos_consulta boletos_alteracao webhooks_alteracao webhooks_consulta webhooks_inclusao"
 )
 
 type SicoobVanConfig struct {
@@ -25,28 +26,26 @@ type SicoobVanConfig struct {
 
 func AuthVanSicoob(cfg SicoobVanConfig) c.PostmanItem {
 
-	cfg.Scope = "boletos_inclusao boletos_consulta boletos_alteracao webhooks_alteracao webhooks_consulta webhooks_inclusao"
-
 	return c.PostmanItem{
 		Name: "Autenticação Van Gerar Bearer Token",
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
 				Basic: []c.PostmanAuthParam{
-					{Key: "username", Value: cfg.ClientId, Type: "string"},
-					{Key: "password", Value: cfg.ClientSecret, Type: "string"},
+					{Key: "username", Value: "{{client_id}}", Type: "string"},
+					{Key: "password", Value: "{{client_secret}}", Type: "string"},
 				},
 			},
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "Content-Type", Value: "application/x-www-urlencoded"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "scope", Value: cfg.Scope, Type: "string"},
+					{Key: "client_id", Value: "{{client_id}}", Type: "string"},
+					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -139,8 +138,8 @@ func RemoveSicoobVan(cfg SicoobVanConfig) (c.PostmanItem, error) {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/json", Type: "string"},
-				{Key: "authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 				{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			},
 			Body: &c.PostmanBody{
