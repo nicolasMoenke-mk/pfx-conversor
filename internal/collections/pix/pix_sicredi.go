@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -26,7 +25,7 @@ type SicrediPixConfig struct {
 	Scope              string
 }
 
-func AuthSicrediPix() c.PostmanItem {
+func AuthSicrediPix() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
 		Name: "Autenticar Pix Sicredi",
@@ -55,25 +54,23 @@ func AuthSicrediPix() c.PostmanItem {
 				Path: []string{"oauth", "token"},
 			},
 		},
-	}
+	}, nil
 }
 
 func CreatePixSicredi() (c.PostmanItem, error) {
 
-	createBody := b.SicrediCriarPix{
-		Calendario: b.SicrediCalendario{
-			DtVencimento:          "2027-02-02",
-			ValidadePosVencimento: 1,
+	createBody := map[string]any{
+		"calendario": map[string]any{
+			"dataDeVencimento":      "2027-02-02",
+			"validadePosVencimento": 1,
 		},
-		ChavePix: b.SicrediChavePix{
-			Chave: "{{chave_pix}}",
+		"chave": "{{chave_pix}}",
+		"devedor": map[string]any{
+			"cpf":  "96050176876",
+			"nome": "MK - Teste Comunicação-Call",
 		},
-		Devedor: b.SicrediDevedor{
-			Cpf:  "96050176876",
-			Nome: "MK - Teste Comunicação-Call",
-		},
-		Valor: b.SicrediValor{
-			Valor: "0.25",
+		"valor": map[string]any{
+			"original": "0.25",
 		},
 	}
 
@@ -105,8 +102,8 @@ func CreatePixSicredi() (c.PostmanItem, error) {
 
 func RemoverPixSicredi() (c.PostmanItem, error) {
 
-	removeBody := b.SicrediStatusPix{
-		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
+	removeBody := map[string]any{
+		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
 	}
 
 	rm, err := json.MarshalIndent(removeBody, "", "  ")
@@ -147,7 +144,10 @@ func SicrediPixCollection(cfg *SicrediPixConfig) ([]byte, error) {
 		scope = sicrediScope
 	}
 
-	auth := AuthSicrediPix()
+	auth, err := AuthSicrediPix()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix Sicredi': %w", err)
+	}
 
 	create, err := CreatePixSicredi()
 	if err != nil {

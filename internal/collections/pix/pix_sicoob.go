@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -26,7 +25,6 @@ type SicoobPixConfig struct {
 }
 
 func AuthPixSicoob() c.PostmanItem {
-
 	return c.PostmanItem{
 		Name: "Autenticação Gerar Bearer Token",
 		Request: &c.PostmanRequest{
@@ -44,7 +42,7 @@ func AuthPixSicoob() c.PostmanItem {
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
-					{Key: "grant_type", Value: "client_credentials"},
+					{Key: "grant_type", Value: "client_credentials", Type: "string"},
 					{Key: "client_id", Value: "{{client_id}}", Type: "string"},
 					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
@@ -60,20 +58,18 @@ func AuthPixSicoob() c.PostmanItem {
 
 func CreatePixSicoob() (c.PostmanItem, error) {
 
-	createBody := b.SicoobCriarPix{
-		Calendario: b.SicoobCalendario{
-			DtVencimento: "2027-02-02",
-			Validade:     1,
+	createBody := map[string]any{
+		"calendario": map[string]any{
+			"dataDeVencimento":       "2027-02-02",
+			"validadeAposVencimento": 1,
 		},
-		Chave: b.SicoobChavePix{
-			Chave: "{{chave_pix}}",
+		"chave": "{{chave_pix}}",
+		"devedor": map[string]any{
+			"cpf":  "96050176876",
+			"nome": "MK - Teste Comunicação-Call",
 		},
-		Devedor: b.SicoobDevedor{
-			Cpf:  "96050176876",
-			Nome: "MK - Teste Comunicação-Call",
-		},
-		Valor: b.SicoobValor{
-			Valor: "0.25",
+		"valor": map[string]any{
+			"original": "0.25",
 		},
 	}
 
@@ -101,13 +97,12 @@ func CreatePixSicoob() (c.PostmanItem, error) {
 			},
 		},
 	}, nil
-
 }
 
 func RemoverPixSicoob() (c.PostmanItem, error) {
 
-	rm := b.SicoobStatusPix{
-		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
+	rm := map[string]any{
+		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
 	}
 
 	remove, err := json.MarshalIndent(rm, "", "  ")
@@ -134,11 +129,9 @@ func RemoverPixSicoob() (c.PostmanItem, error) {
 			},
 		},
 	}, nil
-
 }
 
 func SicoobPixCollection(cfg *SicoobPixConfig) ([]byte, error) {
-
 	if cfg == nil {
 		return nil, fmt.Errorf("Configuração não pode ser nula!")
 	}

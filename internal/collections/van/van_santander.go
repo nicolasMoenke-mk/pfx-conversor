@@ -2,10 +2,9 @@ package van
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -25,8 +24,7 @@ type SantanderVanConfig struct {
 	SantanderDictKey      string
 }
 
-func AuthVanSantander(cfg SantanderVanConfig) c.PostmanItem {
-
+func AuthVanSantander() (c.PostmanItem, error) {
 	return c.PostmanItem{
 		Name: "Autenticar Van Santander",
 		Request: &c.PostmanRequest{
@@ -38,8 +36,8 @@ func AuthVanSantander(cfg SantanderVanConfig) c.PostmanItem {
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
+					{Key: "client_id", Value: "{{santander_client_id}}", Type: "string"},
+					{Key: "client_secret", Value: "{{santander_client_secret}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -48,64 +46,45 @@ func AuthVanSantander(cfg SantanderVanConfig) c.PostmanItem {
 				Path: []string{"auth", "oauth", "v2", "token"},
 			},
 		},
-	}
-
+	}, nil
 }
 
-func CreateSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
-
-	createBody := b.DadosBoletoSantander{
-		ClientNumber: cfg.SantanderClientNumber,
-		NsuCode:      cfg.SantanderBankNumb,
-		CovenantCode: cfg.SantanderConventNumb,
-		BankNumber:   cfg.SantanderBankNumb,
-		DueDate:      "2027-02-02",
-		NsuDate:      "2026-09-15",
-		IssueDate:    "2026-09-15",
-		Key: b.ChavePix{
-			Type:    cfg.SantanderType,
-			DictKey: cfg.SantanderDictKey,
+func CreateSantanderVan() (c.PostmanItem, error) {
+	createBody := map[string]any{
+		"clientNumber": "{{santander_clientNumber}}",
+		"nsuCode":      "{{santander_bankNumber}}",
+		"covenantCode": "{{santander_convenantCode}}",
+		"bankNumber":   "{{santander_bankNumber}}",
+		"dueDate":      "2027-02-02",
+		"nsuDate":      "2026-09-15",
+		"issueDate":    "2026-09-15",
+		"key": map[string]any{
+			"type":    "{{santander_key_type}}",
+			"dictKey": "{{santander_dict_key}}",
 		},
-		Environment:     "PRODUCAO",
-		ParticipantCode: nil,
-		NominalValue:    "10.00",
-		Payer: b.PagadorSantander{
-			Name:         "CLIENTE TESTE MK",
-			DocumentType: "CPF",
-			Document:     "96050176876",
-			Address:      "Rua Amazonas",
-			Neighborhood: "Patrimonio Novo",
-			City:         "Votuporanga",
-			State:        "SP",
-			ZipCode:      "15500-004",
+		"environment":  "PRODUCAO",
+		"nominalValue": "10.00",
+		"payer": map[string]any{
+			"name":           "CLIENTE TESTE MK",
+			"documentType":   "CPF",
+			"documentNumber": "96050176876",
+			"address":        "Rua Amazonas",
+			"neighborhood":   "Patrimonio Novo",
+			"city":           "Votuporanga",
+			"state":          "SP",
+			"zipCode":        "15500-004",
 		},
-		Beneficiary:          nil,
-		DocumentKind:         "DUPLICATA_MERCANTIL",
-		FinePercentage:       "2.00",
-		FineQuantityDays:     "0",
-		InterestPercentage:   "0.99",
-		DeductionValue:       nil,
-		ProtestType:          "SEM_PROTESTO",
-		ProtestQuantityDays:  nil,
-		WriteOffQuantityDays: nil,
-		PaymentType:          "REGISTRO",
-		ParcelsQuantity:      nil,
-		ValueType:            nil,
-		MinValueOrPercentage: nil,
-		MaxValueOrPercentage: nil,
-		IofPercentage:        nil,
-		Sharing:              nil,
-		DigitableLine:        "",
-		Barcode:              "",
-		QrCodePix:            "",
-		QrCodeUrl:            "",
-		Txid:                 nil,
-		Messages:             nil,
+		"documentKind":       "DUPLICATA_MERCANTIL",
+		"finePercentage":     "2.00",
+		"fineQuantityDays":   "0",
+		"interestPercentage": "0.99",
+		"protestType":        "SEM_PROTESTO",
+		"paymentType":        "REGISTRO",
 	}
 
 	body, err := json.MarshalIndent(createBody, "", "  ")
 	if err != nil {
-		return c.PostmanItem{}, errors.New("Erro ao serializar o body da requisição!")
+		return c.PostmanItem{}, fmt.Errorf("erro ao serializar o body do boleto Santander: %w", err)
 	}
 
 	return c.PostmanItem{
@@ -115,32 +94,31 @@ func CreateSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "X-Application-Key", Value: cfg.SantanderAppKey, Type: "string"},
+				{Key: "X-Application-Key", Value: "{{santander_workspace_id}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
 				Raw:  string(body),
 			},
 			Url: c.PostmanURL{
-				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/" + cfg.SantanderWkId + "/bank_slips",
+				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips",
 				Host: []string{santanderVanHost},
-				Path: []string{"collection_bill_management", "v2", "workspaces", cfg.SantanderWkId, "bank_slips"},
+				Path: []string{"collection_bill_management", "v2", "workspaces", "{{santander_workspace_id}}", "bank_slips"},
 			},
 		},
 	}, nil
 }
 
-func RemoveSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
-
-	removeBody := b.BaixaBoletoSantander{
-		ConvenantCode: cfg.SantanderConventNumb,
-		BankNumber:    cfg.SantanderBankNumb,
-		Operation:     "BAIXA",
+func RemoveSantanderVan() (c.PostmanItem, error) {
+	removeBody := map[string]any{
+		"convenantCode": "{{santander_convenantCode}}",
+		"bankNumber":    "{{santander_bankNumber}}",
+		"operation":     "BAIXA",
 	}
 
 	rm, err := json.MarshalIndent(removeBody, "", "  ")
 	if err != nil {
-		return c.PostmanItem{}, errors.New("Erro ao serializar o body da requisição!")
+		return c.PostmanItem{}, fmt.Errorf("erro ao serializar o body de baixa Santander: %w", err)
 	}
 
 	return c.PostmanItem{
@@ -150,33 +128,40 @@ func RemoveSantanderVan(cfg SantanderVanConfig) (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "X-Application-Key", Value: cfg.SantanderAppKey, Type: "string"},
+				{Key: "X-Application-Key", Value: "{{santander_app_key}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
 				Raw:  string(rm),
 			},
 			Url: c.PostmanURL{
-				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/" + cfg.SantanderWkId + "/bank_slips",
+				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips",
 				Host: []string{santanderVanHost},
-				Path: []string{"collection_bill_management", "v2", "workspaces", cfg.SantanderWkId, "bank_slips"},
+				Path: []string{"collection_bill_management", "v2", "workspaces", "{{santander_workspace_id}}", "bank_slips"},
 			},
 		},
 	}, nil
 }
 
-func SantanderVanCollection(cfg SantanderVanConfig) ([]byte, error) {
+func SantanderVanCollection(cfg *SantanderVanConfig) ([]byte, error) {
 
-	auth := AuthVanSantander(cfg)
-
-	create, err := CreateSantanderVan(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula")
 	}
 
-	remove, err := RemoveSantanderVan(cfg)
+	auth, err := AuthVanSantander()
 	if err != nil {
-		return nil, errors.New("Erro inesperado")
+		return nil, fmt.Errorf("Falha ao gerar item 'Auth Van Santander': %w", err)
+	}
+
+	create, err := CreateSantanderVan()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao gerar item 'Criar Van Santander': %w", err)
+	}
+
+	remove, err := RemoveSantanderVan()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao gerar item 'Remover Van Santander': %w", err)
 	}
 
 	collection := c.PostmanCollection{
@@ -186,10 +171,9 @@ func SantanderVanCollection(cfg SantanderVanConfig) ([]byte, error) {
 			Schema:      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		},
 		Variable: []c.PostmanVariable{
-			{Key: "bearer_token", Value: "Bearer {{bearer_token}}", Type: "string"},
+			{Key: "bearer_token", Value: "", Type: "string"},
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
-			{Key: "X-Application-Key", Value: cfg.SantanderAppKey, Type: "string"},
 			{Key: "santander_app_key", Value: cfg.SantanderAppKey, Type: "string"},
 			{Key: "santander_workspace_id", Value: cfg.SantanderWkId, Type: "string"},
 			{Key: "santander_client_number", Value: cfg.SantanderClientNumber, Type: "string"},
@@ -204,5 +188,6 @@ func SantanderVanCollection(cfg SantanderVanConfig) ([]byte, error) {
 			remove,
 		},
 	}
+
 	return json.MarshalIndent(collection, "", "  ")
 }

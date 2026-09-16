@@ -3,6 +3,7 @@ package pix
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
 	b "io.github.com/conv-pfx/internal/collections/body"
@@ -14,6 +15,7 @@ const (
 	bbPixHost     = "api-pix.bb.com.br"
 	bbPixBase     = "https://" + bbPixHost
 	bbTXID        = "AJIDJALISJSHDKUSHD"
+	bbScope       = "cobv.write cobv.read pix.read"
 )
 
 type BancoDoBrasilPixConfig struct {
@@ -24,9 +26,7 @@ type BancoDoBrasilPixConfig struct {
 	Scope        string
 }
 
-func AuthPixBB(cfg BancoDoBrasilPixConfig) c.PostmanItem {
-
-	cfg.Scope = "cobv.write cobv.read pix.read"
+func AuthPixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
 	return c.PostmanItem{
 		Name: "Autenticar Pix BB",
@@ -34,8 +34,8 @@ func AuthPixBB(cfg BancoDoBrasilPixConfig) c.PostmanItem {
 			Auth: &c.PostmanAuth{
 				Type: "basic",
 				Basic: []c.PostmanAuthParam{
-					{Key: "username", Value: cfg.ClientId, Type: "string"},
-					{Key: "password", Value: cfg.ClientSecret, Type: "string"},
+					{Key: "username", Value: "{{client_id}}", Type: "string"},
+					{Key: "password", Value: "{{client_secret}}", Type: "string"},
 				},
 			},
 			Method: "POST",
@@ -46,8 +46,8 @@ func AuthPixBB(cfg BancoDoBrasilPixConfig) c.PostmanItem {
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "scope", Value: cfg.Scope, Type: "string"},
+					{Key: "client_id", Value: "{{client_id}}", Type: "string"},
+					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -56,7 +56,7 @@ func AuthPixBB(cfg BancoDoBrasilPixConfig) c.PostmanItem {
 				Path: []string{"oauth", "token"},
 			},
 		},
-	}
+	}, nil
 }
 
 func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
@@ -139,7 +139,10 @@ func RemovePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
 func BancoDoBrasilPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
 
-	auth := AuthPixBB(cfg)
+	auth, err := AuthPixBB(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula")
+	}
 
 	create, err := CreatePixBB(cfg)
 	if err != nil {

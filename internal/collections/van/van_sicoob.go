@@ -3,10 +3,9 @@ package van
 import (
 	"encoding/json"
 	"errors"
-	"strconv"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -18,14 +17,20 @@ const (
 )
 
 type SicoobVanConfig struct {
-	ClientId     string              `json:"client_id"`
-	ClientSecret string              `json:"client_secret"`
-	Scope        string              `json:"scope"`
-	Dados        b.SicoobDadosBoleto `json:"dados_sicoob"`
+	ClientId         string `json:"client_id"`
+	ClientSecret     string `json:"client_secret"`
+	Scope            string `json:"scope"`
+	NumeroCliente    int    `json:"numero_cliente"`
+	CodigoModalidade int    `json:"codigo_modalidade"`
+	ContaCorrente    int    `json:"conta_corrente"`
+	DataVencimento   string `json:"data_vencimento"`
+	DataEmissao      string `json:"data_emissao"`
+	SeuNumero        int    `json:"seu_numero"`
+	NossoNumero      int    `json:"nosso_numero"`
+	IdBoletoEmpresa  int    `json:"id_boleto_empresa"`
 }
 
-func AuthVanSicoob(cfg SicoobVanConfig) c.PostmanItem {
-
+func AuthVanSicoob() (c.PostmanItem, error) {
 	return c.PostmanItem{
 		Name: "Autenticação Van Gerar Bearer Token",
 		Request: &c.PostmanRequest{
@@ -54,39 +59,38 @@ func AuthVanSicoob(cfg SicoobVanConfig) c.PostmanItem {
 				Path: []string{"auth", "realms", "cooperado", "protocol", "openid-connect", "token"},
 			},
 		},
-	}
-
+	}, nil
 }
 
-func CreateSicoobVan(cfg SicoobVanConfig) (c.PostmanItem, error) {
+func CreateSicoobVan() (c.PostmanItem, error) {
 
-	createBody := b.SicoobCriarBoleto{
-		Dados: b.SicoobDadosBoleto{
-			NumeroCliente:          cfg.Dados.NumeroCliente,
-			CodigoModalidade:       cfg.Dados.CodigoModalidade,
-			ContaCorrente:          cfg.Dados.ContaCorrente,
-			DataVencimento:         cfg.Dados.DataVencimento,
-			DataEmissao:            cfg.Dados.DataEmissao,
-			SeuNumero:              cfg.Dados.SeuNumero,
-			NossoNumero:            cfg.Dados.NossoNumero,
-			IdBoletoEmpresa:        cfg.Dados.IdBoletoEmpresa,
-			CodigoEspecieDocumento: "0",
-			IdEmissaoBoleto:        0,
-			IdDistribuicaoBoleto:   0,
-			Valor:                  25.0,
+	createBody := map[string]any{
+		"dados": map[string]any{
+			"numeroCliente":                   "{{numeroCliente}}",
+			"codigoModalidade":                "{{codigoModalidade}}",
+			"numeroContaCorrente":             "{{numeroContaCorrente}}",
+			"dataVencimento":                  "{{dataVencimento}}",
+			"dataEmissao":                     "{{dataEmissao}}",
+			"seuNumero":                       "{{seuNumero}}",
+			"nossoNumero":                     "{{nossoNumero}}",
+			"identificacaoBoletoEmpresa":      "{{identificacaoBoletoEmpresa}}",
+			"codigoEspecieDocumento":          "0",
+			"identificacaoEmissaoBoleto":      0,
+			"identificacaoDistribuicaoBoleto": 0,
+			"valor":                           25.0,
 		},
-		Pagador: b.SicoobPagadorBoleto{
-			Documento: "1452875",
-			Nome:      "MK Solutions",
-			Endereco:  "Rua Amazonas",
-			Bairro:    "Patrimonio Novo",
-			Cidade:    "Votuporanga",
-			Cep:       "15500004",
-			Uf:        "SP",
-			Email:     "",
+		"pagador": map[string]any{
+			"numeroCpfCnpj": "1452875",
+			"nome":          "MK Solutions",
+			"endereco":      "Rua Amazonas",
+			"bairro":        "Patrimonio Novo",
+			"cidade":        "Votuporanga",
+			"cep":           "15500004",
+			"uf":            "SP",
+			"email":         "",
 		},
-		Pix: b.SicoobPixBoleto{
-			CdCadastroPix: 1,
+		"pix": map[string]any{
+			"codigoCadastrarPIX": 1,
 		},
 	}
 
@@ -100,9 +104,9 @@ func CreateSicoobVan(cfg SicoobVanConfig) (c.PostmanItem, error) {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/json", Type: "string"},
-				{Key: "authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "client_id", Value: cfg.ClientId, Type: "string"},
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
+				{Key: "client_id", Value: "{{client_id}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
@@ -117,14 +121,12 @@ func CreateSicoobVan(cfg SicoobVanConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func RemoveSicoobVan(cfg SicoobVanConfig) (c.PostmanItem, error) {
+func RemoveSicoobVan() (c.PostmanItem, error) {
 
-	nossoNum := strconv.Itoa(cfg.Dados.NossoNumero)
-
-	rm := b.SicoobRemoverBoleto{
-		Boleto: b.SicoobDadosBoleto{
-			NumeroCliente:    cfg.Dados.NumeroCliente,
-			CodigoModalidade: cfg.Dados.CodigoModalidade,
+	rm := map[string]any{
+		"boleto": map[string]any{
+			"numeroCliente":    "{{numeroCliente}}",
+			"codigoModalidade": "{{codigoModalidade}}",
 		},
 	}
 
@@ -140,33 +142,45 @@ func RemoveSicoobVan(cfg SicoobVanConfig) (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "client_id", Value: cfg.ClientId, Type: "string"},
+				{Key: "client_id", Value: "{{client_id}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
 				Raw:  string(rmBody),
 			},
 			Url: c.PostmanURL{
-				Raw:  sicoobBaseUrlApi + "/cobranca-bancaria/v3/boletos/" + nossoNum + "/baixar",
+				Raw:  sicoobBaseUrlApi + "/cobranca-bancaria/v3/boletos/{{sicoob_nossoNumero}}/baixar",
 				Host: []string{sicoobHostApiVan},
-				Path: []string{"cobranca-bancaria", "v3", "boletos", nossoNum, "baixar"},
+				Path: []string{"cobranca-bancaria", "v3", "boletos", "{{sicoob_nossoNumero}}", "baixar"},
 			},
 		},
 	}, nil
 }
 
-func SicoobVanCollection(cfg SicoobVanConfig) ([]byte, error) {
+func SicoobVanCollection(cfg *SicoobVanConfig) ([]byte, error) {
 
-	auth := AuthVanSicoob(cfg)
-
-	create, err := CreateSicoobVan(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado!")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula!")
 	}
 
-	remove, err := RemoveSicoobVan(cfg)
+	scope := sicoobScope
+	if scope == "" {
+		scope = sicoobScope
+	}
+
+	auth, err := AuthVanSicoob()
 	if err != nil {
-		return nil, errors.New("Erro inesperado!")
+		return nil, fmt.Errorf("Falha ao criar item 'Auth Van Sicoob': %w", err)
+	}
+
+	create, err := CreateSicoobVan()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Boleto Sicoob': %w", err)
+	}
+
+	remove, err := RemoveSicoobVan()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Remover Boleto Sicoob': %w", err)
 	}
 
 	collection := c.PostmanCollection{
@@ -179,14 +193,15 @@ func SicoobVanCollection(cfg SicoobVanConfig) ([]byte, error) {
 			{Key: "bearer_token", Value: "", Type: "string"},
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
-			{Key: "numeroCliente", Value: strconv.Itoa(cfg.Dados.NumeroCliente), Type: "string"},
-			{Key: "codigoModalidade", Value: strconv.Itoa(cfg.Dados.CodigoModalidade), Type: "string"},
-			{Key: "numeroContaCorrente", Value: strconv.Itoa(cfg.Dados.ContaCorrente), Type: "string"},
-			{Key: "dataVencimento", Value: cfg.Dados.DataVencimento, Type: "string"},
-			{Key: "dataEmissao", Value: cfg.Dados.DataEmissao, Type: "string"},
-			{Key: "seuNumero", Value: strconv.Itoa(cfg.Dados.SeuNumero), Type: "string"},
-			{Key: "nossoNumero", Value: strconv.Itoa(cfg.Dados.NossoNumero), Type: "string"},
-			{Key: "identificacaoBoletoEmpresa", Value: strconv.Itoa(cfg.Dados.IdBoletoEmpresa), Type: "string"},
+			{Key: "numeroCliente", Value: fmt.Sprintf("%d", cfg.NumeroCliente), Type: "string"},
+			{Key: "scope", Value: cfg.Scope, Type: "string"},
+			{Key: "codigoModalidade", Value: fmt.Sprintf("%d", cfg.CodigoModalidade), Type: "string"},
+			{Key: "numeroContaCorrente", Value: fmt.Sprintf("%d", cfg.ContaCorrente), Type: "string"},
+			{Key: "dataVencimento", Value: cfg.DataVencimento, Type: "string"},
+			{Key: "dataEmissao", Value: cfg.DataEmissao, Type: "string"},
+			{Key: "seuNumero", Value: fmt.Sprintf("%d", cfg.SeuNumero), Type: "string"},
+			{Key: "nossoNumero", Value: fmt.Sprintf("%d", cfg.NossoNumero), Type: "string"},
+			{Key: "identificacaoBoletoEmpresa", Value: fmt.Sprintf("%d", cfg.IdBoletoEmpresa), Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,
@@ -196,5 +211,4 @@ func SicoobVanCollection(cfg SicoobVanConfig) ([]byte, error) {
 	}
 
 	return json.MarshalIndent(collection, "", "  ")
-
 }

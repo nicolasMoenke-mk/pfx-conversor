@@ -2,11 +2,9 @@ package van
 
 import (
 	"encoding/json"
-	"errors"
-	"strconv"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -15,33 +13,24 @@ const (
 )
 
 type BradescoVanConfig struct {
-	ClientId     string                `json:"client_id"`
-	ClientSecret string                `json:"client_secret"`
-	Dados        b.DadosBoletoBradesco `json:"dados_bradesco"`
+	ClientId     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
 }
 
-func AuthVanBradesco(cfg BradescoVanConfig) c.PostmanItem {
-
+func AuthVanBradesco(cfg BradescoVanConfig) (c.PostmanItem, error) {
 	return c.PostmanItem{
 		Name: "Autenticação Van Gerar Bearer Token ",
 		Request: &c.PostmanRequest{
-			Auth: &c.PostmanAuth{
-				Type: "basic",
-				Basic: []c.PostmanAuthParam{
-					{Key: "username", Value: cfg.ClientId, Type: "string"},
-					{Key: "password", Value: cfg.ClientSecret, Type: "string"},
-				},
-			},
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "content-type", Value: "application/x-www-urlencoded"},
+				{Key: "Content-Type", Value: "application/x-www-form-urlencoded"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant-type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
+					{Key: "client_id", Value: "{{bradesco_client_id}}", Type: "string"},
+					{Key: "client_secret", Value: "{{bradesco_client_secret}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -50,75 +39,73 @@ func AuthVanBradesco(cfg BradescoVanConfig) c.PostmanItem {
 				Path: []string{"auth", "server-mtls", "v2", "token"},
 			},
 		},
-	}
-
+	}, nil
 }
 
 func CreateBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
-
-	createBody := b.BoletoBradesco{
-		BoletoBradesco: b.DadosBoletoBradesco{
-			NuCPFCNPJ:                            cfg.Dados.NuCPFCNPJ,
-			FilialCPFCNPJ:                        cfg.Dados.FilialCPFCNPJ,
-			CtrlCPFCNPJ:                          cfg.Dados.CtrlCPFCNPJ,
-			IdProduto:                            cfg.Dados.IdProduto,
-			NuNegociacao:                         cfg.Dados.NuNegociacao,
-			NuTitulo:                             cfg.Dados.NuTitulo,
-			DtEmissaoTitulo:                      cfg.Dados.DtEmissaoTitulo,
-			DtVencimentoTitulo:                   cfg.Dados.DtVencimentoTitulo,
-			CdPagamentoParcial:                   "N",
-			QtdePagamentoParcial:                 0,
-			PercentualJuros:                      1,
-			VlJuros:                              0.00,
-			QtdeDiasJuros:                        1,
-			PercentualMulta:                      2,
-			VlMulta:                              0.00,
-			QtdeDiasMulta:                        1,
-			PercentualDesconto1:                  0,
-			VlDesconto1:                          0.00,
-			DataLimiteDesconto1:                  "",
-			PercentualDesconto2:                  0,
-			VlDesconto2:                          0.00,
-			DataLimiteDesconto2:                  "",
-			PercentualDesconto3:                  0,
-			VlDesconto3:                          0.00,
-			DataLimiteDesconto3:                  "",
-			PrazoBonificacao:                     0,
-			PercentualBonificacao:                0,
-			VlBonificacao:                        0.00,
-			DtLimiteBonificacao:                  "",
-			VlAbatimento:                         0.00,
-			VlIOF:                                0.00,
-			NomePagador:                          "JESSICASANTOS",
-			LogradouroPagador:                    "RuaGercyPdaSilva",
-			NuLogradouroPagador:                  "0",
-			ComplementoLogradouroPagador:         "LT10QD17",
-			CepPagador:                           99050,
-			ComplementoCepPagador:                100,
-			BairroPagador:                        "Petropolis",
-			MunicipioPagador:                     "PassoFundo",
-			UfPagador:                            "RS",
-			CdIndCpfcnpjPagador:                  1,
-			NuCpfcnpjPagador:                     89397645013,
-			EndEletronicoPagador:                 "",
-			NomeSacadorAvalista:                  "",
-			LogradouroSacadorAvalista:            "",
-			NuLogradouroSacadorAvalista:          "",
-			ComplementoLogradouroSacadorAvalista: "",
-			CepSacadorAvalista:                   0,
-			ComplementoCepSacadorAvalista:        0,
-			BairroSacadorAvalista:                "",
-			MunicipioSacadorAvalista:             "",
-			UfSacadorAvalista:                    "",
-			CdIndCpfcnpjSacadorAvalista:          0,
-			NuCpfcnpjSacadorAvalista:             0,
-			EnderecoSacadorAvalista:              "",
+	createBody := map[string]any{
+		"boleto_bradesco": map[string]any{
+			"nuCPFCNPJ":                            "",
+			"filialCPFCNPJ":                        "",
+			"ctrlCPFCNPJ":                          "",
+			"idProduto":                            "",
+			"nuNegociacao":                         "",
+			"nuTitulo":                             "",
+			"dtEmissaoTitulo":                      "",
+			"dtVencimentoTitulo":                   "",
+			"cdPagamentoParcial":                   "N",
+			"qtdePagamentoParcial":                 0,
+			"percentualJuros":                      1,
+			"vlJuros":                              0.00,
+			"qtdeDiasJuros":                        1,
+			"percentualMulta":                      2,
+			"vlMulta":                              0.00,
+			"qtdeDiasMulta":                        1,
+			"percentualDesconto1":                  0,
+			"vlDesconto1":                          0.00,
+			"dataLimiteDesconto1":                  "",
+			"percentualDesconto2":                  0,
+			"vlDesconto2":                          0.00,
+			"dataLimiteDesconto2":                  "",
+			"percentualDesconto3":                  0,
+			"vlDesconto3":                          0.00,
+			"dataLimiteDesconto3":                  "",
+			"prazoBonificacao":                     0,
+			"percentualBonificacao":                0,
+			"vlBonificacao":                        0.00,
+			"dtLimiteBonificacao":                  "",
+			"vlAbatimento":                         0.00,
+			"vlIOF":                                0.00,
+			"nomePagador":                          "JESSICASANTOS",
+			"logradouroPagador":                    "RuaGercyPdaSilva",
+			"nuLogradouroPagador":                  "0",
+			"complementoLogradouroPagador":         "LT10QD17",
+			"cepPagador":                           99050,
+			"complementoCepPagador":                100,
+			"bairroPagador":                        "Petropolis",
+			"municipioPagador":                     "PassoFundo",
+			"ufPagador":                            "RS",
+			"cdIndCpfcnpjPagador":                  1,
+			"nuCpfcnpjPagador":                     89397645013,
+			"endEletronicoPagador":                 "",
+			"nomeSacadorAvalista":                  "",
+			"logradouroSacadorAvalista":            "",
+			"nuLogradouroSacadorAvalista":          "",
+			"complementoLogradouroSacadorAvalista": "",
+			"cepSacadorAvalista":                   0,
+			"complementoCepSacadorAvalista":        0,
+			"bairroSacadorAvalista":                "",
+			"municipioSacadorAvalista":             "",
+			"ufSacadorAvalista":                    "",
+			"cdIndCpfcnpjSacadorAvalista":          0,
+			"nuCpfcnpjSacadorAvalista":             0,
+			"enderecoSacadorAvalista":              "",
 		},
 	}
 
 	body, err := json.MarshalIndent(createBody, "", "  ")
 	if err != nil {
-		return c.PostmanItem{}, errors.New("Erro ao serializar body de requisição!")
+		return c.PostmanItem{}, fmt.Errorf("erro ao serializar body de requisição: %w", err)
 	}
 
 	return c.PostmanItem{
@@ -126,8 +113,8 @@ func CreateBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "content-type", Value: "application/json", Type: "string"},
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
@@ -140,27 +127,25 @@ func CreateBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 			},
 		},
 	}, nil
-
 }
 
 func RemoveBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
-
-	rm := b.BaixaBoletoBradesco{
-		CpfCnpj: b.DocPagadorBradesco{
-			CpfCnpj:  cfg.Dados.NuCPFCNPJ,
-			Filial:   cfg.Dados.FilialCPFCNPJ,
-			Controle: cfg.Dados.CtrlCPFCNPJ,
+	rm := map[string]any{
+		"cpfCnpj": map[string]any{
+			"cpfCnpj":  "",
+			"filial":   "",
+			"controle": "",
 		},
-		Produto:     cfg.Dados.IdProduto,
-		Negociacao:  cfg.Dados.NuNegociacao,
-		NossoNumero: cfg.Dados.NuTitulo,
-		Sequencia:   0,
-		CodigoBaixa: 57,
+		"produto":     "",
+		"negociacao":  "",
+		"nossoNumero": "",
+		"sequencia":   0,
+		"codigoBaixa": 57,
 	}
 
 	rmBody, err := json.MarshalIndent(rm, "", "  ")
 	if err != nil {
-		return c.PostmanItem{}, errors.New("Erro ao serializar o body da requisição!")
+		return c.PostmanItem{}, fmt.Errorf("erro ao serializar o body da requisição: %w", err)
 	}
 
 	return c.PostmanItem{
@@ -168,8 +153,8 @@ func RemoveBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
-				{Key: "authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "content-type", Value: "application/json", Type: "string"},
+				{Key: "Content-Type", Value: "application/json", Type: "string"},
+				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
@@ -184,18 +169,20 @@ func RemoveBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func BradescoVanCollection(cfg BradescoVanConfig) ([]byte, error) {
-
-	auth := AuthVanBradesco(cfg)
-
-	create, err := CreateBradescoVan(cfg)
+func BradescoVanCollection(cfg *BradescoVanConfig) ([]byte, error) {
+	auth, err := AuthVanBradesco(*cfg)
 	if err != nil {
-		return nil, errors.New("Erro inesperado!")
+		return nil, fmt.Errorf("falha ao criar item 'Auth Van Bradesco': %w", err)
 	}
 
-	remove, err := RemoveBradescoVan(cfg)
+	create, err := CreateBradescoVan(*cfg)
 	if err != nil {
-		return nil, errors.New("Erro inesperado!")
+		return nil, fmt.Errorf("falha ao criar item de criação VAN Bradesco: %w", err)
+	}
+
+	remove, err := RemoveBradescoVan(*cfg)
+	if err != nil {
+		return nil, fmt.Errorf("falha ao criar item de remoção VAN Bradesco: %w", err)
 	}
 
 	collection := c.PostmanCollection{
@@ -208,16 +195,15 @@ func BradescoVanCollection(cfg BradescoVanConfig) ([]byte, error) {
 			{Key: "bearer_token", Value: "Bearer {{bearer_token}}", Type: "string"},
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
-			{Key: "nuCPFCNPJ", Value: strconv.Itoa(cfg.Dados.NuCPFCNPJ), Type: "string"},
-			{Key: "filialCPFCNPJ", Value: strconv.Itoa(cfg.Dados.FilialCPFCNPJ), Type: "string"},
-			{Key: "ctrlCPFCNPJ", Value: strconv.Itoa(cfg.Dados.CtrlCPFCNPJ), Type: "string"},
-			{Key: "idProduto", Value: strconv.Itoa(cfg.Dados.IdProduto), Type: "string"},
-			{Key: "nuNegociacao", Value: strconv.Itoa(int(cfg.Dados.NuNegociacao)), Type: "string"},
-			{Key: "nuTitulo", Value: strconv.Itoa(cfg.Dados.NuTitulo), Type: "string"},
-			{Key: "nuCliente", Value: strconv.Itoa(cfg.Dados.NuTitulo), Type: "string"},
-			{Key: "nuTitulo", Value: cfg.Dados.NuCliente, Type: "string"},
-			{Key: "dtEmissaoTitulo", Value: cfg.Dados.DtEmissaoTitulo, Type: "string"},
-			{Key: "dtVencimentoTitulo", Value: cfg.Dados.DtVencimentoTitulo, Type: "string"},
+			{Key: "nuCPFCNPJ", Value: fmt.Sprint(), Type: "string"},
+			{Key: "filialCPFCNPJ", Value: fmt.Sprint(), Type: "string"},
+			{Key: "ctrlCPFCNPJ", Value: fmt.Sprint(), Type: "string"},
+			{Key: "idProduto", Value: fmt.Sprint(), Type: "string"},
+			{Key: "nuNegociacao", Value: fmt.Sprint(), Type: "string"},
+			{Key: "nuTitulo", Value: fmt.Sprint(), Type: "string"},
+			{Key: "nuCliente", Value: fmt.Sprint(), Type: "string"},
+			{Key: "dtEmissaoTitulo", Value: fmt.Sprint(), Type: "string"},
+			{Key: "dtVencimentoTitulo", Value: fmt.Sprint(), Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,
@@ -225,5 +211,6 @@ func BradescoVanCollection(cfg BradescoVanConfig) ([]byte, error) {
 			remove,
 		},
 	}
+
 	return json.MarshalIndent(collection, "", "  ")
 }

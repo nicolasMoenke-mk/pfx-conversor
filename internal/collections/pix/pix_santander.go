@@ -2,28 +2,25 @@ package pix
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
 	santanderPixHost = "trust-pix.santander.com.br"
 	santanderPixBase = "https://" + santanderPixHost
 	santanderTXID    = "AHUDAHIUDHAKDUHA"
+	santanderScope   = "pix.read pix.write cobv.read cobv.write webhook.write webhook.read"
 )
 
 type SantanderPixConfig struct {
 	ClientId     string
 	ClientSecret string
 	ChavePix     string
-	Scope        string
 }
 
-func AuthPixSantander(cfg SantanderPixConfig) c.PostmanItem {
-
-	cfg.Scope = "pix.read pix.write cobv.read cobv.write webhook.write webhook.read"
+func AuthPixSantander() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
 		Name: "Autenticar Pix Santander",
@@ -31,8 +28,8 @@ func AuthPixSantander(cfg SantanderPixConfig) c.PostmanItem {
 			Auth: &c.PostmanAuth{
 				Type: "basic",
 				Basic: []c.PostmanAuthParam{
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
+					{Key: "username", Value: "{{client_id}}", Type: "string"},
+					{Key: "password", Value: "{{client_secret}}", Type: "string"},
 				},
 			},
 			Method: "POST",
@@ -43,43 +40,39 @@ func AuthPixSantander(cfg SantanderPixConfig) c.PostmanItem {
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: cfg.ClientId, Type: "string"},
-					{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
-					{Key: "scope", Value: cfg.Scope, Type: "string"},
+					{Key: "scope", Value: "{{scope}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
-				Raw:  santanderPixBase + "/oauth/token?grant_type=client_credentials",
+				Raw:  santanderPixBase + "/oauth/token",
 				Host: []string{santanderPixHost},
-				Path: []string{"oauth", "token?grant_type=client_credentials"},
+				Path: []string{"oauth", "token"},
 			},
 		},
-	}
-
+	}, nil
 }
 
-func CreatePixSantander(cfg SantanderPixConfig) (c.PostmanItem, error) {
-
-	createPix := b.SantanderCriarPix{
-		Calendario: b.SantanderCalendario{
-			DtVencimento:          "2027-02-02",
-			ValidadePosVencimento: 1,
+func CreatePixSantander() (c.PostmanItem, error) {
+	createPix := map[string]any{
+		"calendario": map[string]any{
+			"dataDeVencimento":       "2027-02-02",
+			"validadeAposVencimento": 1,
 		},
-		Chave: b.SantanderChavePix{
-			Chave: cfg.ChavePix,
+		"chave": map[string]any{
+			"chave_pix": "{{chave_pix}}",
 		},
-		Devedor: b.SantanderPixDevedor{
-			Cpf:  "96050176876",
-			Nome: "MK - Teste Comunicação-Call",
+		"devedor": map[string]any{
+			"cpf":  "96050176876",
+			"nome": "MK - Teste Comunicação-Call",
 		},
-		Valor: b.SantanderPixValor{
-			Valor: "0.25",
+		"valor": map[string]any{
+			"original": "0.25",
 		},
 	}
 
 	body, err := json.MarshalIndent(createPix, "", "  ")
 	if err != nil {
-		return c.PostmanItem{}, errors.New("Erro ao serializar body da requisição!")
+		return c.PostmanItem{}, fmt.Errorf("erro ao serializar body de criação Pix Santander: %w", err)
 	}
 
 	return c.PostmanItem{
@@ -95,24 +88,22 @@ func CreatePixSantander(cfg SantanderPixConfig) (c.PostmanItem, error) {
 				Raw:  string(body),
 			},
 			Url: c.PostmanURL{
-				Raw:  santanderPixBase + "/api/v1/cobv/" + santanderTXID,
+				Raw:  santanderPixBase + "/api/v1/cobv/{{pix_txid}}",
 				Host: []string{santanderPixHost},
-				Path: []string{"api", "v1", "cobv", santanderTXID},
+				Path: []string{"api", "v1", "cobv", "{{pix_txid}}"},
 			},
 		},
 	}, nil
-
 }
 
-func RemoverPixSantander(cfg SantanderPixConfig) (c.PostmanItem, error) {
-
-	removeBody := b.SantanderStatusPix{
-		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
+func RemoverPixSantander() (c.PostmanItem, error) {
+	removeBody := map[string]any{
+		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
 	}
 
 	rm, err := json.MarshalIndent(removeBody, "", "  ")
 	if err != nil {
-		return c.PostmanItem{}, errors.New("Erro ao serializar o body da requisição!")
+		return c.PostmanItem{}, fmt.Errorf("erro ao serializar o body de remoção Pix Santander: %w", err)
 	}
 
 	return c.PostmanItem{
@@ -128,26 +119,38 @@ func RemoverPixSantander(cfg SantanderPixConfig) (c.PostmanItem, error) {
 				Raw:  string(rm),
 			},
 			Url: c.PostmanURL{
-				Raw:  santanderPixBase + "/api/v1/cobv/" + santanderTXID,
+				Raw:  santanderPixBase + "/api/v1/cobv/{{pix_txid}}",
 				Host: []string{santanderPixHost},
-				Path: []string{"api", "v1", "cobv", santanderTXID},
+				Path: []string{"api", "v1", "cobv", "{{pix_txid}}"},
 			},
 		},
 	}, nil
 }
 
-func SantanderPixCollection(cfg SantanderPixConfig) ([]byte, error) {
+func SantanderPixCollection(cfg *SantanderPixConfig) ([]byte, error) {
 
-	auth := AuthPixSantander(cfg)
-
-	create, err := CreatePixSantander(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula")
 	}
 
-	remove, err := RemoverPixSantander(cfg)
+	scope := santanderScope
+	if scope == "" {
+		scope = santanderScope
+	}
+
+	auth, err := AuthPixSantander()
 	if err != nil {
-		return nil, errors.New("Erro inesperado")
+		return nil, fmt.Errorf("Falha ao gerar item 'Auth Pix Santander'")
+	}
+
+	create, err := CreatePixSantander()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao gerar item 'Criar Pix Santander': %w", err)
+	}
+
+	remove, err := RemoverPixSantander()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao gerar item 'Remover Pix Santander': %w", err)
 	}
 
 	collection := c.PostmanCollection{
@@ -161,7 +164,7 @@ func SantanderPixCollection(cfg SantanderPixConfig) ([]byte, error) {
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
 			{Key: "chave_pix", Value: cfg.ChavePix, Type: "string"},
-			{Key: "scope", Value: cfg.Scope, Type: "string"},
+			{Key: "scope", Value: scope, Type: "string"},
 			{Key: "pix_txid", Value: santanderTXID, Type: "string"},
 		},
 		Item: []c.PostmanItem{
@@ -170,5 +173,6 @@ func SantanderPixCollection(cfg SantanderPixConfig) ([]byte, error) {
 			remove,
 		},
 	}
+
 	return json.MarshalIndent(collection, "", "  ")
 }

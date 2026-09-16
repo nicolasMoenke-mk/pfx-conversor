@@ -64,12 +64,12 @@ func responseJSON(w http.ResponseWriter, res Page) {
 }
 
 var createCollections = map[string]func() ([]byte, error){
-	"sicoob:van":    func() ([]byte, error) { return v.SicoobVanCollection(v.SicoobVanConfig{}) },
+	"sicoob:van":    func() ([]byte, error) { return v.SicoobVanCollection(&v.SicoobVanConfig{}) },
 	"sicoob:pix":    func() ([]byte, error) { return p.SicoobPixCollection(&p.SicoobPixConfig{}) },
-	"santander:van": func() ([]byte, error) { return v.SantanderVanCollection(v.SantanderVanConfig{}) },
-	"santander:pix": func() ([]byte, error) { return p.SantanderPixCollection(p.SantanderPixConfig{}) },
-	"bradesco:van":  func() ([]byte, error) { return v.BradescoVanCollection(v.BradescoVanConfig{}) },
-	"bradesco:pix":  func() ([]byte, error) { return p.BradescoPixCollection(p.BradescoPixConfig{}) },
+	"santander:van": func() ([]byte, error) { return v.SantanderVanCollection(&v.SantanderVanConfig{}) },
+	"santander:pix": func() ([]byte, error) { return p.SantanderPixCollection(&p.SantanderPixConfig{}) },
+	"bradesco:van":  func() ([]byte, error) { return v.BradescoVanCollection(&v.BradescoVanConfig{}) },
+	"bradesco:pix":  func() ([]byte, error) { return p.BradescoPixCollection(&p.BradescoPixConfig{}) },
 	"sicredi:van":   func() ([]byte, error) { return v.SicrediVanCollection(&v.SicrediVanConfig{}) },
 	"sicredi:pix":   func() ([]byte, error) { return p.SicrediPixCollection(&p.SicrediPixConfig{}) },
 	"bb:van":        func() ([]byte, error) { return v.BancoDoBrasilVanCollection(v.BancoDoBrasilVanConfig{}) },
