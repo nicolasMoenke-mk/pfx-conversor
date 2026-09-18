@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -57,39 +56,39 @@ func AuthVanBB(cfg BancoDoBrasilVanConfig) c.PostmanItem {
 
 func CreateBBVan(cfg BancoDoBrasilVanConfig) (c.PostmanItem, error) {
 
-	createBody := b.DadosBoletoBB{
-		NumConvenio:            cfg.BbConvenio,
-		NumCarteira:            cfg.BbNumCarteira,
-		NumVariacaoCart:        cfg.BbVariacaoCart,
-		CodigoModalidade:       cfg.BbModalidade,
-		DtEmissao:              "2026-09-15",
-		DtVencimento:           "2027-02-02",
-		VlOriginal:             "10",
-		IndicadorTitVencido:    "S",
-		NumDiasLimiteReceb:     0,
-		CdTipoTitulo:           2,
-		IndPermissaoRecParcial: "N",
-		NumTituloBenef:         cfg.BbTituloBenef,
-		NumTituloClient:        cfg.BbTituloClient,
-		Desconto: b.BoletoDescontoBB{
-			Tipo:        1,
-			DtExpiracao: "2027-02-02",
-			Valor:       "20",
+	createBody := map[string]any{
+		"numeroConvenio":                       cfg.BbConvenio,
+		"numeroCarteira":                       cfg.BbNumCarteira,
+		"numeroVariacaoCarteira":               cfg.BbVariacaoCart,
+		"codigoModalidade":                     cfg.BbModalidade,
+		"dataEmissao":                          "2026-09-15",
+		"dataVencimento":                       "2027-02-02",
+		"valorOriginal":                        "10",
+		"indicadorAceiteTituloVencido":         "S",
+		"numeroDiasLimiteRecebimento":          0,
+		"codigoTipoTitulo":                     2,
+		"indicadorPermissaoRecebimentoParcial": "N",
+		"numeroTituloBeneficiario":             cfg.BbTituloBenef,
+		"numeroTituloCliente":                  cfg.BbTituloClient,
+		"desconto": map[string]any{
+			"tipo":          1,
+			"dataExpiracao": "2027-02-02",
+			"valor":         "20",
 		},
-		JurosMora: b.BoletoJurosBB{
-			Tipo:        2,
-			Porcentagem: "0.99",
+		"jurosMora": map[string]any{
+			"tipo":        2,
+			"porcentagem": "0.99",
 		},
-		Multa: b.BoletoMultaBB{
-			Tipo:         2,
-			DtVencimento: "2027-02-02",
-			Porcentagem:  "2",
+		"multa": map[string]any{
+			"tipo":        2,
+			"data":        "2027-02-02",
+			"porcentagem": "2",
 		},
-		Pagador: b.BoletoPagadorBB{
-			Tipo:         1,
-			NumInscricao: 96050176876,
+		"pagador": map[string]any{
+			"tipoInscricao":   1,
+			"numeroInscricao": 96050176876,
 		},
-		IndicadorPix: "S",
+		"indicadorPix": "S",
 	}
 
 	body, err := json.MarshalIndent(createBody, "", "  ")
@@ -120,8 +119,8 @@ func CreateBBVan(cfg BancoDoBrasilVanConfig) (c.PostmanItem, error) {
 
 func RemoveBBVan(cfg BancoDoBrasilVanConfig) (c.PostmanItem, error) {
 
-	removeBody := b.BaixaBoletoBB{
-		NumeroConv: cfg.BbConvenio,
+	removeBody := map[string]any{
+		"numeroConvenio": cfg.BbConvenio,
 	}
 
 	rm, err := json.MarshalIndent(removeBody, "", "  ")

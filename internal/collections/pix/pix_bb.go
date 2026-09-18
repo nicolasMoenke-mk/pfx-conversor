@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	c "io.github.com/conv-pfx/internal/collections"
-	b "io.github.com/conv-pfx/internal/collections/body"
 )
 
 const (
@@ -61,20 +60,20 @@ func AuthPixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
 func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
-	createBody := b.BBCriarPix{
-		Calendario: b.BBCalendario{
-			DtVencimento:          "2027-02-02",
-			ValidadePosVencimento: 1,
+	createBody := map[string]any{
+		"calendario": map[string]any{
+			"dataDeVencimento":       "2027-02-02",
+			"validadeAposVencimento": 1,
 		},
-		ChavePix: b.BBChavePix{
-			Chave: cfg.BBChavePix,
+		"chave": map[string]any{
+			"chave_pix": cfg.BBChavePix,
 		},
-		Devedor: b.BBDevedor{
-			Cpf:  "96050176876",
-			Nome: "MK - Teste Comunicação-Call",
+		"devedor": map[string]any{
+			"cpf":  "96050176876",
+			"nome": "MK - Teste Comunicação-Call",
 		},
-		Valor: b.BBValor{
-			Valor: "0.25",
+		"valor": map[string]any{
+			"original": "0.25",
 		},
 	}
 
@@ -107,8 +106,8 @@ func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
 func RemovePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 
-	removeBody := b.BBStatusPix{
-		Status: "REMOVIDA_PELO_USUARIO_RECEBEDOR",
+	removeBody := map[string]any{
+		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
 	}
 
 	rm, err := json.MarshalIndent(removeBody, "", "  ")
@@ -154,6 +153,11 @@ func BancoDoBrasilPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
 		return nil, errors.New("Erro inesperado")
 	}
 
+	scope := cfg.Scope
+	if scope == "" {
+		scope = bbScope
+	}
+
 	collection := c.PostmanCollection{
 		Info: c.PostmanInfo{
 			Name:        "Pix BB",
@@ -166,7 +170,7 @@ func BancoDoBrasilPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
 			{Key: "bb_dev_app_key", Value: cfg.BBAppKey, Type: "string"},
 			{Key: "chave_pix", Value: cfg.BBChavePix, Type: "string"},
 			{Key: "pix_txid", Value: bbTXID, Type: "string"},
-			{Key: "scope", Value: cfg.Scope, Type: "string"},
+			{Key: "scope", Value: scope, Type: "string"},
 		},
 		Item: []c.PostmanItem{
 			auth,

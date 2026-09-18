@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,19 +27,20 @@ type Page struct {
 	KeyPEM    string `json:"keyPem,omitempty"`
 }
 
-func formatarNomeArquivo(nomeInput, prefixo string) string {
+func formatarNomeArquivo(nomeInput, prefixo, extensao string) string {
 
 	nomeLimpo := strings.TrimSpace(nomeInput)
 
 	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".pem")
 	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".crt")
 	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".key")
+	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".pfx")
 
 	if nomeLimpo == "" {
-		return prefixo + ".pem"
+		return prefixo + extensao
 	}
 
-	return fmt.Sprintf("%s%s.pem", prefixo, nomeLimpo)
+	return fmt.Sprintf("%s%s%s", prefixo, nomeLimpo, extensao)
 }
 
 func abrirNavegador(url string) {
@@ -63,17 +65,116 @@ func responseJSON(w http.ResponseWriter, res Page) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
-var createCollections = map[string]func() ([]byte, error){
-	"sicoob:van":    func() ([]byte, error) { return v.SicoobVanCollection(&v.SicoobVanConfig{}) },
-	"sicoob:pix":    func() ([]byte, error) { return p.SicoobPixCollection(&p.SicoobPixConfig{}) },
-	"santander:van": func() ([]byte, error) { return v.SantanderVanCollection(&v.SantanderVanConfig{}) },
-	"santander:pix": func() ([]byte, error) { return p.SantanderPixCollection(&p.SantanderPixConfig{}) },
-	"bradesco:van":  func() ([]byte, error) { return v.BradescoVanCollection(&v.BradescoVanConfig{}) },
-	"bradesco:pix":  func() ([]byte, error) { return p.BradescoPixCollection(&p.BradescoPixConfig{}) },
-	"sicredi:van":   func() ([]byte, error) { return v.SicrediVanCollection(&v.SicrediVanConfig{}) },
-	"sicredi:pix":   func() ([]byte, error) { return p.SicrediPixCollection(&p.SicrediPixConfig{}) },
-	"bb:van":        func() ([]byte, error) { return v.BancoDoBrasilVanCollection(v.BancoDoBrasilVanConfig{}) },
-	"bb:pix":        func() ([]byte, error) { return p.BancoDoBrasilPixCollection(p.BancoDoBrasilPixConfig{}) },
+func atoi(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
+}
+
+// createCollections monta a collection Postman de cada banco/produto a partir
+// dos valores preenchidos pelo usuário no front-end. Chamar com values == nil
+// gera a collection "vazia", usada apenas para descobrir os campos existentes.
+var createCollections = map[string]func(values map[string]string) ([]byte, error){
+	"sicoob:van": func(values map[string]string) ([]byte, error) {
+		return v.SicoobVanCollection(&v.SicoobVanConfig{
+			ClientId:         values["client_id"],
+			ClientSecret:     values["client_secret"],
+			Scope:            values["scope"],
+			NumeroCliente:    atoi(values["numeroCliente"]),
+			CodigoModalidade: atoi(values["codigoModalidade"]),
+			ContaCorrente:    atoi(values["numeroContaCorrente"]),
+			DataVencimento:   values["dataVencimento"],
+			DataEmissao:      values["dataEmissao"],
+			SeuNumero:        atoi(values["seuNumero"]),
+			NossoNumero:      atoi(values["nossoNumero"]),
+			IdBoletoEmpresa:  atoi(values["identificacaoBoletoEmpresa"]),
+		})
+	},
+	"sicoob:pix": func(values map[string]string) ([]byte, error) {
+		return p.SicoobPixCollection(&p.SicoobPixConfig{
+			ClientId:     values["client_id"],
+			ClientSecret: values["client_secret"],
+			ChavePix:     values["chave_pix"],
+			Scope:        values["scope"],
+		})
+	},
+	"santander:van": func(values map[string]string) ([]byte, error) {
+		return v.SantanderVanCollection(&v.SantanderVanConfig{
+			ClientId:              values["client_id"],
+			ClientSecret:          values["client_secret"],
+			SantanderAppKey:       values["santander_app_key"],
+			SantanderWkId:         values["santander_workspace_id"],
+			SantanderClientNumber: values["santander_client_number"],
+			SantanderBankNumb:     values["santander_bank_number"],
+			SantanderConventNumb:  values["santander_convent_code"],
+			SantanderType:         values["santander_dict_type"],
+			SantanderDictKey:      values["santander_dict_key"],
+		})
+	},
+	"santander:pix": func(values map[string]string) ([]byte, error) {
+		return p.SantanderPixCollection(&p.SantanderPixConfig{
+			ClientId:     values["client_id"],
+			ClientSecret: values["client_secret"],
+			ChavePix:     values["chave_pix"],
+		})
+	},
+	"bradesco:van": func(values map[string]string) ([]byte, error) {
+		return v.BradescoVanCollection(&v.BradescoVanConfig{
+			ClientId:     values["client_id"],
+			ClientSecret: values["client_secret"],
+		})
+	},
+	"bradesco:pix": func(values map[string]string) ([]byte, error) {
+		return p.BradescoPixCollection(&p.BradescoPixConfig{
+			ClientId:     values["client_id"],
+			ClientSecret: values["client_secret"],
+			ChavePix:     values["chave_pix"],
+			Scope:        values["scope"],
+		})
+	},
+	"sicredi:van": func(values map[string]string) ([]byte, error) {
+		return v.SicrediVanCollection(&v.SicrediVanConfig{
+			SicrediUsername: values["username"],
+			SicrediPassword: values["password"],
+			SicrediApiKey:   values["x-api-key"],
+			SicrediCoop:     values["cooperativa"],
+			SicrediPosto:    values["posto"],
+			SicrediCodBenef: values["sicredi_codBenef"],
+			SicrediNN:       values["sicredi_nossoNumero"],
+			Scope:           values["scope"],
+		})
+	},
+	"sicredi:pix": func(values map[string]string) ([]byte, error) {
+		return p.SicrediPixCollection(&p.SicrediPixConfig{
+			SicrediApiKey:      values["sicredi_api_key"],
+			SicrediPixUsername: values["username"],
+			SicrediPiXPassword: values["password"],
+			SicrediChavePix:    values["chave_pix"],
+			SicrediPixCoop:     values["cooperativa"],
+			SicrediPixPosto:    values["posto"],
+			Scope:              values["scope"],
+		})
+	},
+	"bb:van": func(values map[string]string) ([]byte, error) {
+		return v.BancoDoBrasilVanCollection(v.BancoDoBrasilVanConfig{
+			BbBasicToken:   values["bb_basic_token"],
+			BbAppKey:       values["bb_app_key"],
+			BbConvenio:     values["bb_convenio"],
+			BbNumCarteira:  values["bb_num_carteira"],
+			BbVariacaoCart: values["bb_variacao_carteira"],
+			BbModalidade:   values["bb_modalidade"],
+			BbTituloBenef:  values["bb_titulo_beneficiario"],
+			BbTituloClient: values["bb_titulo_cliente"],
+		})
+	},
+	"bb:pix": func(values map[string]string) ([]byte, error) {
+		return p.BancoDoBrasilPixCollection(p.BancoDoBrasilPixConfig{
+			ClientId:     values["client_id"],
+			ClientSecret: values["client_secret"],
+			BBChavePix:   values["chave_pix"],
+			BBAppKey:     values["bb_dev_app_key"],
+			Scope:        values["scope"],
+		})
+	},
 }
 
 func pathConstruct(r *http.Request) string {
@@ -94,7 +195,7 @@ func handlerFieldsCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := gen()
+	data, err := gen(nil)
 	if err != nil {
 		responseJSON(w, Page{Success: false, Error: err.Error()})
 		return
@@ -113,6 +214,7 @@ func handlerFieldsCollection(w http.ResponseWriter, r *http.Request) {
 func handlerGenCollection(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	key := pathConstruct(r)
@@ -120,6 +222,7 @@ func handlerGenCollection(w http.ResponseWriter, r *http.Request) {
 	gen, ok := createCollections[key]
 	if !ok {
 		http.NotFound(w, r)
+		return
 	}
 
 	var values map[string]string
@@ -130,17 +233,16 @@ func handlerGenCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := gen()
+	data, err := gen(values)
 	if err != nil {
 		responseJSON(w, Page{Success: false, Error: err.Error()})
 		return
 	}
 
-	data = utils.CompletePlaceholders(data, values)
 	fileName := strings.ReplaceAll(key, ":", "-") + ".json"
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Disposition", `attachment; filename=`+fileName+`"`)
+	w.Header().Set("Content-Disposition", `attachment; filename="`+fileName+`"`)
 	w.Write(data)
 }
 
@@ -180,8 +282,8 @@ func main() {
 			return
 		}
 
-		nomePub := formatarNomeArquivo(r.FormValue("nomeCert"), "ChavePublica")
-		nomePriv := formatarNomeArquivo(r.FormValue("nomeChave"), "ChavePrivada")
+		nomePub := formatarNomeArquivo(r.FormValue("nomeCert"), "ChavePublica", ".pem")
+		nomePriv := formatarNomeArquivo(r.FormValue("nomeChave"), "ChavePrivada", ".pem")
 
 		responseJSON(w, Page{
 			Success:   true,
@@ -231,16 +333,15 @@ func main() {
 			return
 		}
 
-		nomeSaida := formatarNomeArquivo(r.FormValue("nomeSaida"), "certificadonovo")
-		nomeSaida = strings.TrimSuffix(nomeSaida, ".pfx")
+		nomeSaida := formatarNomeArquivo(r.FormValue("nomeSaida"), "certificadonovo", ".pfx")
 
-		w.Header().Set("Content-Type", "application/pkcs-12")
-		w.Header().Set("Content-Disposition", `attachment, filename="`+nomeSaida+`"`)
+		w.Header().Set("Content-Type", "application/x-pkcs12")
+		w.Header().Set("Content-Disposition", `attachment; filename="`+nomeSaida+`"`)
 		w.Write(newPfx)
 
 	})
 
-	http.HandleFunc("GET /collections/{bancos}/campos", handlerFieldsCollection)
+	http.HandleFunc("GET /collections/{banco}/campos", handlerFieldsCollection)
 	http.HandleFunc("POST /collections/{banco}", handlerGenCollection)
 
 	go abrirNavegador("http://localhost:8080")

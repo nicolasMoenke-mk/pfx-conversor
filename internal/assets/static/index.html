@@ -2999,6 +2999,19 @@
 
               </div>
 
+              <div class="feature-panel" style="margin-bottom:20px;">
+
+                <div class="feature-panel-title">
+                  Campos da Collection
+                </div>
+
+                <div
+                  class="form-grid"
+                  id="collectionFieldsForm"
+                ></div>
+
+              </div>
+
               <div class="collection-action">
 
                 <div class="collection-action-info">
@@ -3080,14 +3093,19 @@ const BANKS = [
     protocol: "mTLS + OAuth2",
     desc: "API PIX e Cobrança Boleto com assinatura mTLS direta.",
     logo: "img/bb.svg",
-    endpoints: [
-      "POST /oauth/token",
-      "POST /boletos?gw-app-key={{app_key}}",
-      "POST /boletos/{{nosso_numero}}/baixar?gw-app-key={{app_key}}",
-      "POST /oauth/token",
-      "PUT /v2/cobv/{{txid}}?gw-dev-app-key={{app_key}}",
-      "PATCH /v2/cobv/{{txid}}?gw-dev-app-key={{app_key}}"
-    ],
+    hasCollection: true,
+    endpoints: {
+      van: [
+        "POST /oauth/token",
+        "POST /boletos?gw-app-key={{bb_app_key}}",
+        "POST /boletos/{{nosso_numero}}/baixar?gw-app-key={{bb_app_key}}"
+      ],
+      pix: [
+        "POST /oauth/token",
+        "PUT /pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}",
+        "PATCH /pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}"
+      ]
+    },
     auth: "OAuth2 + mTLS",
     environment: "Produção",
     security: "Certificado A1"
@@ -3100,13 +3118,18 @@ const BANKS = [
     protocol: "mTLS Dedicated",
     desc: "Processamento e handshake mTLS de certificados A1.",
     logo: "img/itau.svg",
-    endpoints: [
-      "POST /oauth/token",
-      "GET /pix",
-      "POST /pix",
-      "GET /payments",
-      "POST /payments"
-    ],
+    hasCollection: false,
+    endpoints: {
+      van: [
+        "POST /oauth/token",
+        "GET /pix",
+        "POST /pix"
+      ],
+      pix: [
+        "GET /payments",
+        "POST /payments"
+      ]
+    },
     auth: "mTLS Dedicated",
     environment: "Produção",
     security: "Certificado A1"
@@ -3119,14 +3142,19 @@ const BANKS = [
     protocol: "V3 mTLS",
     desc: "Conversão de certificados para gateway V3 e Open Finance.",
     logo: "img/sicoob.svg",
-    endpoints: [
-      "POST /openid-connect/token",
-      "POST /v3/boletos",
-      "POST /boletos/{{nosso_numero}}",
-      "POST /openid-connect/token",
-      "PUT /v2/cobv/{{txid}}",
-      "PATCH /v2/cobv/{{txid}}"
-    ],
+    hasCollection: true,
+    endpoints: {
+      van: [
+        "POST /auth/realms/cooperado/protocol/openid-connect/token",
+        "POST /cobranca-bancaria/v3/boletos",
+        "POST /cobranca-bancaria/v3/boletos/{{sicoob_nossoNumero}}/baixar"
+      ],
+      pix: [
+        "POST /auth/realms/cooperado/protocol/openid-connect/token",
+        "PUT /pix/api/v2/cobv/{{pix_txid}}",
+        "PATCH /pix/api/v2/cobv/{{pix_txid}}"
+      ]
+    },
     auth: "OAuth2 + mTLS",
     environment: "Produção",
     security: "Certificado A1"
@@ -3139,14 +3167,19 @@ const BANKS = [
     protocol: "V2 Modular",
     desc: "Padrão de certificados A1 para integração Cobrança e PIX.",
     logo: "img/sicredi.svg",
-    endpoints: [
-      "POST /openapi/token",
-      "POST /v1/boletos",
-      "PATCH /boletos/{{nosso_numero}}/baixa",
-      "POST /oauth/token",
-      "PUT /v2/cobv/{{txid}}",
-      "PATCH /v2/cobv/{{txid}}"
-    ],
+    hasCollection: true,
+    endpoints: {
+      van: [
+        "POST /auth/openapi/token",
+        "POST /cobranca/boleto/v1/boletos",
+        "PATCH /cobranca/boleto/v1/boletos/{{sicredi_nossoNumero}}/baixa"
+      ],
+      pix: [
+        "POST /oauth/token",
+        "PUT /api/v2/cobv/{{pix_txid}}",
+        "PATCH /api/v2/cobv/{{pix_txid}}"
+      ]
+    },
     auth: "OAuth2",
     environment: "Produção",
     security: "Certificado A1"
@@ -3159,14 +3192,19 @@ const BANKS = [
     protocol: "OAuth2 Direct",
     desc: "Conversão para portal Developer Santander Empresas.",
     logo: "img/santander.svg",
-    endpoints: [
-      "POST /v2/token",
-      "POST /workspace/{{workspace_id}}/bank_slips",
-      "PATCH /workspace/{{workspace_id}}/bank_slips",
-      "POST /oauth/token?grant_type=client_credentials",
-      "PUT /v1/cobv/{{txid}}",
-      "PATCH /v1/cobv/{{txid}}"
-    ],
+    hasCollection: true,
+    endpoints: {
+      van: [
+        "POST /auth/oauth/v2/token",
+        "POST /collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips",
+        "PATCH /collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips"
+      ],
+      pix: [
+        "POST /oauth/token",
+        "PUT /api/v1/cobv/{{pix_txid}}",
+        "PATCH /api/v1/cobv/{{pix_txid}}"
+      ]
+    },
     auth: "OAuth2 Direct",
     environment: "Produção",
     security: "Certificado A1"
@@ -3179,20 +3217,27 @@ const BANKS = [
     protocol: "ShopFácil API",
     desc: "Geração de chaves públicas e privadas para comércio eletrônico.",
     logo: "img/bradesco.svg",
-    endpoints: [
-      "POST /v2/token",
-      "POST /v1/cobranca",
-      "POST /v1/baixar",
-      "POST /oauth/token",
-      "PUT /v2/cobv/{{txid}}",
-      "PATCH /v2/cobv/{{txid}}"
-    ],
+    hasCollection: true,
+    endpoints: {
+      van: [
+        "POST /auth/server-mtls/v2/token",
+        "POST /boleto/cobranca-registro/v1/cobranca",
+        "POST /boleto/cobranca-baixa/v1/baixar"
+      ],
+      pix: [
+        "POST /oauth/token",
+        "PUT /v2/cobv/{{pix_txid}}",
+        "PATCH /v2/cobv/{{pix_txid}}"
+      ]
+    },
     auth: "OAuth2 + mTLS",
     environment: "Produção",
     security: "Certificado A1"
   }
 
 ];
+
+const COLLECTION_BANKS = BANKS.filter(bank => bank.hasCollection);
 
 
 /* =========================================================
@@ -3405,7 +3450,14 @@ function renderCards() {
 ========================================================= */
 
 let selectedCollectionBankId =
-  BANKS[0].id;
+  COLLECTION_BANKS[0].id;
+
+let selectedCollectionProduct =
+  "pix";
+
+let collectionFields = [];
+
+const collectionFieldValues = {};
 
 
 /* =========================================================
@@ -3421,7 +3473,7 @@ function renderCollectionBankGrid() {
 
 
   grid.innerHTML =
-    BANKS.map(bank => `
+    COLLECTION_BANKS.map(bank => `
 
       <button
         type="button"
@@ -3506,10 +3558,10 @@ function renderCollectionBankGrid() {
 function renderCollectionWorkspace() {
 
   const bank =
-    BANKS.find(
+    COLLECTION_BANKS.find(
       item =>
         item.id === selectedCollectionBankId
-    ) || BANKS[0];
+    ) || COLLECTION_BANKS[0];
 
 
   const root =
@@ -3558,15 +3610,58 @@ function renderCollectionWorkspace() {
 
       </div>
 
-      <div class="format-pill">
+      <div style="display:flex; align-items:center; gap:10px;">
 
-        <span class="format-pill-dot"></span>
+        <div
+          class="converter-tabs"
+          style="padding:4px; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle);"
+        >
 
-        Postman JSON v2.1
+          <button
+            type="button"
+            class="tab-btn ${selectedCollectionProduct === 'pix' ? 'active' : ''}"
+            data-product="pix"
+          >
+            Pix
+          </button>
+
+          <button
+            type="button"
+            class="tab-btn ${selectedCollectionProduct === 'van' ? 'active' : ''}"
+            data-product="van"
+          >
+            Cobrança (VAN)
+          </button>
+
+        </div>
+
+        <div class="format-pill">
+
+          <span class="format-pill-dot"></span>
+
+          Postman JSON v2.1
+
+        </div>
 
       </div>
 
     `;
+
+  $("#collectionSelectedHeader")
+    .querySelectorAll("[data-product]")
+    .forEach(btn => {
+
+      btn.addEventListener("click", () => {
+
+        if (btn.dataset.product === selectedCollectionProduct) return;
+
+        selectedCollectionProduct = btn.dataset.product;
+
+        renderCollectionWorkspace();
+
+      });
+
+    });
 
 
   /* ---------------------------------------------
@@ -3619,14 +3714,18 @@ function renderCollectionWorkspace() {
      ENDPOINTS
   --------------------------------------------- */
 
+  const activeEndpoints =
+    bank.endpoints[selectedCollectionProduct] || [];
+
+
   $("#endpointCount")
     .textContent =
-      `${bank.endpoints.length} rotas`;
+      `${activeEndpoints.length} rotas`;
 
 
   $("#endpointList")
     .innerHTML =
-      bank.endpoints
+      activeEndpoints
         .map(endpoint => {
 
           const [method, ...pathParts] =
@@ -3754,6 +3853,105 @@ function renderCollectionWorkspace() {
       </div>
 
     `;
+
+
+  loadCollectionFields(bank);
+
+}
+
+
+/* =========================================================
+   COLLECTION FIELDS (dados a preencher na collection)
+========================================================= */
+
+async function loadCollectionFields(bank) {
+
+  const panel =
+    $("#collectionFieldsForm");
+
+  const btn =
+    $("#btnGenerateCollection");
+
+  if (!panel) return;
+
+
+  panel.innerHTML =
+    `<span style="font-size:12px;color:var(--text-muted);">Carregando campos...</span>`;
+
+  btn.disabled = true;
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/collections/${bank.id}/campos?produto=${selectedCollectionProduct}`
+      );
+
+    if (!response.ok) {
+      throw new Error("Não foi possível carregar os campos desta collection.");
+    }
+
+    const fields =
+      await response.json();
+
+    collectionFields = fields;
+
+    if (!fields.length) {
+
+      panel.innerHTML =
+        `<span style="font-size:12px;color:var(--text-muted);">Esta collection não possui campos configuráveis.</span>`;
+
+    } else {
+
+      panel.innerHTML =
+        fields.map(field => {
+
+          const cacheKey =
+            `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
+
+          const value =
+            collectionFieldValues[cacheKey] || "";
+
+          return `
+            <div class="form-group">
+              <label>${field.chave}</label>
+              <input
+                type="text"
+                data-field="${field.chave}"
+                value="${value.replace(/"/g, "&quot;")}"
+                placeholder="Valor para ${field.chave}"
+              >
+            </div>
+          `;
+
+        }).join("");
+
+      panel
+        .querySelectorAll("[data-field]")
+        .forEach(input => {
+
+          const cacheKey =
+            `${bank.id}:${selectedCollectionProduct}:${input.dataset.field}`;
+
+          input.addEventListener("input", () => {
+            collectionFieldValues[cacheKey] = input.value;
+          });
+
+        });
+
+    }
+
+    btn.disabled = false;
+
+  } catch (error) {
+
+    collectionFields = [];
+
+    panel.innerHTML =
+      `<span style="font-size:12px;color:var(--danger);">${error.message}</span>`;
+
+  }
 
 }
 
@@ -3968,7 +4166,7 @@ function renderBankView(id) {
 
               <div
                 class="form-row"
-                id="fieldNames"
+                id="fieldsPem"
               >
 
                 <div class="form-group">
@@ -3979,6 +4177,7 @@ function renderBankView(id) {
 
                   <input
                     type="text"
+                    id="nomeCertInput"
                     placeholder="Ex: PROVEDORNET26"
                   >
 
@@ -3992,7 +4191,45 @@ function renderBankView(id) {
 
                   <input
                     type="text"
+                    id="nomeChaveInput"
                     placeholder="Ex: PROVEDORNET26"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div
+                class="form-row"
+                id="fieldsNext"
+                style="display:none;"
+              >
+
+                <div class="form-group">
+
+                  <label>
+                    Nova Senha (opcional)
+                  </label>
+
+                  <input
+                    type="password"
+                    id="novaSenhaInput"
+                    placeholder="Deixe em branco para manter a atual"
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label>
+                    Nome do Arquivo de Saída
+                  </label>
+
+                  <input
+                    type="text"
+                    id="nomeSaidaInput"
+                    placeholder="Ex: certificadonovo"
                   >
 
                 </div>
@@ -4010,6 +4247,11 @@ function renderBankView(id) {
 
             </form>
 
+            <div
+              id="converterResult"
+              style="display:none; margin-top:18px;"
+            ></div>
+
           </div>
 
         </div>
@@ -4017,6 +4259,59 @@ function renderBankView(id) {
       </div>
 
     `;
+
+
+  let activeConverterTab = "pem";
+
+  const tabButtons =
+    $$(".converter-tabs .tab-btn");
+
+  const fieldsPem =
+    $("#fieldsPem");
+
+  const fieldsNext =
+    $("#fieldsNext");
+
+  const btnSubmit =
+    $("#btnSubmit");
+
+  const converterResult =
+    $("#converterResult");
+
+
+  function setConverterTab(tab) {
+
+    activeConverterTab = tab;
+
+    tabButtons.forEach(btn => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.tab === tab
+      );
+    });
+
+    fieldsPem.style.display =
+      tab === "pem" ? "grid" : "none";
+
+    fieldsNext.style.display =
+      tab === "next" ? "grid" : "none";
+
+    btnSubmit.textContent =
+      tab === "pem"
+        ? "Converter e Extrair Chaves"
+        : "Re-encodar e Baixar PFX";
+
+    converterResult.style.display = "none";
+    converterResult.innerHTML = "";
+
+  }
+
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      setConverterTab(btn.dataset.tab);
+    });
+  });
 
 
   const pfxInput =
@@ -4071,20 +4366,52 @@ function renderBankView(id) {
   };
 
 
+  function downloadTextFile(filename, content, mime) {
+
+    const blob =
+      new Blob([content], { type: mime || "text/plain" });
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+  }
+
+
   $("#formConverter").onsubmit =
     async event => {
 
       event.preventDefault();
 
 
-      const button =
-        $("#btnSubmit");
+      if (!pfxInput.files[0]) {
+
+        toast(
+          "error",
+          "Arquivo obrigatório",
+          "Selecione um certificado .pfx/.p12 antes de continuar."
+        );
+
+        return;
+
+      }
 
 
-      button.disabled = true;
+      btnSubmit.disabled = true;
 
-      button.textContent =
-        "Processando em memória...";
+      converterResult.style.display = "none";
+      converterResult.innerHTML = "";
 
 
       const formData =
@@ -4105,36 +4432,162 @@ function renderBankView(id) {
 
       try {
 
-        const response =
-          await fetch(
-            "/convert-pem",
-            {
-              method: "POST",
-              body: formData
-            }
+        if (activeConverterTab === "pem") {
+
+          btnSubmit.textContent =
+            "Processando em memória...";
+
+          formData.append(
+            "nomeCert",
+            $("#nomeCertInput").value
+          );
+
+          formData.append(
+            "nomeChave",
+            $("#nomeChaveInput").value
           );
 
 
-        const data =
-          await response.json();
+          const response =
+            await fetch(
+              "/convert-pem",
+              {
+                method: "POST",
+                body: formData
+              }
+            );
 
 
-        if (!data.sucesso) {
+          const data =
+            await response.json();
 
-          throw new Error(
-            data.erro ||
-            "Falha na extração"
+
+          if (!data.sucesso) {
+
+            throw new Error(
+              data.erro ||
+              "Falha na extração"
+            );
+
+          }
+
+
+          converterResult.style.display = "flex";
+
+          converterResult.style.flexDirection = "column";
+
+          converterResult.style.gap = "10px";
+
+          converterResult.innerHTML = `
+            <div class="file-badge active" style="justify-content:space-between;">
+              <div class="file-badge-info">
+                Chave Pública<br>
+                <span class="file-badge-size">${data.nomeCert}</span>
+              </div>
+              <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadCert">
+                Baixar
+              </button>
+            </div>
+            <div class="file-badge active" style="justify-content:space-between;">
+              <div class="file-badge-info">
+                Chave Privada<br>
+                <span class="file-badge-size">${data.nomeChave}</span>
+              </div>
+              <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadKey">
+                Baixar
+              </button>
+            </div>
+          `;
+
+          $("#btnDownloadCert").onclick = () =>
+            downloadTextFile(data.nomeCert, data.certPem, "application/x-pem-file");
+
+          $("#btnDownloadKey").onclick = () =>
+            downloadTextFile(data.nomeChave, data.keyPem, "application/x-pem-file");
+
+
+          toast(
+            "success",
+            "Conversão Concluída!",
+            `${bank.name}: Chaves geradas com sucesso.`
+          );
+
+        } else {
+
+          btnSubmit.textContent =
+            "Re-encodando em memória...";
+
+          formData.append(
+            "novaSenha",
+            $("#novaSenhaInput").value
+          );
+
+          formData.append(
+            "nomeSaida",
+            $("#nomeSaidaInput").value
+          );
+
+
+          const response =
+            await fetch(
+              "/convert-next",
+              {
+                method: "POST",
+                body: formData
+              }
+            );
+
+
+          const contentType =
+            response.headers.get("content-type") || "";
+
+          if (!response.ok || contentType.includes("application/json")) {
+
+            const data = await response.json();
+
+            throw new Error(
+              data.erro ||
+              "Falha ao re-encodar o certificado"
+            );
+
+          }
+
+
+          const disposition =
+            response.headers.get("content-disposition") || "";
+
+          const match =
+            disposition.match(/filename="?([^"]+)"?/);
+
+          const filename =
+            match ? match[1] : "certificadonovo.pfx";
+
+          const blob =
+            await response.blob();
+
+          const url =
+            URL.createObjectURL(blob);
+
+          const link =
+            document.createElement("a");
+
+          link.href = url;
+          link.download = filename;
+
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          URL.revokeObjectURL(url);
+
+
+          toast(
+            "success",
+            "PFX Gerado!",
+            `${bank.name}: novo arquivo .pfx pronto para download.`
           );
 
         }
-
-
-        toast(
-          "success",
-          "Conversão Concluída!",
-          `${bank.name}: Chaves geradas com sucesso.`
-        );
-
 
       } catch (error) {
 
@@ -4147,10 +4600,12 @@ function renderBankView(id) {
 
       } finally {
 
-        button.disabled = false;
+        btnSubmit.disabled = false;
 
-        button.textContent =
-          "Converter e Extrair Chaves";
+        btnSubmit.textContent =
+          activeConverterTab === "pem"
+            ? "Converter e Extrair Chaves"
+            : "Re-encodar e Baixar PFX";
 
       }
 
@@ -4287,11 +4742,11 @@ $("#btnGenerateCollection")
     async () => {
 
       const bank =
-        BANKS.find(
+        COLLECTION_BANKS.find(
           item =>
             item.id ===
             selectedCollectionBankId
-        ) || BANKS[0];
+        ) || COLLECTION_BANKS[0];
 
 
       const button =
@@ -4327,46 +4782,66 @@ $("#btnGenerateCollection")
 
       try {
 
-        /*
-         * ===================================================
-         * PONTO DE INTEGRAÇÃO COM BACKEND
-         * ===================================================
-         *
-         * Aqui você pode posteriormente substituir
-         * o comportamento pelo seu endpoint real.
-         *
-         * Exemplo:
-         *
-         * const response = await fetch(
-         *   "/collections/generate",
-         *   {
-         *     method: "POST",
-         *     headers: {
-         *       "Content-Type":
-         *         "application/json"
-         *     },
-         *     body: JSON.stringify({
-         *       bank: bank.id
-         *     })
-         *   }
-         * );
-         *
-         * const blob =
-         *   await response.blob();
-         *
-         * ...
-         *
-         * ===================================================
-         */
+        const values = {};
+
+        collectionFields.forEach(field => {
+
+          const cacheKey =
+            `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
+
+          values[field.chave] =
+            collectionFieldValues[cacheKey] || "";
+
+        });
 
 
-        await new Promise(
-          resolve =>
-            setTimeout(
-              resolve,
-              700
-            )
-        );
+        const response =
+          await fetch(
+            `/collections/${bank.id}?produto=${selectedCollectionProduct}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(values)
+            }
+          );
+
+        const text =
+          await response.text();
+
+        let asJson = null;
+
+        try {
+          asJson = JSON.parse(text);
+        } catch (parseError) {
+          asJson = null;
+        }
+
+        if (!response.ok || (asJson && asJson.sucesso === false)) {
+          throw new Error(
+            (asJson && asJson.erro) ||
+            "Não foi possível gerar a collection."
+          );
+        }
+
+        const blob =
+          new Blob([text], { type: "application/json" });
+
+        const url =
+          URL.createObjectURL(blob);
+
+        const link =
+          document.createElement("a");
+
+        link.href = url;
+        link.download = `${bank.id}-${selectedCollectionProduct}.json`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
 
 
         toast(
@@ -4510,11 +4985,11 @@ $("#themeToggle")
     if (view === "collections") {
 
       const bank =
-        BANKS.find(
+        COLLECTION_BANKS.find(
           item =>
             item.id ===
             selectedCollectionBankId
-        ) || BANKS[0];
+        ) || COLLECTION_BANKS[0];
 
 
       document.documentElement
