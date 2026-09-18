@@ -233,6 +233,12 @@
     margin: 0 auto;
 
     padding: 32px 0 64px;
+
+    transition: width .2s var(--ease);
+  }
+
+  .content-container.content-container--wide {
+    width: min(1560px, calc(100% - 64px));
   }
 }
 
@@ -470,6 +476,43 @@
     border-color: var(--border-focus);
 
     transform: scale(1.04);
+  }
+
+  /* =====================================================
+     BOTAO VOLTAR
+  ===================================================== */
+
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 14px;
+
+    border-radius: var(--radius-full);
+
+    border: 1px solid var(--border-subtle);
+
+    background: var(--bg-surface);
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    margin-bottom: 20px;
+
+    transition:
+      color .2s var(--ease),
+      border-color .2s var(--ease),
+      transform .2s var(--ease);
+  }
+
+  .btn-back:hover {
+    color: var(--text-main);
+    border-color: var(--border-focus);
+
+    transform: translateX(-2px);
   }
 
   /* =====================================================
@@ -883,23 +926,20 @@
       var(--b-accent, var(--brand-primary)) 55%,
       transparent
     );
-    padding: 5px;
     isolation: isolate;
   }
 
-  .bank-card .bank-logo-img {
-    width: 82%;
-    height: 82%;
-    max-width: 82%;
-    max-height: 82%;
-    object-fit: contain;
-    object-position: center;
-    display: block;
-  }
-
   .bank-card .bank-logo-mono {
+    width: 100%;
+    height: 100%;
+
+    display: grid;
+    place-items: center;
+
     color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: .02em;
   }
 
   /* =====================================================
@@ -1167,960 +1207,737 @@
   ===================================================== */
 
   .collections-page {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
-  .collections-hero {
-    position: relative;
+  /* ---- hero ---- */
 
-    overflow: hidden;
+  .cx-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
 
-    padding: 28px;
-
-    margin-bottom: 20px;
+    padding: 22px 26px;
 
     border-radius: var(--radius-lg);
-
-    background:
-      linear-gradient(
-        135deg,
-        color-mix(
-          in srgb,
-          var(--brand-primary) 11%,
-          var(--bg-surface)
-        ),
-        var(--bg-surface)
-      );
-
-    border:
-      1px solid
-      color-mix(
-        in srgb,
-        var(--brand-primary) 20%,
-        var(--border-subtle)
-      );
-
-    box-shadow: var(--shadow-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
   }
 
-  .collections-hero::before {
-    content: "";
-
-    position: absolute;
-
-    width: 320px;
-    height: 320px;
-
-    right: -120px;
-    top: -160px;
-
-    border-radius: 50%;
-
-    background:
-      radial-gradient(
-        circle,
-        color-mix(
-          in srgb,
-          var(--brand-primary) 28%,
-          transparent
-        ),
-        transparent 70%
-      );
-
-    pointer-events: none;
+  .cx-hero-heading {
+    min-width: 0;
   }
 
-  .collection-hero-inner {
-    position: relative;
-
-    display: flex;
-
+  .cx-hero-eyebrow {
+    display: inline-flex;
     align-items: center;
-
-    justify-content: space-between;
-
-    gap: 24px;
-  }
-
-  .collection-eyebrow {
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
+    gap: 6px;
 
     color: var(--brand-primary);
-
     font-size: 10px;
-
     font-weight: 800;
-
     text-transform: uppercase;
-
     letter-spacing: .1em;
 
-    margin-bottom: 7px;
+    margin-bottom: 6px;
   }
 
-  .collection-eyebrow-dot {
-    width: 7px;
-    height: 7px;
-
+  .cx-hero-eyebrow-dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-
-    background: var(--brand-primary);
-
-    box-shadow:
-      0 0 0 4px
-      color-mix(
-        in srgb,
-        var(--brand-primary) 12%,
-        transparent
-      );
+    background: currentColor;
   }
 
-  .collection-hero-title {
-    font-size: clamp(22px, 2vw + 8px, 30px);
-
-    line-height: 1.1;
-
-    font-weight: 850;
-
-    letter-spacing: -.035em;
+  .cx-hero h1 {
+    font-size: clamp(19px, 1.4vw + 12px, 24px);
+    font-weight: 800;
+    letter-spacing: -.02em;
   }
 
-  .collection-hero-description {
-    max-width: 650px;
-
-    margin-top: 8px;
-
+  .cx-hero p {
+    margin-top: 4px;
+    max-width: 560px;
+    font-size: 12.5px;
     color: var(--text-muted);
-
-    font-size: 13px;
   }
 
-  .collection-hero-badge {
-    flex-shrink: 0;
-
+  .cx-hero-stats {
     display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
 
+  .cx-hero-stat {
+    display: flex;
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
 
-    width: 92px;
-    height: 92px;
+    min-width: 76px;
+    padding: 10px 14px;
 
-    border-radius: 22px;
-
-    background:
-      color-mix(
-        in srgb,
-        var(--brand-primary) 10%,
-        var(--bg-surface)
-      );
-
-    border:
-      1px solid
-      color-mix(
-        in srgb,
-        var(--brand-primary) 25%,
-        var(--border-subtle)
-      );
-
-    color: var(--brand-primary);
-
-    box-shadow: var(--shadow-sm);
-
-    transform: rotate(2deg);
-
-    transition:
-      transform .35s var(--ease);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
   }
 
-  .collections-hero:hover .collection-hero-badge {
-    transform:
-      rotate(0deg)
-      scale(1.04);
-  }
-
-  .collection-hero-badge strong {
-    font-size: 21px;
-
-    font-weight: 850;
-
-    line-height: 1;
-  }
-
-  .collection-hero-badge span {
-    margin-top: 5px;
-
-    font-size: 9px;
-
-    text-transform: uppercase;
-
-    letter-spacing: .08em;
-
-    font-weight: 700;
-
-    color: var(--text-muted);
-  }
-
-  /* ---------------------------------------------------------
-     WORKSPACE
-  --------------------------------------------------------- */
-
-  .collection-workspace {
-    display: grid;
-
-    grid-template-columns:
-      250px minmax(0, 1fr);
-
-    min-height: 540px;
-
-    background: var(--bg-surface);
-
-    border:
-      1px solid
-      var(--border-subtle);
-
-    border-radius: var(--radius-lg);
-
-    box-shadow: var(--shadow-md);
-
-    overflow: hidden;
-  }
-
-  /* ---------------------------------------------------------
-     COLLECTION SIDEBAR
-  --------------------------------------------------------- */
-
-  .collection-sidebar {
-    background:
-      color-mix(
-        in srgb,
-        var(--bg-surface-elevated) 72%,
-        var(--bg-surface)
-      );
-
-    border-right:
-      1px solid
-      var(--border-subtle);
-
-    padding: 18px 12px;
-
-    display: flex;
-
-    flex-direction: column;
-  }
-
-  .collection-sidebar-header {
-    padding: 0 8px 14px;
-
-    border-bottom:
-      1px solid
-      var(--border-subtle);
-
-    margin-bottom: 10px;
-  }
-
-  .collection-sidebar-header span {
-    display: block;
-
-    color: var(--text-subtle);
-
-    font-size: 9px;
-
+  .cx-hero-stat strong {
+    font-size: 16px;
     font-weight: 800;
+  }
 
+  .cx-hero-stat span {
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 700;
     text-transform: uppercase;
-
-    letter-spacing: .1em;
-
-    margin-bottom: 3px;
+    letter-spacing: .06em;
+    color: var(--text-subtle);
   }
 
-  .collection-sidebar-header strong {
-    font-size: 13px;
+  /* ---- layout ---- */
 
-    font-weight: 750;
-  }
-
-  .collection-bank-list {
+  .cx-layout {
     display: grid;
-
-    gap: 4px;
-
-    overflow-y: auto;
-
-    padding-right: 2px;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
   }
 
-  .collection-bank-item {
-    --bank-accent: var(--brand-primary);
+  /* ---- sidebar ---- */
 
-    width: 100%;
-
+  .cx-sidebar {
     display: flex;
-
-    align-items: center;
-
+    flex-direction: column;
     gap: 10px;
 
-    padding: 10px 9px;
+    padding: 16px;
 
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+
+    position: sticky;
+    top: 84px;
+  }
+
+  .cx-sidebar-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-subtle);
+    padding: 0 4px;
+  }
+
+  .cx-bank-list {
+    display: grid;
+    gap: 4px;
+  }
+
+  .cx-bank-item {
+    --bank-accent: var(--brand-primary);
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    width: 100%;
+    padding: 9px;
+
+    border-radius: 12px;
+    border: 1px solid transparent;
 
     text-align: left;
-
-    position: relative;
-
     color: var(--text-muted);
 
     transition:
       background .2s var(--ease),
       color .2s var(--ease),
-      transform .2s var(--ease);
+      border-color .2s var(--ease);
   }
 
-  .collection-bank-item:hover {
-    background: var(--bg-surface);
-
+  .cx-bank-item:hover {
+    background: var(--bg-surface-elevated);
     color: var(--text-main);
-
-    transform: translateX(2px);
   }
 
-  .collection-bank-item.selected {
-    background:
-      color-mix(
-        in srgb,
-        var(--bank-accent) 11%,
-        var(--bg-surface)
-      );
-
+  .cx-bank-item.selected {
+    background: color-mix(in srgb, var(--bank-accent) 10%, var(--bg-surface));
+    border-color: color-mix(in srgb, var(--bank-accent) 30%, var(--border-subtle));
     color: var(--text-main);
-
-    box-shadow:
-      inset 3px 0 0
-      var(--bank-accent);
   }
 
-  .collection-bank-logo {
-    width: 36px;
-    height: 36px;
-
+  .cx-bank-badge {
     flex-shrink: 0;
 
+    width: 34px;
+    height: 34px;
+
     border-radius: 9px;
-
-    background: #fff;
-
-    border:
-      1px solid
-      color-mix(
-        in srgb,
-        var(--bank-accent) 22%,
-        var(--border-subtle)
-      );
-
-    padding: 6px;
 
     display: grid;
     place-items: center;
 
-    overflow: hidden;
+    background: var(--bank-accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
 
-    transition:
-      transform .25s var(--ease);
+    transition: transform .2s var(--ease);
   }
 
-  .collection-bank-item:hover .collection-bank-logo {
-    transform: scale(1.04);
+  .cx-bank-item:hover .cx-bank-badge {
+    transform: scale(1.05);
   }
 
-  .collection-bank-logo img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-  }
-
-  .collection-bank-info {
+  .cx-bank-meta {
     min-width: 0;
-
     flex: 1;
   }
 
-  .collection-bank-name {
+  .cx-bank-name {
     display: block;
-
-    font-size: 11.5px;
-
-    font-weight: 750;
-
+    font-size: 12px;
+    font-weight: 700;
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
   }
 
-  .collection-bank-protocol {
+  .cx-bank-protocol {
     display: block;
-
-    font-size: 9px;
-
-    color: var(--text-subtle);
-
     margin-top: 1px;
+    font-size: 9.5px;
+    color: var(--text-subtle);
   }
 
-  .collection-bank-status {
-    width: 6px;
-    height: 6px;
-
+  .cx-bank-check {
     flex-shrink: 0;
+
+    width: 16px;
+    height: 16px;
 
     border-radius: 50%;
 
+    display: grid;
+    place-items: center;
+
+    color: #fff;
     background: var(--bank-accent);
 
-    opacity: .55;
+    opacity: 0;
+    transform: scale(.6);
 
-    transition:
-      transform .25s var(--ease),
-      opacity .25s;
+    transition: opacity .2s, transform .2s;
   }
 
-  .collection-bank-item.selected .collection-bank-status {
+  .cx-bank-item.selected .cx-bank-check {
     opacity: 1;
-
-    transform: scale(1.35);
+    transform: scale(1);
   }
 
-  /* ---------------------------------------------------------
-     MAIN COLLECTION PANEL
-  --------------------------------------------------------- */
+  /* ---- main column ---- */
 
-  .collection-main {
-    min-width: 0;
-
-    padding: 26px;
-
+  .cx-main {
     display: flex;
-
     flex-direction: column;
-  }
-
-  .collection-selected-header {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
     gap: 16px;
-
-    padding-bottom: 20px;
-
-    border-bottom:
-      1px solid
-      var(--border-subtle);
+    min-width: 0;
   }
 
-  .selected-bank-identity {
+  .cx-card {
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+  }
+
+  /* header card */
+
+  .cx-bank-header {
     display: flex;
-
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
 
-    gap: 13px;
-
+  .cx-bank-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     min-width: 0;
   }
 
-  .selected-bank-logo {
-    width: 50px;
-    height: 50px;
-
-    border-radius: 13px;
-
-    background: #fff;
-
-    padding: 8px;
-
-    border:
-      1px solid
-      color-mix(
-        in srgb,
-        var(--selected-accent) 25%,
-        var(--border-subtle)
-      );
-
-    box-shadow:
-      0 5px 15px
-      color-mix(
-        in srgb,
-        var(--selected-accent) 12%,
-        transparent
-      );
-
-    flex-shrink: 0;
-  }
-
-  .selected-bank-logo img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-  }
-
-  .selected-bank-text {
-    min-width: 0;
-  }
-
-  .selected-bank-text small {
-    display: block;
-
-    font-size: 9px;
-
-    font-weight: 800;
-
-    text-transform: uppercase;
-
-    letter-spacing: .09em;
-
-    color: var(--selected-accent);
-
-    margin-bottom: 2px;
-  }
-
-  .selected-bank-text h2 {
-    font-size: 19px;
-
-    font-weight: 820;
-
-    letter-spacing: -.025em;
-  }
-
-  .selected-bank-text p {
-    margin-top: 2px;
-
-    font-size: 11px;
-
-    color: var(--text-muted);
-  }
-
-  .format-pill {
+  .cx-bank-avatar {
     flex-shrink: 0;
 
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 6px;
-
-    padding: 7px 10px;
-
-    border-radius: var(--radius-full);
-
-    background:
-      color-mix(
-        in srgb,
-        var(--selected-accent) 8%,
-        var(--bg-surface)
-      );
-
-    border:
-      1px solid
-      color-mix(
-        in srgb,
-        var(--selected-accent) 18%,
-        var(--border-subtle)
-      );
-
-    color: var(--selected-accent);
-
-    font-size: 9px;
-
-    font-weight: 800;
-
-    text-transform: uppercase;
-
-    letter-spacing: .05em;
-  }
-
-  .format-pill-dot {
-    width: 5px;
-    height: 5px;
-
-    border-radius: 50%;
-
-    background: currentColor;
-  }
-
-  /* ---------------------------------------------------------
-     METRICS
-  --------------------------------------------------------- */
-
-  .collection-metrics {
-    display: grid;
-
-    grid-template-columns:
-      repeat(3, 1fr);
-
-    gap: 10px;
-
-    margin: 18px 0;
-  }
-
-  .collection-metric {
-    padding: 13px;
+    width: 46px;
+    height: 46px;
 
     border-radius: 12px;
 
-    background: var(--bg-base);
+    display: grid;
+    place-items: center;
 
-    border:
-      1px solid
-      var(--border-subtle);
-
-    transition:
-      border-color .25s,
-      transform .25s var(--ease);
-  }
-
-  .collection-metric:hover {
-    transform: translateY(-2px);
-
-    border-color:
-      color-mix(
-        in srgb,
-        var(--selected-accent) 30%,
-        var(--border-subtle)
-      );
-  }
-
-  .metric-label {
-    display: block;
-
-    font-size: 9px;
-
-    text-transform: uppercase;
-
-    letter-spacing: .06em;
-
+    background: var(--selected-accent);
+    color: #fff;
+    font-size: 14px;
     font-weight: 800;
 
-    color: var(--text-subtle);
-
-    margin-bottom: 4px;
+    box-shadow:
+      0 6px 16px -6px
+      color-mix(in srgb, var(--selected-accent) 60%, transparent);
   }
 
-  .metric-value {
-    font-size: 13px;
-
-    font-weight: 750;
+  .cx-bank-identity-text small {
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--selected-accent);
+    margin-bottom: 2px;
   }
 
-  /* ---------------------------------------------------------
-     REQUEST PREVIEW
-  --------------------------------------------------------- */
+  .cx-bank-identity-text h2 {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
 
-  .collection-preview {
-    flex: 1;
+  .cx-bank-identity-text p {
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  .cx-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .cx-segmented {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: var(--radius-full);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .cx-segmented-btn {
+    padding: 7px 14px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all .2s var(--ease);
+  }
+
+  .cx-segmented-btn.active {
+    background: var(--selected-accent);
+    color: #fff;
+    box-shadow:
+      0 4px 10px -4px
+      color-mix(in srgb, var(--selected-accent) 60%, transparent);
+  }
+
+  .cx-format-pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 7px 10px;
+    border-radius: var(--radius-full);
+
+    background: color-mix(in srgb, var(--selected-accent) 8%, var(--bg-surface));
+    border: 1px solid color-mix(in srgb, var(--selected-accent) 18%, var(--border-subtle));
+
+    color: var(--selected-accent);
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .cx-format-pill-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* stat row */
+
+  .cx-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .cx-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+    background: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+
+    transition: border-color .25s, transform .25s var(--ease);
+  }
+
+  .cx-stat:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--selected-accent) 30%, var(--border-subtle));
+  }
+
+  .cx-stat-icon {
+    flex-shrink: 0;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 9px;
 
     display: grid;
+    place-items: center;
 
-    grid-template-columns:
-      minmax(0, 1fr)
-      220px;
-
-    gap: 16px;
-
-    margin-bottom: 20px;
+    background: color-mix(in srgb, var(--selected-accent) 12%, transparent);
+    color: var(--selected-accent);
   }
 
-  .endpoint-panel {
+  .cx-stat-text {
     min-width: 0;
+  }
 
-    border:
-      1px solid
-      var(--border-subtle);
+  .cx-stat-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-subtle);
+  }
 
+  .cx-stat-value {
+    display: block;
+    margin-top: 2px;
+    font-size: 12.5px;
+    font-weight: 750;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* endpoints + features */
+
+  .cx-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 14px;
+  }
+
+  .cx-endpoints {
+    min-width: 0;
     border-radius: 14px;
-
+    border: 1px solid var(--border-subtle);
     background: var(--bg-base);
-
     overflow: hidden;
   }
 
-  .endpoint-panel-header {
-    height: 43px;
-
+  .cx-endpoints-head {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
-    padding: 0 13px;
+    padding: 11px 14px;
 
-    border-bottom:
-      1px solid
-      var(--border-subtle);
-
+    border-bottom: 1px solid var(--border-subtle);
     background: var(--bg-surface);
   }
 
-  .endpoint-panel-header strong {
+  .cx-endpoints-head strong {
     font-size: 10px;
-
+    font-weight: 800;
     text-transform: uppercase;
-
     letter-spacing: .06em;
-
-    font-weight: 800;
   }
 
-  .endpoint-count {
-    padding: 3px 7px;
-
+  .cx-badge-count {
+    padding: 3px 8px;
     border-radius: var(--radius-full);
-
-    background:
-      color-mix(
-        in srgb,
-        var(--selected-accent) 9%,
-        transparent
-      );
-
+    background: color-mix(in srgb, var(--selected-accent) 10%, transparent);
     color: var(--selected-accent);
-
     font-size: 9px;
-
     font-weight: 800;
   }
 
-  .endpoint-list {
+  .cx-endpoint-list {
     padding: 6px;
-
     display: grid;
-
     gap: 2px;
-
     max-height: 190px;
-
     overflow-y: auto;
   }
 
-  .endpoint-row {
+  .cx-endpoint-row {
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 
-    padding: 8px;
-
+    padding: 7px 8px;
     border-radius: 8px;
 
-    transition:
-      background .2s;
+    transition: background .2s;
   }
 
-  .endpoint-row:hover {
+  .cx-endpoint-row:hover {
     background: var(--bg-surface);
   }
 
-  .http-method {
-    width: 43px;
-
+  .cx-method {
+    flex-shrink: 0;
+    min-width: 44px;
     text-align: center;
 
     padding: 3px 5px;
-
     border-radius: 5px;
 
-    background:
-      color-mix(
-        in srgb,
-        var(--selected-accent) 9%,
-        transparent
-      );
-
+    background: color-mix(in srgb, var(--selected-accent) 10%, transparent);
     color: var(--selected-accent);
 
     font-size: 8px;
-
     font-weight: 850;
-
     letter-spacing: .03em;
   }
 
-  .endpoint-path {
+  .cx-path {
     min-width: 0;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
 
-    font-family:
-      "SFMono-Regular",
-      Consolas,
-      "Liberation Mono",
-      monospace;
-
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     font-size: 9.5px;
-
     color: var(--text-muted);
   }
 
-  /* ---------------------------------------------------------
-     INCLUDED FEATURES
-  --------------------------------------------------------- */
-
-  .feature-panel {
-    border:
-      1px solid
-      var(--border-subtle);
-
+  .cx-features {
     border-radius: 14px;
-
-    padding: 15px;
-
-    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-base);
+    padding: 14px;
   }
 
-  .feature-panel-title {
+  .cx-features-title {
     font-size: 10px;
-
     font-weight: 800;
-
     text-transform: uppercase;
-
     letter-spacing: .06em;
-
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    color: var(--text-subtle);
   }
 
-  .feature-list {
-    display: grid;
-
-    gap: 8px;
-  }
-
-  .feature-item {
+  .cx-feature-item {
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 
-    font-size: 10px;
+    padding: 5px 0;
 
+    font-size: 10.5px;
     color: var(--text-muted);
   }
 
-  .feature-icon {
-    width: 23px;
-    height: 23px;
+  .cx-feature-icon {
+    flex-shrink: 0;
+
+    width: 22px;
+    height: 22px;
 
     border-radius: 7px;
 
     display: grid;
     place-items: center;
 
-    background:
-      color-mix(
-        in srgb,
-        var(--selected-accent) 9%,
-        var(--bg-base)
-      );
-
+    background: color-mix(in srgb, var(--selected-accent) 10%, transparent);
     color: var(--selected-accent);
-
-    flex-shrink: 0;
   }
 
-  /* ---------------------------------------------------------
-     ACTION AREA
-  --------------------------------------------------------- */
+  /* fields card */
 
-  .collection-action {
+  .cx-fields-head {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
 
+    margin-bottom: 16px;
+  }
+
+  .cx-fields-head h3 {
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .cx-fields-head p {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .cx-fields-progress {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cx-progress-track {
+    width: 80px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--bg-surface-elevated);
+    overflow: hidden;
+  }
+
+  .cx-progress-fill {
+    height: 100%;
+    background: var(--selected-accent);
+    transition: width .25s var(--ease);
+  }
+
+  .cx-progress-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .cx-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px;
+  }
+
+  .cx-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .cx-field-key {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    color: var(--text-subtle);
+    margin-left: 5px;
+  }
+
+  .cx-field input {
+    width: 100%;
+    height: 38px;
+
+    padding: 0 12px;
+    border-radius: 9px;
+
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-base);
+
+    font-size: 12.5px;
+    outline: none;
+
+    transition: border-color .2s;
+  }
+
+  .cx-field input:focus {
+    border-color: var(--selected-accent);
+  }
+
+  .cx-fields-empty,
+  .cx-fields-error,
+  .cx-fields-loading {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 10px 2px;
+  }
+
+  .cx-fields-error {
+    color: var(--danger);
+  }
+
+  /* action bar */
+
+  .cx-action-bar {
+    position: sticky;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 16px;
 
-    padding-top: 17px;
+    padding: 16px 20px;
 
-    border-top:
-      1px solid
-      var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
   }
 
-  .collection-action-info {
-    min-width: 0;
-  }
-
-  .collection-action-info strong {
+  .cx-action-info strong {
     display: block;
-
-    font-size: 11px;
-
+    font-size: 12px;
     font-weight: 750;
   }
 
-  .collection-action-info span {
+  .cx-action-info span {
     display: block;
-
-    font-size: 9.5px;
-
-    color: var(--text-muted);
-
     margin-top: 2px;
+    font-size: 10.5px;
+    color: var(--text-muted);
   }
 
-  .btn-generate-collection {
-    height: 42px;
+  .cx-generate-btn {
+    flex-shrink: 0;
 
-    min-width: 210px;
+    height: 44px;
+    min-width: 200px;
+    padding: 0 20px;
 
-    padding: 0 18px;
-
-    border-radius: 10px;
-
+    border-radius: 11px;
     background: var(--selected-accent);
-
     color: #fff;
 
-    font-size: 11px;
-
+    font-size: 12px;
     font-weight: 800;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 8px;
 
     box-shadow:
-      0 10px 20px -8px
-      color-mix(
-        in srgb,
-        var(--selected-accent) 45%,
-        transparent
-      );
+      0 12px 22px -10px
+      color-mix(in srgb, var(--selected-accent) 55%, transparent);
 
     transition:
       transform .2s var(--ease),
@@ -2128,37 +1945,31 @@
       box-shadow .2s;
   }
 
-  .btn-generate-collection:hover {
+  .cx-generate-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-
     filter: brightness(1.07);
-
-    box-shadow:
-      0 14px 25px -8px
-      color-mix(
-        in srgb,
-        var(--selected-accent) 52%,
-        transparent
-      );
   }
 
-  .btn-generate-collection:active {
+  .cx-generate-btn:active:not(:disabled) {
     transform: translateY(0);
   }
 
-  .btn-generate-collection.loading {
-    pointer-events: none;
+  .cx-generate-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
 
+  .cx-generate-btn.loading {
+    pointer-events: none;
     opacity: .75;
   }
 
   .collection-download-icon {
-    transition:
-      transform .25s var(--ease);
+    transition: transform .25s var(--ease);
   }
 
-  .btn-generate-collection:hover
-  .collection-download-icon {
+  .cx-generate-btn:hover .collection-download-icon {
     transform: translateY(2px);
   }
 
@@ -2166,28 +1977,581 @@
      DOCUMENTATION
   ===================================================== */
 
-  .documentation-card {
-    background: var(--bg-surface);
+  .docs-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 
-    border:
-      1px solid
-      var(--border-subtle);
+  /* ---- hero ---- */
+
+  .docs-hero {
+    padding: 22px 26px;
 
     border-radius: var(--radius-lg);
-
-    padding: 32px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
   }
 
-  .documentation-card h3 {
-    font-size: 17px;
+  .docs-hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
-  .documentation-card p {
+  .docs-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: var(--brand-primary);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+
+    margin-bottom: 6px;
+  }
+
+  .docs-hero-eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .docs-hero h1 {
+    font-size: clamp(19px, 1.4vw + 12px, 24px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+  }
+
+  .docs-hero p {
+    margin-top: 4px;
+    max-width: 560px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .docs-hero-stats {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .docs-hero-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 76px;
+    padding: 10px 14px;
+
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .docs-hero-stat strong {
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .docs-hero-stat span {
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-subtle);
+  }
+
+  /* ---- shell layout ---- */
+
+  .docs-shell {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr) 240px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ---- sidebar nav ---- */
+
+  .docs-sidebar {
+    position: sticky;
+    top: 84px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    padding: 16px;
+
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+  }
+
+  .docs-sidebar-search {
+    position: relative;
+  }
+
+  .docs-sidebar-search svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-subtle);
+    pointer-events: none;
+  }
+
+  .docs-sidebar-search input {
+    width: 100%;
+    height: 36px;
+
+    padding: 0 10px 0 32px;
+    border-radius: 9px;
+
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-base);
+
+    font-size: 12px;
+    outline: none;
+
+    transition: border-color .2s;
+  }
+
+  .docs-sidebar-search input:focus {
+    border-color: var(--brand-primary);
+  }
+
+  .docs-nav-group-title {
+    padding: 0 8px 6px;
+
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-subtle);
+  }
+
+  .docs-nav-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .docs-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 10px;
+    border-radius: 9px;
+
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: left;
+
+    transition: background .2s var(--ease), color .2s var(--ease);
+  }
+
+  .docs-nav-link:hover {
+    background: var(--bg-surface-elevated);
+    color: var(--text-main);
+  }
+
+  .docs-nav-link.active {
+    background: color-mix(in srgb, var(--brand-primary) 10%, var(--bg-surface));
+    color: var(--brand-primary);
+    font-weight: 700;
+  }
+
+  .docs-nav-dot {
+    width: 5px;
+    height: 5px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .5;
+  }
+
+  .docs-nav-empty {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    color: var(--text-subtle);
+  }
+
+  /* ---- article content ---- */
+
+  .docs-content {
+    min-width: 0;
+
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+
+    padding: 36px 44px;
+  }
+
+  .docs-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 16px;
+
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-subtle);
+  }
+
+  .docs-breadcrumb span:last-child {
+    color: var(--brand-primary);
+  }
+
+  .docs-article {
+    max-width: 860px;
+  }
+
+  .docs-article h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 6px;
+  }
+
+  .docs-lead {
+    font-size: 14px;
+    line-height: 1.6;
     color: var(--text-muted);
 
-    margin-top: 8px;
+    margin: 0 0 24px;
+    padding-bottom: 20px;
 
-    font-size: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .docs-article h2 {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin: 28px 0 10px;
+    scroll-margin-top: 90px;
+  }
+
+  .docs-article h2:first-of-type {
+    margin-top: 0;
+  }
+
+  .docs-article h3 {
+    font-size: 13.5px;
+    font-weight: 750;
+    margin: 20px 0 8px;
+    scroll-margin-top: 90px;
+  }
+
+  .docs-article p {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+
+  .docs-article ul,
+  .docs-article ol {
+    margin: 0 0 14px 20px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .docs-article li {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-main);
+  }
+
+  .docs-article strong {
+    font-weight: 750;
+  }
+
+  .docs-article code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+
+    padding: 2px 6px;
+    border-radius: 5px;
+
+    background: var(--bg-surface-elevated);
+    color: var(--brand-primary);
+  }
+
+  /* callouts */
+
+  .docs-callout {
+    display: flex;
+    gap: 10px;
+
+    padding: 14px 16px;
+    margin: 16px 0;
+
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-base);
+
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .docs-callout svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .docs-callout--info {
+    border-color: color-mix(in srgb, var(--brand-primary) 30%, var(--border-subtle));
+    background: color-mix(in srgb, var(--brand-primary) 6%, var(--bg-base));
+  }
+
+  .docs-callout--info svg {
+    color: var(--brand-primary);
+  }
+
+  .docs-callout--tip {
+    border-color: color-mix(in srgb, var(--success) 35%, var(--border-subtle));
+    background: color-mix(in srgb, var(--success) 8%, var(--bg-base));
+  }
+
+  .docs-callout--tip svg {
+    color: var(--success);
+  }
+
+  .docs-callout--warning {
+    border-color: color-mix(in srgb, var(--warning) 40%, var(--border-subtle));
+    background: color-mix(in srgb, var(--warning) 10%, var(--bg-base));
+  }
+
+  .docs-callout--warning svg {
+    color: var(--warning);
+  }
+
+  .docs-callout--danger {
+    border-color: color-mix(in srgb, var(--danger) 35%, var(--border-subtle));
+    background: color-mix(in srgb, var(--danger) 8%, var(--bg-base));
+  }
+
+  .docs-callout--danger svg {
+    color: var(--danger);
+  }
+
+  /* code block */
+
+  .docs-code-block {
+    margin: 16px 0;
+
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+  }
+
+  .docs-code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 8px 12px;
+
+    background: var(--bg-surface-elevated);
+    border-bottom: 1px solid var(--border-subtle);
+
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-subtle);
+  }
+
+  .docs-code-copy {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+
+    transition: color .2s;
+  }
+
+  .docs-code-copy:hover {
+    color: var(--brand-primary);
+  }
+
+  .docs-code-block pre {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+
+    background: var(--bg-base);
+
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-main);
+  }
+
+  /* table */
+
+  .docs-table-wrap {
+    margin: 16px 0;
+
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+  }
+
+  .docs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  .docs-table th {
+    text-align: left;
+    padding: 10px 14px;
+
+    background: var(--bg-surface-elevated);
+    border-bottom: 1px solid var(--border-subtle);
+
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-subtle);
+  }
+
+  .docs-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-main);
+  }
+
+  .docs-table tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .docs-table code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 11.5px;
+    color: var(--brand-primary);
+  }
+
+  /* footer nav (prev/next) */
+
+  .docs-footer-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+
+    margin-top: 32px;
+    padding-top: 20px;
+
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .docs-footer-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+
+    transition: border-color .2s, transform .2s var(--ease);
+  }
+
+  .docs-footer-link:hover {
+    border-color: var(--brand-primary);
+    transform: translateY(-1px);
+  }
+
+  .docs-footer-link.next {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .docs-footer-link small {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-subtle);
+  }
+
+  .docs-footer-link strong {
+    font-size: 13px;
+    color: var(--text-main);
+  }
+
+  /* ---- right rail: on this page ---- */
+
+  .docs-toc {
+    position: sticky;
+    top: 84px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    padding: 16px;
+
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .docs-toc-title {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-subtle);
+  }
+
+  .docs-toc-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .docs-toc-link {
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-muted);
+    text-align: left;
+
+    transition: color .2s;
+  }
+
+  .docs-toc-link:hover {
+    color: var(--brand-primary);
+  }
+
+  .docs-toc-empty {
+    font-size: 11.5px;
+    color: var(--text-subtle);
   }
 
   /* =====================================================
@@ -2295,17 +2659,26 @@
         repeat(2, 1fr);
     }
 
-    .collection-workspace {
+    .cx-layout {
       grid-template-columns:
-        220px minmax(0, 1fr);
+        200px minmax(0, 1fr);
     }
 
-    .collection-preview {
+    .cx-split {
       grid-template-columns:
         1fr;
     }
 
-    .feature-panel {
+    .cx-features {
+      display: none;
+    }
+
+    .docs-shell {
+      grid-template-columns:
+        220px minmax(0, 1fr);
+    }
+
+    .docs-toc {
       display: none;
     }
   }
@@ -2366,90 +2739,108 @@
 
     /* Collections mobile */
 
-    .collection-hero-inner {
+    .cx-hero {
       align-items: flex-start;
     }
 
-    .collection-hero-badge {
+    .cx-hero-stats {
       display: none;
     }
 
-    .collection-workspace {
-      display: block;
-    }
-
-    .collection-sidebar {
-      border-right: 0;
-
-      border-bottom:
-        1px solid
-        var(--border-subtle);
-
-      padding: 14px;
-    }
-
-    .collection-bank-list {
+    .cx-layout {
       display: flex;
+      flex-direction: column;
+    }
 
+    .cx-sidebar {
+      position: static;
+      padding: 12px;
+    }
+
+    .cx-bank-list {
+      display: flex;
       overflow-x: auto;
-
       padding-bottom: 4px;
     }
 
-    .collection-bank-item {
-      min-width: 145px;
+    .cx-bank-item {
+      min-width: 160px;
     }
 
-    .collection-main {
-      padding: 20px;
-    }
-
-    .collection-metrics {
+    .cx-stat-row {
       grid-template-columns:
         1fr 1fr;
     }
 
-    .collection-action {
+    .cx-action-bar {
       flex-direction: column;
-
       align-items: stretch;
     }
 
-    .btn-generate-collection {
+    .cx-generate-btn {
       width: 100%;
     }
 
-    .collection-selected-header {
+    .cx-bank-header {
       align-items: flex-start;
     }
 
-    .format-pill {
+    .cx-format-pill {
       display: none;
+    }
+
+    /* Documentation mobile */
+
+    .docs-hero-top {
+      align-items: flex-start;
+    }
+
+    .docs-hero-stats {
+      display: none;
+    }
+
+    .docs-shell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .docs-sidebar {
+      position: static;
+      max-height: none;
+    }
+
+    .docs-content {
+      padding: 20px;
+    }
+
+    .docs-footer-nav {
+      grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 480px) {
 
-    .collection-metrics {
+    .cx-stat-row {
       grid-template-columns:
         1fr;
     }
 
-    .collections-hero {
-      padding: 22px;
+    .cx-hero {
+      padding: 18px;
     }
 
-    .collection-main {
+    .cx-card {
       padding: 16px;
     }
 
-    .selected-bank-logo {
-      width: 44px;
-      height: 44px;
+    .cx-bank-avatar {
+      width: 40px;
+      height: 40px;
+      font-size: 12px;
     }
 
-    .selected-bank-text h2 {
-      font-size: 16px;
+    .cx-bank-identity-text h2 {
+      font-size: 15px;
     }
 
     .toast-container {
@@ -2646,7 +3037,7 @@
 
     </header>
 
-    <div class="content-container">
+    <div class="content-container" id="contentContainer">
 
       <!-- ===================================================
            DASHBOARD
@@ -2828,35 +3219,84 @@
         data-view="documentacao"
       >
 
-        <div class="dashboard-hero">
+        <div class="docs-page">
 
-          <div class="hero-content">
+          <!-- HERO -->
 
-            <h1>
-              Base de Conhecimento Técnico
-            </h1>
+          <div class="docs-hero">
 
-            <p>
-              Guias operacionais de integração,
-              erros comuns (401, 403, 422) e checklists
-              de validação para o suporte.
-            </p>
+            <div class="docs-hero-top">
+
+              <div>
+
+                <div class="docs-hero-eyebrow">
+                  <span class="docs-hero-eyebrow-dot"></span>
+                  Base de Conhecimento
+                </div>
+
+                <h1>Documentação Técnica</h1>
+
+                <p>
+                  Guias operacionais de integração, autenticação,
+                  conversão de certificados e collections Postman
+                  para cada instituição homologada.
+                </p>
+
+              </div>
+
+              <div class="docs-hero-stats">
+
+                <div class="docs-hero-stat">
+                  <strong id="docsStatTopics">0</strong>
+                  <span>Tópicos</span>
+                </div>
+
+                <div class="docs-hero-stat">
+                  <strong id="docsStatSections">0</strong>
+                  <span>Categorias</span>
+                </div>
+
+              </div>
+
+            </div>
 
           </div>
 
-        </div>
 
-        <div class="documentation-card">
+          <!-- SHELL -->
 
-          <h3>
-            Estrutura de Suporte
-          </h3>
+          <div class="docs-shell">
 
-          <p>
-            Selecione o banco desejado na dashboard para
-            visualizar seus parâmetros de handshake,
-            URLs de homologação/produção e escopos OAuth2.
-          </p>
+            <aside
+              class="docs-sidebar"
+              id="docsSidebar"
+            ></aside>
+
+            <div class="docs-content">
+
+              <div
+                class="docs-breadcrumb"
+                id="docsBreadcrumb"
+              ></div>
+
+              <article
+                class="docs-article"
+                id="docsArticle"
+              ></article>
+
+              <div
+                class="docs-footer-nav"
+                id="docsFooterNav"
+              ></div>
+
+            </div>
+
+            <aside
+              class="docs-toc"
+              id="docsToc"
+            ></aside>
+
+          </div>
 
         </div>
 
@@ -2876,39 +3316,45 @@
 
           <!-- HERO -->
 
-          <div class="collections-hero">
+          <div class="cx-hero">
 
-            <div class="collection-hero-inner">
+            <div class="cx-hero-heading">
 
-              <div>
+              <div class="cx-hero-eyebrow">
 
-                <div class="collection-eyebrow">
+                <span class="cx-hero-eyebrow-dot"></span>
 
-                  <span class="collection-eyebrow-dot"></span>
-
-                  Developer Toolkit
-
-                </div>
-
-                <h1 class="collection-hero-title">
-                  Collections Postman
-                </h1>
-
-                <p class="collection-hero-description">
-                  Monte rapidamente uma Collection completa
-                  para o gateway selecionado, já estruturada
-                  com autenticação, endpoints e configurações
-                  específicas da instituição.
-                </p>
+                Developer Toolkit
 
               </div>
 
-              <div class="collection-hero-badge">
+              <h1>
+                Collections Postman
+              </h1>
 
+              <p>
+                Monte rapidamente uma Collection completa para o
+                gateway selecionado, já estruturada com autenticação,
+                endpoints e configurações específicas da instituição.
+              </p>
+
+            </div>
+
+            <div class="cx-hero-stats">
+
+              <div class="cx-hero-stat">
+                <strong id="cxStatBanks">5</strong>
+                <span>Bancos</span>
+              </div>
+
+              <div class="cx-hero-stat">
+                <strong>2</strong>
+                <span>Produtos</span>
+              </div>
+
+              <div class="cx-hero-stat">
                 <strong>v2.1</strong>
-
                 <span>Postman</span>
-
               </div>
 
             </div>
@@ -2918,26 +3364,18 @@
 
           <!-- WORKSPACE -->
 
-          <div class="collection-workspace">
+          <div class="cx-layout">
 
             <!-- BANK NAVIGATION -->
 
-            <aside class="collection-sidebar">
+            <aside class="cx-sidebar">
 
-              <div class="collection-sidebar-header">
-
-                <span>
-                  Instituições
-                </span>
-
-                <strong>
-                  Escolha um gateway
-                </strong>
-
+              <div class="cx-sidebar-title">
+                Instituições
               </div>
 
               <div
-                class="collection-bank-list"
+                class="cx-bank-list"
                 id="collectionBankGrid"
               ></div>
 
@@ -2946,75 +3384,90 @@
 
             <!-- COLLECTION CONTENT -->
 
-            <main class="collection-main">
+            <main class="cx-main">
 
               <div
-                class="collection-selected-header"
+                class="cx-card cx-bank-header"
                 id="collectionSelectedHeader"
               ></div>
 
-              <div
-                class="collection-metrics"
-                id="collectionMetrics"
-              ></div>
+              <div class="cx-card">
 
-              <div class="collection-preview">
+                <div
+                  class="cx-stat-row"
+                  id="collectionMetrics"
+                ></div>
 
-                <div class="endpoint-panel">
+              </div>
 
-                  <div class="endpoint-panel-header">
+              <div class="cx-card">
 
-                    <strong>
-                      Endpoints incluídos
-                    </strong>
+                <div class="cx-split">
 
-                    <span
-                      class="endpoint-count"
-                      id="endpointCount"
-                    >
-                      0 rotas
-                    </span>
+                  <div class="cx-endpoints">
+
+                    <div class="cx-endpoints-head">
+
+                      <strong>
+                        Endpoints incluídos
+                      </strong>
+
+                      <span
+                        class="cx-badge-count"
+                        id="endpointCount"
+                      >
+                        0 rotas
+                      </span>
+
+                    </div>
+
+                    <div
+                      class="cx-endpoint-list"
+                      id="endpointList"
+                    ></div>
 
                   </div>
 
-                  <div
-                    class="endpoint-list"
-                    id="endpointList"
-                  ></div>
+                  <div class="cx-features">
 
-                </div>
+                    <div class="cx-features-title">
+                      Configuração
+                    </div>
 
-                <div class="feature-panel">
+                    <div id="featureList"></div>
 
-                  <div class="feature-panel-title">
-                    Configuração
                   </div>
-
-                  <div
-                    class="feature-list"
-                    id="featureList"
-                  ></div>
 
                 </div>
 
               </div>
 
-              <div class="feature-panel" style="margin-bottom:20px;">
+              <div class="cx-card">
 
-                <div class="feature-panel-title">
-                  Campos da Collection
+                <div class="cx-fields-head">
+
+                  <div>
+                    <h3>Campos da Collection</h3>
+                    <p>Preencha os valores reais — eles são embutidos direto no JSON gerado.</p>
+                  </div>
+
+                  <div
+                    class="cx-fields-progress"
+                    id="collectionFieldsProgress"
+                  ></div>
+
                 </div>
 
                 <div
-                  class="form-grid"
+                  class="cx-fields-grid"
                   id="collectionFieldsForm"
                 ></div>
 
               </div>
 
-              <div class="collection-action">
+              <div class="cx-action-bar">
 
-                <div class="collection-action-info">
+                <div class="cx-action-info">
 
                   <strong>
                     Pronto para gerar?
@@ -3028,7 +3481,7 @@
                 </div>
 
                 <button
-                  class="btn-generate-collection"
+                  class="cx-generate-btn"
                   type="button"
                   id="btnGenerateCollection"
                 >
@@ -3253,8 +3706,17 @@ const $$ = selector =>
 
 function bankInitials(name) {
 
-  return name
+  const stopwords = ["de", "da", "do", "das", "dos"];
+
+  const words = name
     .split(" ")
+    .filter(word => word && !stopwords.includes(word.toLowerCase()));
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return words
     .map(word => word[0])
     .slice(0, 2)
     .join("")
@@ -3403,7 +3865,9 @@ function renderCards() {
           <div class="card-top">
 
             <div class="bank-logo-wrap">
-              ${logoMarkup(bank)}
+              <div class="bank-logo-mono">
+                ${bankInitials(bank.name)}
+              </div>
             </div>
 
             <span class="protocol-tag">
@@ -3472,12 +3936,20 @@ function renderCollectionBankGrid() {
   if (!grid) return;
 
 
+  const banksCounter =
+    $("#cxStatBanks");
+
+  if (banksCounter) {
+    banksCounter.textContent = COLLECTION_BANKS.length;
+  }
+
+
   grid.innerHTML =
     COLLECTION_BANKS.map(bank => `
 
       <button
         type="button"
-        class="collection-bank-item ${
+        class="cx-bank-item ${
           bank.id === selectedCollectionBankId
             ? "selected"
             : ""
@@ -3491,37 +3963,36 @@ function renderCollectionBankGrid() {
         }"
       >
 
-        <div class="collection-bank-logo">
-
-          <img
-            src="${bank.logo}"
-            alt="${bank.name}"
-            loading="lazy"
-            onerror="
-              this.style.display='none';
-              this.parentElement.innerHTML='<span style=
-              'font-size:10px;font-weight:800;color:${bank.color}'
-              >${bankInitials(bank.name)}</span>';
-            "
-          >
-
+        <div class="cx-bank-badge">
+          ${bankInitials(bank.name)}
         </div>
 
-        <div class="collection-bank-info">
+        <div class="cx-bank-meta">
 
-          <span class="collection-bank-name">
+          <span class="cx-bank-name">
             ${bank.name}
           </span>
 
-          <span class="collection-bank-protocol">
+          <span class="cx-bank-protocol">
             ${bank.protocol}
           </span>
 
         </div>
 
-        <span
-          class="collection-bank-status"
-        ></span>
+        <span class="cx-bank-check">
+
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="m5 13 4 4L19 7"/>
+          </svg>
+
+        </span>
 
       </button>
 
@@ -3529,7 +4000,7 @@ function renderCollectionBankGrid() {
 
 
   grid
-    .querySelectorAll(".collection-bank-item")
+    .querySelectorAll(".cx-bank-item")
     .forEach(item => {
 
       item.addEventListener(
@@ -3581,18 +4052,16 @@ function renderCollectionWorkspace() {
   $("#collectionSelectedHeader")
     .innerHTML = `
 
-      <div class="selected-bank-identity">
+      <div class="cx-bank-identity">
 
         <div
-          class="selected-bank-logo"
+          class="cx-bank-avatar"
           style="--selected-accent:${bank.color}"
         >
-
-          ${logoMarkup(bank)}
-
+          ${bankInitials(bank.name)}
         </div>
 
-        <div class="selected-bank-text">
+        <div class="cx-bank-identity-text">
 
           <small>
             Collection selecionada
@@ -3610,16 +4079,13 @@ function renderCollectionWorkspace() {
 
       </div>
 
-      <div style="display:flex; align-items:center; gap:10px;">
+      <div class="cx-header-controls">
 
-        <div
-          class="converter-tabs"
-          style="padding:4px; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle);"
-        >
+        <div class="cx-segmented">
 
           <button
             type="button"
-            class="tab-btn ${selectedCollectionProduct === 'pix' ? 'active' : ''}"
+            class="cx-segmented-btn ${selectedCollectionProduct === 'pix' ? 'active' : ''}"
             data-product="pix"
           >
             Pix
@@ -3627,7 +4093,7 @@ function renderCollectionWorkspace() {
 
           <button
             type="button"
-            class="tab-btn ${selectedCollectionProduct === 'van' ? 'active' : ''}"
+            class="cx-segmented-btn ${selectedCollectionProduct === 'van' ? 'active' : ''}"
             data-product="van"
           >
             Cobrança (VAN)
@@ -3635,11 +4101,11 @@ function renderCollectionWorkspace() {
 
         </div>
 
-        <div class="format-pill">
+        <div class="cx-format-pill">
 
-          <span class="format-pill-dot"></span>
+          <span class="cx-format-pill-dot"></span>
 
-          Postman JSON v2.1
+          Postman v2.1
 
         </div>
 
@@ -3668,46 +4134,51 @@ function renderCollectionWorkspace() {
      METRICS
   --------------------------------------------- */
 
+  const metrics = [
+    {
+      label: "Autenticação",
+      value: bank.auth,
+      icon: `<path d="M12 3v18"/><path d="M3 12h18"/>`
+    },
+    {
+      label: "Ambiente",
+      value: bank.environment,
+      icon: `<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>`
+    },
+    {
+      label: "Segurança",
+      value: bank.security,
+      icon: `<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/>`
+    }
+  ];
+
   $("#collectionMetrics")
-    .innerHTML = `
+    .innerHTML =
+      metrics.map(metric => `
 
-      <div class="collection-metric">
+        <div class="cx-stat">
 
-        <span class="metric-label">
-          Autenticação
-        </span>
+          <span class="cx-stat-icon">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              ${metric.icon}
+            </svg>
+          </span>
 
-        <span class="metric-value">
-          ${bank.auth}
-        </span>
+          <span class="cx-stat-text">
+            <span class="cx-stat-label">${metric.label}</span>
+            <span class="cx-stat-value">${metric.value}</span>
+          </span>
 
-      </div>
+        </div>
 
-      <div class="collection-metric">
-
-        <span class="metric-label">
-          Ambiente
-        </span>
-
-        <span class="metric-value">
-          ${bank.environment}
-        </span>
-
-      </div>
-
-      <div class="collection-metric">
-
-        <span class="metric-label">
-          Segurança
-        </span>
-
-        <span class="metric-value">
-          ${bank.security}
-        </span>
-
-      </div>
-
-    `;
+      `).join("");
 
 
   /* ---------------------------------------------
@@ -3737,13 +4208,13 @@ function renderCollectionWorkspace() {
 
           return `
 
-            <div class="endpoint-row">
+            <div class="cx-endpoint-row">
 
-              <span class="http-method">
+              <span class="cx-method">
                 ${method}
               </span>
 
-              <span class="endpoint-path">
+              <span class="cx-path">
                 ${path}
               </span>
 
@@ -3759,100 +4230,49 @@ function renderCollectionWorkspace() {
      FEATURES
   --------------------------------------------- */
 
+  const features = [
+    {
+      icon: `<path d="M12 3v18"/><path d="M3 12h18"/>`,
+      label: "OAuth2 configurado"
+    },
+    {
+      icon: `<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9h8"/>`,
+      label: bank.protocol
+    },
+    {
+      icon: `<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/>`,
+      label: "mTLS preparado"
+    },
+    {
+      icon: `<path d="M4 4h16v16H4z"/><path d="M8 9h8"/><path d="M8 13h6"/>`,
+      label: "Scripts Postman"
+    }
+  ];
+
   $("#featureList")
-    .innerHTML = `
+    .innerHTML =
+      features.map(feature => `
 
-      <div class="feature-item">
+        <div class="cx-feature-item">
 
-        <span class="feature-icon">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 3v18"/>
-            <path d="M3 12h18"/>
-          </svg>
-        </span>
+          <span class="cx-feature-icon">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              ${feature.icon}
+            </svg>
+          </span>
 
-        OAuth2 configurado
+          ${feature.label}
 
-      </div>
+        </div>
 
-
-      <div class="feature-item">
-
-        <span class="feature-icon">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect
-              x="3"
-              y="5"
-              width="18"
-              height="14"
-              rx="2"
-            />
-            <path d="M8 9h8"/>
-          </svg>
-        </span>
-
-        ${bank.protocol}
-
-      </div>
-
-
-      <div class="feature-item">
-
-        <span class="feature-icon">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/>
-            <path d="m9 12 2 2 4-4"/>
-          </svg>
-        </span>
-
-        mTLS preparado
-
-      </div>
-
-
-      <div class="feature-item">
-
-        <span class="feature-icon">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M4 4h16v16H4z"/>
-            <path d="M8 9h8"/>
-            <path d="M8 13h6"/>
-          </svg>
-        </span>
-
-        Scripts Postman
-
-      </div>
-
-    `;
+      `).join("");
 
 
   loadCollectionFields(bank);
@@ -3863,6 +4283,76 @@ function renderCollectionWorkspace() {
 /* =========================================================
    COLLECTION FIELDS (dados a preencher na collection)
 ========================================================= */
+
+function humanizeFieldLabel(key) {
+
+  const spaced =
+    key
+      .replace(/[_-]+/g, " ")
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+
+  return spaced
+    .split(" ")
+    .filter(Boolean)
+    .map(word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+
+}
+
+
+function isSecretField(key) {
+  return /secret|senha|password/i.test(key);
+}
+
+
+function updateFieldsProgress(bank) {
+
+  const progressEl =
+    $("#collectionFieldsProgress");
+
+  if (!progressEl) return;
+
+
+  const total =
+    collectionFields.length;
+
+  const filled =
+    collectionFields.filter(field => {
+
+      const cacheKey =
+        `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
+
+      return (collectionFieldValues[cacheKey] || "").trim() !== "";
+
+    }).length;
+
+
+  if (!total) {
+    progressEl.innerHTML = "";
+    return;
+  }
+
+
+  const percent =
+    Math.round((filled / total) * 100);
+
+  progressEl.innerHTML = `
+
+    <span class="cx-progress-track">
+      <span
+        class="cx-progress-fill"
+        style="width:${percent}%;"
+      ></span>
+    </span>
+
+    <span class="cx-progress-label">
+      ${filled}/${total} preenchidos
+    </span>
+
+  `;
+
+}
+
 
 async function loadCollectionFields(bank) {
 
@@ -3876,7 +4366,9 @@ async function loadCollectionFields(bank) {
 
 
   panel.innerHTML =
-    `<span style="font-size:12px;color:var(--text-muted);">Carregando campos...</span>`;
+    `<div class="cx-fields-loading">Carregando campos...</div>`;
+
+  $("#collectionFieldsProgress").innerHTML = "";
 
   btn.disabled = true;
 
@@ -3900,7 +4392,7 @@ async function loadCollectionFields(bank) {
     if (!fields.length) {
 
       panel.innerHTML =
-        `<span style="font-size:12px;color:var(--text-muted);">Esta collection não possui campos configuráveis.</span>`;
+        `<div class="cx-fields-empty">Esta collection não possui campos configuráveis.</div>`;
 
     } else {
 
@@ -3913,14 +4405,21 @@ async function loadCollectionFields(bank) {
           const value =
             collectionFieldValues[cacheKey] || "";
 
+          const inputType =
+            isSecretField(field.chave) ? "password" : "text";
+
           return `
-            <div class="form-group">
-              <label>${field.chave}</label>
+            <div class="cx-field">
+              <label>
+                ${humanizeFieldLabel(field.chave)}
+                <span class="cx-field-key">${field.chave}</span>
+              </label>
               <input
-                type="text"
+                type="${inputType}"
                 data-field="${field.chave}"
                 value="${value.replace(/"/g, "&quot;")}"
                 placeholder="Valor para ${field.chave}"
+                autocomplete="off"
               >
             </div>
           `;
@@ -3936,11 +4435,14 @@ async function loadCollectionFields(bank) {
 
           input.addEventListener("input", () => {
             collectionFieldValues[cacheKey] = input.value;
+            updateFieldsProgress(bank);
           });
 
         });
 
     }
+
+    updateFieldsProgress(bank);
 
     btn.disabled = false;
 
@@ -3948,8 +4450,10 @@ async function loadCollectionFields(bank) {
 
     collectionFields = [];
 
+    $("#collectionFieldsProgress").innerHTML = "";
+
     panel.innerHTML =
-      `<span style="font-size:12px;color:var(--danger);">${error.message}</span>`;
+      `<div class="cx-fields-error">${error.message}</div>`;
 
   }
 
@@ -3973,6 +4477,25 @@ function renderBankView(id) {
 
   $("#bankViewContainer")
     .innerHTML = `
+
+      <a
+        href="#dashboard"
+        class="btn-back"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+
+        Voltar ao Dashboard
+
+      </a>
 
       <div
         style="
@@ -4615,6 +5138,673 @@ function renderBankView(id) {
 
 
 /* =========================================================
+   DOCUMENTATION DATA
+   ---------------------------------------------------------
+   Esqueleto de conteúdo. Troque os textos entre [[ ]] pelo
+   conteúdo real — a estrutura (callouts, código, tabelas)
+   pode ser reaproveitada livremente em cada tópico.
+========================================================= */
+
+function docsCallout(type, title, text) {
+
+  const icons = {
+    info: `<circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 11h1v5h1"/>`,
+    tip: `<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/>`,
+    warning: `<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>`,
+    danger: `<circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-5 5"/><path d="m9.5 9.5 5 5"/>`
+  };
+
+  return `
+
+    <div class="docs-callout docs-callout--${type}">
+
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        ${icons[type]}
+      </svg>
+
+      <div><strong>${title}:</strong> ${text}</div>
+
+    </div>
+
+  `;
+
+}
+
+
+function docsCode(lang, code) {
+
+  return `
+
+    <div class="docs-code-block">
+
+      <div class="docs-code-head">
+
+        <span>${lang}</span>
+
+        <button type="button" class="docs-code-copy" data-copy>
+
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+
+          Copiar
+
+        </button>
+
+      </div>
+
+      <pre>${code}</pre>
+
+    </div>
+
+  `;
+
+}
+
+
+function docsTable(headers, rows) {
+
+  return `
+
+    <div class="docs-table-wrap">
+
+      <table class="docs-table">
+
+        <thead>
+          <tr>
+            ${headers.map(h => `<th>${h}</th>`).join("")}
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+function docsArticleSkeleton(opts) {
+
+  const steps =
+    opts.steps || [
+      "[[Primeiro passo]]",
+      "[[Segundo passo]]",
+      "[[Terceiro passo]]"
+    ];
+
+  return `
+
+    <p class="docs-lead">${opts.lead}</p>
+
+    <h2>Visão geral</h2>
+
+    <p>${opts.overview || "[[Escreva aqui uma explicação geral sobre este tópico.]]"}</p>
+
+    ${opts.calloutInfo || docsCallout("info", "Nota", "[[Use este bloco para observações importantes de contexto.]]")}
+
+    <h2>Passo a passo</h2>
+
+    <ol>
+      ${steps.map(step => `<li>${step}</li>`).join("")}
+    </ol>
+
+    ${opts.extra || ""}
+
+  `;
+
+}
+
+
+const DOCS_SECTIONS = [
+
+  {
+    title: "Primeiros Passos",
+    topics: [
+      {
+        id: "visao-geral",
+        title: "Visão Geral",
+        content: docsArticleSkeleton({
+          lead: "[[Resumo em 1-2 frases sobre o que é esta ferramenta e para quem ela serve.]]",
+          steps: [
+            "[[O que o time de suporte precisa saber antes de usar a ferramenta]]",
+            "[[Onde encontrar os certificados A1 dos clientes]]",
+            "[[Quando usar cada aba do sistema — Conversor ou Collections]]"
+          ],
+          extra: docsCallout("tip", "Dica", "[[Inclua aqui um atalho ou boa prática rápida para quem está começando.]]")
+        })
+      },
+      {
+        id: "arquitetura",
+        title: "Como Funciona",
+        content: docsArticleSkeleton({
+          lead: "[[Explique que o processamento roda localmente, em memória, sem persistência em disco.]]",
+          calloutInfo: docsCallout("info", "Importante", "[[Detalhe o motivo de rodar como executável local — segurança de dados sensíveis do cliente.]]")
+        })
+      },
+      {
+        id: "requisitos",
+        title: "Requisitos & Instalação",
+        content: docsArticleSkeleton({
+          lead: "[[Liste requisitos de sistema operacional e como obter/atualizar o executável.]]",
+          extra: docsCode("bash", "# [[Exemplo de comando para executar a ferramenta]]\n./pfx-conversor")
+        })
+      }
+    ]
+  },
+
+  {
+    title: "Certificados Digitais",
+    topics: [
+      {
+        id: "pfx-para-pem",
+        title: "Conversão PFX → PEM",
+        content: docsArticleSkeleton({
+          lead: "[[Explique quando extrair a chave pública/privada em PEM a partir de um certificado A1 (.pfx/.p12).]]",
+          steps: [
+            "[[Selecione o banco desejado na Dashboard]]",
+            "[[Faça upload do certificado e informe a senha]]",
+            "[[Baixe a Chave Pública e a Chave Privada geradas]]"
+          ]
+        })
+      },
+      {
+        id: "reencodar-pfx",
+        title: "Re-encodar PFX",
+        content: docsArticleSkeleton({
+          lead: "[[Explique o caso de uso: compatibilizar um PFX com sistemas legados, opcionalmente trocando a senha.]]"
+        })
+      },
+      {
+        id: "erros-conversao",
+        title: "Erros comuns na conversão",
+        content: docsArticleSkeleton({
+          lead: "[[Liste os erros mais comuns ao converter certificados e como resolvê-los.]]",
+          extra: docsTable(
+            ["Erro", "Causa provável", "Solução"],
+            [
+              ["[[Falha ao abrir o pfx]]", "[[Senha incorreta]]", "[[Confirme a senha com o responsável pelo certificado]]"],
+              ["[[Certificado sem Chave Privada]]", "[[Arquivo exportado sem a chave]]", "[[Reexporte o .pfx incluindo a chave privada]]"]
+            ]
+          )
+        })
+      }
+    ]
+  },
+
+  {
+    title: "Collections Postman",
+    topics: [
+      {
+        id: "gerar-collection",
+        title: "Como gerar uma Collection",
+        content: docsArticleSkeleton({
+          lead: "[[Explique o fluxo: escolher o banco, escolher Pix ou Cobrança (VAN), preencher os campos e baixar o JSON.]]"
+        })
+      },
+      {
+        id: "campos-variaveis",
+        title: "Campos e Variáveis",
+        content: docsArticleSkeleton({
+          lead: "[[Explique o que são as variáveis da collection (client_id, chave_pix etc.) e onde encontrá-las no portal de cada banco.]]"
+        })
+      },
+      {
+        id: "pix-vs-van",
+        title: "Pix vs Cobrança (VAN)",
+        content: docsArticleSkeleton({
+          lead: "[[Diferencie os dois produtos: Pix (cobrança instantânea) e VAN (boleto registrado).]]"
+        })
+      }
+    ]
+  },
+
+  {
+    title: "Bancos Homologados",
+    topics: [
+      {
+        id: "banco-bb",
+        title: "Banco do Brasil",
+        content: docsArticleSkeleton({
+          lead: "[[Parâmetros de handshake, URLs de homologação/produção e escopos OAuth2 do BB.]]",
+          extra: docsTable(
+            ["Variável", "Descrição", "Exemplo"],
+            [["<code>bb_app_key</code>", "[[Chave de aplicação do Developer BB]]", "[[abc123]]"]]
+          )
+        })
+      },
+      {
+        id: "banco-itau",
+        title: "Itaú Unibanco",
+        content: docsArticleSkeleton({
+          lead: "[[Parâmetros de handshake mTLS dedicado do Itaú.]]"
+        })
+      },
+      {
+        id: "banco-sicoob",
+        title: "Sicoob",
+        content: docsArticleSkeleton({
+          lead: "[[Parâmetros do gateway V3 / Open Finance do Sicoob.]]"
+        })
+      },
+      {
+        id: "banco-sicredi",
+        title: "Sicredi",
+        content: docsArticleSkeleton({
+          lead: "[[Parâmetros do padrão V2 Modular do Sicredi.]]"
+        })
+      },
+      {
+        id: "banco-santander",
+        title: "Santander",
+        content: docsArticleSkeleton({
+          lead: "[[Parâmetros do portal Developer Santander Empresas.]]"
+        })
+      },
+      {
+        id: "banco-bradesco",
+        title: "Bradesco",
+        content: docsArticleSkeleton({
+          lead: "[[Parâmetros da API ShopFácil do Bradesco.]]"
+        })
+      }
+    ]
+  },
+
+  {
+    title: "Segurança & Erros",
+    topics: [
+      {
+        id: "autenticacao",
+        title: "Autenticação (OAuth2 / mTLS)",
+        content: docsArticleSkeleton({
+          lead: "[[Explique a diferença entre OAuth2 puro, mTLS dedicado e a combinação dos dois.]]"
+        })
+      },
+      {
+        id: "codigos-erro",
+        title: "Códigos de Erro Comuns",
+        content: docsArticleSkeleton({
+          lead: "[[Catálogo de erros HTTP retornados pelas APIs bancárias e como agir em cada caso.]]",
+          extra: docsTable(
+            ["Código", "Significado", "Ação recomendada"],
+            [
+              ["<code>401</code>", "[[Token inválido ou expirado]]", "[[Gerar um novo bearer_token via /oauth/token]]"],
+              ["<code>403</code>", "[[Certificado não autorizado ou escopo incorreto]]", "[[Validar o mTLS e o scope solicitado]]"],
+              ["<code>422</code>", "[[Payload inválido]]", "[[Revisar os campos obrigatórios do body]]"]
+            ]
+          )
+        })
+      },
+      {
+        id: "boas-praticas",
+        title: "Boas Práticas de Segurança",
+        content: docsArticleSkeleton({
+          lead: "[[Oriente sobre não compartilhar client_secret, girar credenciais periodicamente etc.]]"
+        })
+      }
+    ]
+  },
+
+  {
+    title: "Suporte",
+    topics: [
+      {
+        id: "faq",
+        title: "Perguntas Frequentes",
+        content: docsArticleSkeleton({
+          lead: "[[Liste aqui as dúvidas mais recorrentes do time de suporte.]]"
+        })
+      }
+    ]
+  }
+
+];
+
+
+/* =========================================================
+   DOCUMENTATION RENDER
+========================================================= */
+
+let currentDocsTopicId = null;
+
+
+function flattenDocsTopics() {
+
+  const flat = [];
+
+  DOCS_SECTIONS.forEach(section => {
+
+    section.topics.forEach(topic => {
+
+      flat.push({
+        ...topic,
+        sectionTitle: section.title
+      });
+
+    });
+
+  });
+
+  return flat;
+
+}
+
+
+function renderDocsSidebar(activeId) {
+
+  const sidebar =
+    $("#docsSidebar");
+
+  if (!sidebar) return;
+
+
+  sidebar.innerHTML = `
+
+    <div class="docs-sidebar-search">
+
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+      </svg>
+
+      <input
+        type="text"
+        id="docsSidebarSearch"
+        placeholder="Filtrar tópicos..."
+      >
+
+    </div>
+
+  ` + DOCS_SECTIONS.map(section => `
+
+    <div class="docs-nav-group" data-docs-group>
+
+      <div class="docs-nav-group-title">
+        ${section.title}
+      </div>
+
+      <div class="docs-nav-list">
+
+        ${section.topics.map(topic => `
+
+          <a
+            href="#documentacao/${topic.id}"
+            class="docs-nav-link ${topic.id === activeId ? 'active' : ''}"
+            data-docs-title="${topic.title.toLowerCase()}"
+          >
+            <span class="docs-nav-dot"></span>
+            ${topic.title}
+          </a>
+
+        `).join("")}
+
+      </div>
+
+    </div>
+
+  `).join("");
+
+
+  const searchInput =
+    $("#docsSidebarSearch");
+
+  if (searchInput) {
+
+    searchInput.addEventListener("input", () => {
+
+      const term =
+        searchInput.value.trim().toLowerCase();
+
+      sidebar
+        .querySelectorAll("[data-docs-group]")
+        .forEach(group => {
+
+          let anyVisible = false;
+
+          group
+            .querySelectorAll(".docs-nav-link")
+            .forEach(link => {
+
+              const match =
+                !term || link.dataset.docsTitle.includes(term);
+
+              link.style.display = match ? "flex" : "none";
+
+              if (match) anyVisible = true;
+
+            });
+
+          group.style.display = anyVisible ? "block" : "none";
+
+        });
+
+    });
+
+  }
+
+}
+
+
+function renderDocsToc() {
+
+  const toc =
+    $("#docsToc");
+
+  if (!toc) return;
+
+
+  const headings =
+    $$("#docsArticle h2");
+
+  if (!headings.length) {
+
+    toc.innerHTML = `
+      <div class="docs-toc-title">Nesta página</div>
+      <div class="docs-toc-empty">Sem seções nesta página.</div>
+    `;
+
+    return;
+
+  }
+
+
+  headings.forEach((heading, index) => {
+
+    if (!heading.id) {
+      heading.id = `docs-heading-${index}`;
+    }
+
+  });
+
+
+  toc.innerHTML = `
+
+    <div class="docs-toc-title">Nesta página</div>
+
+    <div class="docs-toc-list">
+
+      ${headings.map(heading => `
+        <button
+          type="button"
+          class="docs-toc-link"
+          data-scroll-to="${heading.id}"
+        >
+          ${heading.textContent}
+        </button>
+      `).join("")}
+
+    </div>
+
+  `;
+
+
+  toc
+    .querySelectorAll("[data-scroll-to]")
+    .forEach(btn => {
+
+      btn.addEventListener("click", () => {
+
+        const target =
+          document.getElementById(btn.dataset.scrollTo);
+
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+      });
+
+    });
+
+}
+
+
+function wireDocsCodeCopyButtons() {
+
+  $$("#docsArticle [data-copy]")
+    .forEach(btn => {
+
+      btn.addEventListener("click", async () => {
+
+        const code =
+          btn.closest(".docs-code-block")
+            .querySelector("pre")
+            .textContent;
+
+        try {
+
+          await navigator.clipboard.writeText(code);
+
+          const original =
+            btn.innerHTML;
+
+          btn.textContent = "Copiado!";
+
+          setTimeout(() => {
+            btn.innerHTML = original;
+          }, 1500);
+
+        } catch (error) {
+          /* clipboard indisponível — ignora silenciosamente */
+        }
+
+      });
+
+    });
+
+}
+
+
+function renderDocsFooterNav(flat, activeId) {
+
+  const container =
+    $("#docsFooterNav");
+
+  if (!container) return;
+
+
+  const index =
+    flat.findIndex(topic => topic.id === activeId);
+
+  const prev = flat[index - 1];
+  const next = flat[index + 1];
+
+
+  container.innerHTML = `
+
+    ${prev ? `
+      <a href="#documentacao/${prev.id}" class="docs-footer-link prev">
+        <small>Anterior</small>
+        <strong>← ${prev.title}</strong>
+      </a>
+    ` : "<div></div>"}
+
+    ${next ? `
+      <a href="#documentacao/${next.id}" class="docs-footer-link next">
+        <small>Próximo</small>
+        <strong>${next.title} →</strong>
+      </a>
+    ` : "<div></div>"}
+
+  `;
+
+}
+
+
+function renderDocsView(topicId) {
+
+  const flat =
+    flattenDocsTopics();
+
+  const topic =
+    flat.find(item => item.id === topicId) || flat[0];
+
+  if (!topic) return;
+
+  currentDocsTopicId = topic.id;
+
+
+  const statTopics =
+    $("#docsStatTopics");
+
+  const statSections =
+    $("#docsStatSections");
+
+  if (statTopics) statTopics.textContent = flat.length;
+  if (statSections) statSections.textContent = DOCS_SECTIONS.length;
+
+
+  renderDocsSidebar(topic.id);
+
+
+  $("#docsBreadcrumb").innerHTML = `
+    <span>${topic.sectionTitle}</span>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    <span>${topic.title}</span>
+  `;
+
+
+  $("#docsArticle").innerHTML = `
+    <h1>${topic.title}</h1>
+    ${topic.content}
+  `;
+
+
+  renderDocsToc();
+  wireDocsCodeCopyButtons();
+  renderDocsFooterNav(flat, topic.id);
+
+}
+
+
+/* =========================================================
    ROUTING
 ========================================================= */
 
@@ -4651,9 +5841,28 @@ function route() {
     });
 
 
+  const contentContainer =
+    $("#contentContainer");
+
+  if (contentContainer) {
+
+    contentContainer.classList.toggle(
+      "content-container--wide",
+      view === "documentacao"
+    );
+
+  }
+
+
   if (view === "banco") {
 
     renderBankView(param);
+
+  } else if (view === "documentacao") {
+
+    applyDynamicTheme(null);
+
+    renderDocsView(param);
 
   } else {
 

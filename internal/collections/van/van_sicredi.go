@@ -167,8 +167,8 @@ func SicrediVanCollection(cfg *SicrediVanConfig) ([]byte, error) {
 		},
 		Variable: []c.PostmanVariable{
 			{Key: "bearer_token", Value: "", Type: "string"},
-			{Key: "sicredi_username", Value: cfg.SicrediUsername, Type: "string"},
-			{Key: "sicredi_password", Value: cfg.SicrediPassword, Type: "string"},
+			{Key: "username", Value: cfg.SicrediUsername, Type: "string"},
+			{Key: "password", Value: cfg.SicrediPassword, Type: "string"},
 			{Key: "x-api-key", Value: cfg.SicrediApiKey, Type: "string"},
 			{Key: "cooperativa", Value: cfg.SicrediCoop, Type: "string"},
 			{Key: "posto", Value: cfg.SicrediPosto, Type: "string"},
