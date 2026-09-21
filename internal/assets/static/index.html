@@ -1316,6 +1316,90 @@
     align-items: start;
   }
 
+  .fatura-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .fatura-output {
+    display: block;
+    width: 100%;
+    min-height: 380px;
+    resize: vertical;
+
+    margin: 0;
+    padding: 14px 16px;
+    border: 0;
+    outline: none;
+
+    background: var(--bg-base);
+    color: var(--text-main);
+
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ---- remessa erro list ---- */
+
+  .remessa-erro-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .remessa-erro-item {
+    display: flex;
+    gap: 12px;
+
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-base);
+    border-left: 3px solid var(--danger);
+  }
+
+  .remessa-erro-linha {
+    flex-shrink: 0;
+
+    min-width: 64px;
+    height: 24px;
+    padding: 0 8px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger);
+
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .remessa-erro-texto {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text-main);
+  }
+
+  .remessa-erro-categoria {
+    text-transform: uppercase;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    color: var(--text-subtle);
+    margin-right: 6px;
+  }
+
   /* ---- sidebar ---- */
 
   .cx-sidebar {
@@ -2987,6 +3071,25 @@
         Collections
       </a>
 
+      <a
+        href="#utilidades"
+        class="nav-link"
+        data-nav="utilidades"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+
+        Utilidades
+      </a>
+
     </nav>
 
     <div class="sidebar-footer">
@@ -3526,6 +3629,453 @@
               </div>
 
             </main>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           UTILIDADES
+      ==================================================== -->
+
+      <section
+        class="view"
+        data-view="utilidades"
+      >
+
+        <div class="collections-page">
+
+          <!-- HERO -->
+
+          <div class="cx-hero">
+
+            <div class="cx-hero-heading">
+
+              <div class="cx-hero-eyebrow">
+
+                <span class="cx-hero-eyebrow-dot"></span>
+
+                Utilitários
+
+              </div>
+
+              <h1>
+                Utilidades
+              </h1>
+
+              <p>
+                Ferramentas de apoio para o dia a dia do suporte:
+                extração de códigos de fatura e validação de
+                arquivos de remessa CNAB.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- TOOL SWITCH -->
+
+          <div class="cx-card" style="padding:12px;">
+
+            <div class="cx-segmented" id="utilidadesToolToggle" style="width:100%;">
+
+              <button
+                type="button"
+                class="cx-segmented-btn active"
+                data-tool="faturas"
+                style="flex:1;"
+              >
+                Substituição de Códigos
+              </button>
+
+              <button
+                type="button"
+                class="cx-segmented-btn"
+                data-tool="remessa"
+                style="flex:1;"
+              >
+                Validador de Remessa
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- ===============================================
+               FERRAMENTA: SUBSTITUIÇÃO DE CÓDIGOS (FATURAS)
+          ================================================ -->
+
+          <div class="fatura-layout" id="utilFaturasTool">
+
+            <div class="cx-card">
+
+              <div class="form-group" style="margin:0;">
+
+                <label>
+                  Planilha (.csv / .xlsx)
+                </label>
+
+                <label
+                  class="dropzone"
+                  id="faturaDropArea"
+                  for="faturaInput"
+                >
+
+                  <input
+                    type="file"
+                    id="faturaInput"
+                    accept=".csv,.xlsx,.xls"
+                  >
+
+                  <div class="dropzone-content">
+
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+
+                    <strong>
+                      Clique ou arraste a planilha aqui
+                    </strong>
+
+                    <span>
+                      Formatos suportados: CSV, XLSX
+                    </span>
+
+                  </div>
+
+                </label>
+
+                <div
+                  class="file-badge"
+                  id="faturaFileBadge"
+                >
+
+                  <span style="color:var(--brand-primary)">
+                    📄
+                  </span>
+
+                  <div class="file-badge-info">
+
+                    <div id="faturaFileName">
+                      planilha.xlsx
+                    </div>
+
+                    <div
+                      class="file-badge-size"
+                      id="faturaFileSize"
+                    >
+                      0 KB
+                    </div>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn-remove-file"
+                    id="btnRemoveFaturaFile"
+                  >
+                    Remover
+                  </button>
+
+                </div>
+
+              </div>
+
+              <div class="cx-action-bar" style="margin-top:16px;">
+
+                <div class="cx-action-info">
+
+                  <strong>
+                    Pronto para extrair?
+                  </strong>
+
+                  <span>
+                    A coluna de faturas é localizada automaticamente
+                    pelo cabeçalho da planilha — só números são
+                    considerados.
+                  </span>
+
+                </div>
+
+                <button
+                  class="cx-generate-btn"
+                  type="button"
+                  id="btnExtractFaturas"
+                >
+
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+
+                  Extrair Faturas
+
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="cx-card"
+              id="faturaResultCard"
+              style="display:none;"
+            >
+
+              <div class="cx-fields-head">
+
+                <div>
+                  <h3>Faturas extraídas</h3>
+                  <p id="faturaResultCount">0 valores encontrados</p>
+                </div>
+
+                <div class="cx-segmented" id="faturaQuoteToggle">
+
+                  <button
+                    type="button"
+                    class="cx-segmented-btn active"
+                    data-quote="plain"
+                  >
+                    Sem aspas
+                  </button>
+
+                  <button
+                    type="button"
+                    class="cx-segmented-btn"
+                    data-quote="quoted"
+                  >
+                    Com aspas
+                  </button>
+
+                </div>
+
+              </div>
+
+              <div class="docs-code-block">
+
+                <div class="docs-code-head">
+
+                  <span>Resultado</span>
+
+                  <button
+                    type="button"
+                    class="docs-code-copy"
+                    id="btnCopyFaturas"
+                  >
+
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <rect x="9" y="9" width="13" height="13" rx="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+
+                    Copiar
+
+                  </button>
+
+                </div>
+
+                <textarea
+                  id="faturaResultText"
+                  class="fatura-output"
+                  readonly
+                ></textarea>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ===============================================
+               FERRAMENTA: VALIDADOR DE REMESSA (CNAB 240/400)
+          ================================================ -->
+
+          <div class="fatura-layout" id="utilRemessaTool" style="display:none;">
+
+            <div class="cx-card">
+
+              <div class="form-group" style="margin:0;">
+
+                <label>
+                  Arquivo de Remessa (CNAB 240 / CNAB 400)
+                </label>
+
+                <label
+                  class="dropzone"
+                  id="remessaDropArea"
+                  for="remessaInput"
+                >
+
+                  <input
+                    type="file"
+                    id="remessaInput"
+                  >
+
+                  <div class="dropzone-content">
+
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+
+                    <strong>
+                      Clique ou arraste o arquivo de remessa aqui
+                    </strong>
+
+                    <span>
+                      Layout detectado automaticamente: CNAB 240 ou CNAB 400
+                    </span>
+
+                  </div>
+
+                </label>
+
+                <div
+                  class="file-badge"
+                  id="remessaFileBadge"
+                >
+
+                  <span style="color:var(--brand-primary)">
+                    📄
+                  </span>
+
+                  <div class="file-badge-info">
+
+                    <div id="remessaFileName">
+                      remessa.txt
+                    </div>
+
+                    <div
+                      class="file-badge-size"
+                      id="remessaFileSize"
+                    >
+                      0 KB
+                    </div>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn-remove-file"
+                    id="btnRemoveRemessaFile"
+                  >
+                    Remover
+                  </button>
+
+                </div>
+
+              </div>
+
+              <div class="cx-action-bar" style="margin-top:16px;">
+
+                <div class="cx-action-info">
+
+                  <strong>
+                    Pronto para validar?
+                  </strong>
+
+                  <span>
+                    Confere tamanho de linha, sequência dos registros
+                    e a estrutura de lotes do arquivo.
+                  </span>
+
+                </div>
+
+                <button
+                  class="cx-generate-btn"
+                  type="button"
+                  id="btnValidarRemessa"
+                >
+
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="m9 12 2 2 4-4"/>
+                    <circle cx="12" cy="12" r="9"/>
+                  </svg>
+
+                  Validar Remessa
+
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="cx-card"
+              id="remessaResultCard"
+              style="display:none;"
+            >
+
+              <div class="cx-fields-head">
+
+                <div>
+                  <h3>Resultado da validação</h3>
+                  <p id="remessaResultSubtitle">—</p>
+                </div>
+
+              </div>
+
+              <div
+                class="cx-stat-row"
+                id="remessaMetrics"
+              ></div>
+
+              <div
+                id="remessaStatusBanner"
+                style="margin-top:14px;"
+              ></div>
+
+              <div
+                class="remessa-erro-list"
+                id="remessaErroList"
+              ></div>
+
+            </div>
 
           </div>
 
@@ -4568,7 +5118,7 @@ function renderBankView(id) {
               data-tab="next"
             >
               Re-encodar PFX
-              (Next)
+              (Compatibilidade)
             </button>
 
           </div>
@@ -4738,7 +5288,7 @@ function renderBankView(id) {
                 <div class="form-group">
 
                   <label>
-                    Nova Senha
+                    Nova Senha (opcional)
                   </label>
 
                   <input
@@ -6508,6 +7058,594 @@ function renderDocsView(topicId) {
    ROUTING
 ========================================================= */
 
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+function initUtilidadesToolToggle() {
+
+  const toggle =
+    $("#utilidadesToolToggle");
+
+  if (!toggle) return;
+
+  const tools = {
+    faturas: $("#utilFaturasTool"),
+    remessa: $("#utilRemessaTool"),
+  };
+
+  toggle.addEventListener("click", event => {
+
+    const btn =
+      event.target.closest("[data-tool]");
+
+    if (!btn) return;
+
+    const tool =
+      btn.dataset.tool;
+
+    $$("#utilidadesToolToggle .cx-segmented-btn")
+      .forEach(item => {
+
+        item.classList.toggle(
+          "active",
+          item === btn
+        );
+
+      });
+
+    Object.entries(tools).forEach(([key, el]) => {
+      if (el) el.style.display = key === tool ? "flex" : "none";
+    });
+
+  });
+
+}
+
+
+function initFaturas() {
+
+  const faturaInput =
+    $("#faturaInput");
+
+  const faturaDropArea =
+    $("#faturaDropArea");
+
+  const faturaFileBadge =
+    $("#faturaFileBadge");
+
+  const faturaResultCard =
+    $("#faturaResultCard");
+
+  let faturaValores = [];
+  let faturaQuoteMode = "plain";
+
+
+  function formatFaturaValores(valores, mode) {
+
+    if (mode === "quoted") {
+
+      return valores
+        .map(v => `'${v}'`)
+        .join(", ");
+
+    }
+
+    return valores.join(", ");
+
+  }
+
+
+  function renderFaturaResult() {
+
+    $("#faturaResultText").value =
+      formatFaturaValores(faturaValores, faturaQuoteMode);
+
+    $("#faturaResultCount").textContent =
+      `${faturaValores.length} valor${faturaValores.length === 1 ? "" : "es"} encontrado${faturaValores.length === 1 ? "" : "s"}`;
+
+  }
+
+
+  faturaInput.onchange = () => {
+
+    const file =
+      faturaInput.files[0];
+
+    if (!file) return;
+
+
+    $("#faturaFileName").textContent =
+      file.name;
+
+    $("#faturaFileSize").textContent =
+      `${(file.size / 1024).toFixed(1)} KB`;
+
+
+    faturaDropArea.style.display =
+      "none";
+
+    faturaFileBadge.classList.add(
+      "active"
+    );
+
+  };
+
+
+  ["dragenter", "dragover"].forEach(eventName => {
+
+    faturaDropArea.addEventListener(eventName, event => {
+
+      event.preventDefault();
+
+      faturaDropArea.classList.add("drag");
+
+    });
+
+  });
+
+
+  ["dragleave", "dragend"].forEach(eventName => {
+
+    faturaDropArea.addEventListener(eventName, () => {
+
+      faturaDropArea.classList.remove("drag");
+
+    });
+
+  });
+
+
+  faturaDropArea.addEventListener("drop", event => {
+
+    event.preventDefault();
+
+    faturaDropArea.classList.remove("drag");
+
+    const file =
+      event.dataTransfer.files[0];
+
+    if (!file) return;
+
+    faturaInput.files =
+      event.dataTransfer.files;
+
+    faturaInput.dispatchEvent(
+      new Event("change")
+    );
+
+  });
+
+
+  $("#btnRemoveFaturaFile").onclick = () => {
+
+    faturaInput.value = "";
+
+    faturaFileBadge.classList.remove(
+      "active"
+    );
+
+    faturaDropArea.style.display =
+      "block";
+
+    faturaResultCard.style.display =
+      "none";
+
+  };
+
+
+  $("#faturaQuoteToggle")
+    .addEventListener("click", event => {
+
+      const btn =
+        event.target.closest("[data-quote]");
+
+      if (!btn) return;
+
+      faturaQuoteMode =
+        btn.dataset.quote;
+
+      $$("#faturaQuoteToggle .cx-segmented-btn")
+        .forEach(item => {
+
+          item.classList.toggle(
+            "active",
+            item === btn
+          );
+
+        });
+
+      renderFaturaResult();
+
+    });
+
+
+  $("#btnCopyFaturas").onclick = async () => {
+
+    try {
+
+      await navigator.clipboard.writeText(
+        $("#faturaResultText").value
+      );
+
+      toast(
+        "success",
+        "Copiado!",
+        "Os valores foram copiados para a área de transferência."
+      );
+
+    } catch (error) {
+
+      toast(
+        "error",
+        "Falha ao copiar",
+        "Não foi possível acessar a área de transferência."
+      );
+
+    }
+
+  };
+
+
+  $("#btnExtractFaturas").onclick = async () => {
+
+    const file =
+      faturaInput.files[0];
+
+    if (!file) {
+
+      toast(
+        "error",
+        "Arquivo obrigatório",
+        "Selecione uma planilha .csv ou .xlsx antes de continuar."
+      );
+
+      return;
+
+    }
+
+
+    const btn =
+      $("#btnExtractFaturas");
+
+    btn.disabled = true;
+
+
+    const formData =
+      new FormData();
+
+    formData.append("planilha", file);
+
+
+    try {
+
+      const response =
+        await fetch("/planilha/faturas", {
+          method: "POST",
+          body: formData,
+        });
+
+      const data =
+        await response.json();
+
+      if (!data.sucesso) {
+
+        toast(
+          "error",
+          "Não foi possível extrair as faturas",
+          data.erro || "Erro desconhecido ao processar a planilha."
+        );
+
+        faturaResultCard.style.display =
+          "none";
+
+        return;
+
+      }
+
+      faturaValores =
+        data.valores || [];
+
+      faturaResultCard.style.display =
+        "block";
+
+      renderFaturaResult();
+
+    } catch (error) {
+
+      toast(
+        "error",
+        "Falha na comunicação",
+        "Não foi possível enviar a planilha ao servidor."
+      );
+
+    } finally {
+
+      btn.disabled = false;
+
+    }
+
+  };
+
+}
+
+
+function initRemessa() {
+
+  const remessaInput =
+    $("#remessaInput");
+
+  const remessaDropArea =
+    $("#remessaDropArea");
+
+  const remessaFileBadge =
+    $("#remessaFileBadge");
+
+  const remessaResultCard =
+    $("#remessaResultCard");
+
+
+  remessaInput.onchange = () => {
+
+    const file =
+      remessaInput.files[0];
+
+    if (!file) return;
+
+    $("#remessaFileName").textContent =
+      file.name;
+
+    $("#remessaFileSize").textContent =
+      `${(file.size / 1024).toFixed(1)} KB`;
+
+    remessaDropArea.style.display =
+      "none";
+
+    remessaFileBadge.classList.add(
+      "active"
+    );
+
+  };
+
+
+  ["dragenter", "dragover"].forEach(eventName => {
+
+    remessaDropArea.addEventListener(eventName, event => {
+
+      event.preventDefault();
+
+      remessaDropArea.classList.add("drag");
+
+    });
+
+  });
+
+
+  ["dragleave", "dragend"].forEach(eventName => {
+
+    remessaDropArea.addEventListener(eventName, () => {
+
+      remessaDropArea.classList.remove("drag");
+
+    });
+
+  });
+
+
+  remessaDropArea.addEventListener("drop", event => {
+
+    event.preventDefault();
+
+    remessaDropArea.classList.remove("drag");
+
+    const file =
+      event.dataTransfer.files[0];
+
+    if (!file) return;
+
+    remessaInput.files =
+      event.dataTransfer.files;
+
+    remessaInput.dispatchEvent(
+      new Event("change")
+    );
+
+  });
+
+
+  $("#btnRemoveRemessaFile").onclick = () => {
+
+    remessaInput.value = "";
+
+    remessaFileBadge.classList.remove(
+      "active"
+    );
+
+    remessaDropArea.style.display =
+      "block";
+
+    remessaResultCard.style.display =
+      "none";
+
+  };
+
+
+  function renderRemessaResultado(data) {
+
+    $("#remessaResultSubtitle").textContent =
+      `${data.tipoCnab} · ${data.totalLinhas} linha${data.totalLinhas === 1 ? "" : "s"}` +
+      (data.quantidadeLotes ? ` · ${data.quantidadeLotes} lote${data.quantidadeLotes === 1 ? "" : "s"}` : "");
+
+
+    const metrics = [
+      { label: "Layout", value: data.tipoCnab },
+      { label: "Total de Linhas", value: data.totalLinhas },
+    ];
+
+    if (data.quantidadeLotes) {
+      metrics.push({ label: "Lotes", value: data.quantidadeLotes });
+    } else {
+      metrics.push({ label: "Erros Encontrados", value: (data.erros || []).length });
+    }
+
+    $("#remessaMetrics").innerHTML =
+      metrics.map(metric => `
+
+        <div class="cx-stat">
+
+          <span class="cx-stat-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="M8 9h8"/>
+            </svg>
+          </span>
+
+          <span class="cx-stat-text">
+            <span class="cx-stat-label">${metric.label}</span>
+            <span class="cx-stat-value">${metric.value}</span>
+          </span>
+
+        </div>
+
+      `).join("");
+
+
+    const erros = data.erros || [];
+
+    if (data.valido) {
+
+      $("#remessaStatusBanner").innerHTML =
+        `<div class="docs-callout docs-callout--tip">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          <div><strong>Arquivo válido:</strong> nenhuma quebra de sequência ou de estrutura encontrada.</div>
+        </div>`;
+
+    } else {
+
+      $("#remessaStatusBanner").innerHTML =
+        `<div class="docs-callout docs-callout--danger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="m14.5 9.5-5 5"/>
+            <path d="m9.5 9.5 5 5"/>
+          </svg>
+          <div><strong>${erros.length} erro${erros.length === 1 ? "" : "s"} encontrado${erros.length === 1 ? "" : "s"}:</strong> confira as linhas indicadas abaixo.</div>
+        </div>`;
+
+    }
+
+
+    $("#remessaErroList").innerHTML =
+      erros.map(erro => `
+
+        <div class="remessa-erro-item">
+
+          <span class="remessa-erro-linha">
+            Linha ${erro.linha}
+          </span>
+
+          <span class="remessa-erro-texto">
+            <span class="remessa-erro-categoria">${erro.categoria}</span>${erro.descricao}
+          </span>
+
+        </div>
+
+      `).join("");
+
+  }
+
+
+  $("#btnValidarRemessa").onclick = async () => {
+
+    const file =
+      remessaInput.files[0];
+
+    if (!file) {
+
+      toast(
+        "error",
+        "Arquivo obrigatório",
+        "Selecione um arquivo de remessa antes de continuar."
+      );
+
+      return;
+
+    }
+
+
+    const btn =
+      $("#btnValidarRemessa");
+
+    btn.disabled = true;
+
+
+    const formData =
+      new FormData();
+
+    formData.append("remessa", file);
+
+
+    try {
+
+      const response =
+        await fetch("/remessa/validar", {
+          method: "POST",
+          body: formData,
+        });
+
+      const data =
+        await response.json();
+
+      if (!data.sucesso) {
+
+        toast(
+          "error",
+          "Não foi possível validar a remessa",
+          data.erro || "Erro desconhecido ao processar o arquivo."
+        );
+
+        remessaResultCard.style.display =
+          "none";
+
+        return;
+
+      }
+
+      remessaResultCard.style.display =
+        "block";
+
+      renderRemessaResultado(data);
+
+      toast(
+        data.valido ? "success" : "error",
+        data.valido ? "Remessa válida" : "Remessa com erros",
+        data.valido
+          ? "Nenhuma quebra de sequência encontrada."
+          : `${(data.erros || []).length} erro(s) encontrado(s) — veja o detalhamento na tela.`
+      );
+
+    } catch (error) {
+
+      toast(
+        "error",
+        "Falha na comunicação",
+        "Não foi possível enviar o arquivo ao servidor."
+      );
+
+    } finally {
+
+      btn.disabled = false;
+
+    }
+
+  };
+
+}
+
+
 function route() {
 
   const hash =
@@ -7005,6 +8143,12 @@ renderCards();
 renderCollectionBankGrid();
 
 renderCollectionWorkspace();
+
+initUtilidadesToolToggle();
+
+initFaturas();
+
+initRemessa();
 
 route();
 

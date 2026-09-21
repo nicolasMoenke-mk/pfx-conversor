@@ -16,6 +16,7 @@ import (
 	p "io.github.com/conv-pfx/internal/collections/pix"
 	v "io.github.com/conv-pfx/internal/collections/van"
 	"io.github.com/conv-pfx/internal/convert"
+	"io.github.com/conv-pfx/utils"
 )
 
 type Page struct {
@@ -25,6 +26,22 @@ type Page struct {
 	CertPEM   string `json:"certPem,omitempty"`
 	NomeChave string `json:"nomeChave,omitempty"`
 	KeyPEM    string `json:"keyPem,omitempty"`
+}
+
+type FaturaResponse struct {
+	Success bool     `json:"sucesso"`
+	Error   string   `json:"erro,omitempty"`
+	Valores []string `json:"valores,omitempty"`
+}
+
+type RemessaResponse struct {
+	Success         bool           `json:"sucesso"`
+	Error           string         `json:"erro,omitempty"`
+	TipoCnab        utils.TipoCnab `json:"tipoCnab,omitempty"`
+	TotalLinhas     int            `json:"totalLinhas,omitempty"`
+	QuantidadeLotes int            `json:"quantidadeLotes,omitempty"`
+	Erros           []utils.Erro   `json:"erros,omitempty"`
+	Valido          bool           `json:"valido,omitempty"`
 }
 
 func formatarNomeArquivo(nomeInput, prefixo, extensao string) string {
@@ -60,7 +77,7 @@ func abrirNavegador(url string) {
 
 }
 
-func responseJSON(w http.ResponseWriter, res Page) {
+func responseJSON(w http.ResponseWriter, res any) {
 	w.Header().Set("content-type", "application/json")
 	_ = json.NewEncoder(w).Encode(res)
 }
@@ -393,6 +410,83 @@ func main() {
 			CertPEM:   string(csrPEM),
 			NomeChave: formatarNomeArquivo(dados.CommonName, "ChavePrivada_", ".key"),
 			KeyPEM:    string(keyPEM),
+		})
+
+	})
+
+	http.HandleFunc("/planilha/faturas", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
+			responseJSON(w, FaturaResponse{Success: false, Error: "O arquivo excede o limite permitido 10MB"})
+			return
+		}
+
+		file, header, err := r.FormFile("planilha")
+		if err != nil {
+			responseJSON(w, FaturaResponse{Success: false, Error: "Falha ao carregar a planilha"})
+			return
+		}
+
+		defer file.Close()
+
+		data, err := io.ReadAll(file)
+		if err != nil {
+			responseJSON(w, FaturaResponse{Success: false, Error: "Falha ao ler o conteúdo da planilha"})
+			return
+		}
+
+		valores, err := utils.ExtractValues(data, header.Filename)
+		if err != nil {
+			responseJSON(w, FaturaResponse{Success: false, Error: err.Error()})
+			return
+		}
+
+		responseJSON(w, FaturaResponse{Success: true, Valores: valores})
+
+	})
+
+	http.HandleFunc("/remessa/validar", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		if err := r.ParseMultipartForm(20 << 20); err != nil {
+			responseJSON(w, RemessaResponse{Success: false, Error: "O arquivo excede o limite permitido 20MB"})
+			return
+		}
+
+		file, _, err := r.FormFile("remessa")
+		if err != nil {
+			responseJSON(w, RemessaResponse{Success: false, Error: "Falha ao carregar o arquivo de remessa"})
+			return
+		}
+
+		defer file.Close()
+
+		data, err := io.ReadAll(file)
+		if err != nil {
+			responseJSON(w, RemessaResponse{Success: false, Error: "Falha ao ler o conteúdo do arquivo"})
+			return
+		}
+
+		resultado, err := utils.ValidarRemessa(data)
+		if err != nil {
+			responseJSON(w, RemessaResponse{Success: false, Error: err.Error()})
+			return
+		}
+
+		responseJSON(w, RemessaResponse{
+			Success:         true,
+			TipoCnab:        resultado.TipoCnab,
+			TotalLinhas:     resultado.TotalLinhas,
+			QuantidadeLotes: resultado.QuantidadeLotes,
+			Erros:           resultado.Erros,
+			Valido:          resultado.Valido,
 		})
 
 	})
