@@ -50,7 +50,7 @@ func AuthBradescoPix() (c.PostmanItem, error) {
 			Url: c.PostmanURL{
 				Raw:  bradescoPixBase + "/oauth/token",
 				Host: []string{bradescoPixHost},
-				Path: []string{"ouath", "token"},
+				Path: []string{"oauth", "token"},
 			},
 		},
 	}, nil

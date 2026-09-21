@@ -24,9 +24,9 @@ type SicoobPixConfig struct {
 	Scope        string `json:"scope"`
 }
 
-func AuthPixSicoob() c.PostmanItem {
+func authPixSicoob() (c.PostmanItem, error) {
 	return c.PostmanItem{
-		Name: "Autenticação Gerar Bearer Token",
+		Name: "Login Pix Sicoob",
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -53,10 +53,10 @@ func AuthPixSicoob() c.PostmanItem {
 				Path: []string{"auth", "realms", "cooperado", "protocol", "openid-connect", "token"},
 			},
 		},
-	}
+	}, nil
 }
 
-func CreatePixSicoob() (c.PostmanItem, error) {
+func createPixSicoob() (c.PostmanItem, error) {
 
 	createBody := map[string]any{
 		"calendario": map[string]any{
@@ -79,7 +79,7 @@ func CreatePixSicoob() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Criação de Cobrança via Pix",
+		Name: "Criar Pix Sicoob",
 		Request: &c.PostmanRequest{
 			Method: "PUT",
 			Header: []c.PostmanHeader{
@@ -99,7 +99,7 @@ func CreatePixSicoob() (c.PostmanItem, error) {
 	}, nil
 }
 
-func RemoverPixSicoob() (c.PostmanItem, error) {
+func removePixSicoob() (c.PostmanItem, error) {
 
 	rm := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -111,7 +111,7 @@ func RemoverPixSicoob() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Remover Cobrança via Pix",
+		Name: "Remover Pix Sicoob",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
@@ -141,16 +141,19 @@ func SicoobPixCollection(cfg *SicoobPixConfig) ([]byte, error) {
 		scope = sicoobScope
 	}
 
-	auth := AuthPixSicoob()
-
-	create, err := CreatePixSicoob()
+	auth, err := authPixSicoob()
 	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix': %w", err)
+		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix Sicoob': %w", err)
 	}
 
-	remove, err := RemoverPixSicoob()
+	create, err := createPixSicoob()
 	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix': %w", err)
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix Sicoob': %w", err)
+	}
+
+	remove, err := removePixSicoob()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix Sicoob': %w", err)
 	}
 
 	collection := c.PostmanCollection{

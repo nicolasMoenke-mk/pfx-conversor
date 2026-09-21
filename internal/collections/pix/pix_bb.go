@@ -25,10 +25,10 @@ type BancoDoBrasilPixConfig struct {
 	Scope        string
 }
 
-func AuthPixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
+func authPixBB() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Autenticar Pix BB",
+		Name: "Login Pix BB",
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -58,7 +58,7 @@ func AuthPixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 	}, nil
 }
 
-func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
+func createPixBB() (c.PostmanItem, error) {
 
 	createBody := map[string]any{
 		"calendario": map[string]any{
@@ -66,7 +66,7 @@ func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 			"validadeAposVencimento": 1,
 		},
 		"chave": map[string]any{
-			"chave_pix": cfg.BBChavePix,
+			"chave_pix": "{{chave_pix}}",
 		},
 		"devedor": map[string]any{
 			"cpf":  "96050176876",
@@ -95,16 +95,16 @@ func CreatePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 				Raw:  string(body),
 			},
 			Url: c.PostmanURL{
-				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key=" + cfg.BBAppKey,
+				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key={{bb_dev_app_key}}",
 				Host: []string{bbPixHost},
-				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", cfg.BBAppKey},
+				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", "{{bb_dev_app_key}}"},
 			},
 		},
 	}, nil
 
 }
 
-func RemovePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
+func removePixBB() (c.PostmanItem, error) {
 
 	removeBody := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -128,34 +128,38 @@ func RemovePixBB(cfg BancoDoBrasilPixConfig) (c.PostmanItem, error) {
 				Raw:  string(rm),
 			},
 			Url: c.PostmanURL{
-				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key=" + cfg.BBAppKey,
+				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key={{bb_dev_app_key}}",
 				Host: []string{bbPixHost},
-				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", cfg.BBAppKey},
+				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", "{{bb_dev_app_key}}"},
 			},
 		},
 	}, nil
 }
 
-func BancoDoBrasilPixCollection(cfg BancoDoBrasilPixConfig) ([]byte, error) {
+func BancoDoBrasilPixCollection(cfg *BancoDoBrasilPixConfig) ([]byte, error) {
 
-	auth, err := AuthPixBB(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("Configuração não pode ser nula")
-	}
-
-	create, err := CreatePixBB(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
-	}
-
-	remove, err := RemovePixBB(cfg)
-	if err != nil {
-		return nil, errors.New("Erro inesperado")
+	if cfg == nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula!")
 	}
 
 	scope := cfg.Scope
 	if scope == "" {
 		scope = bbScope
+	}
+
+	auth, err := authPixBB()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix BB': %w", err)
+	}
+
+	create, err := createPixBB()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix BB': %w", err)
+	}
+
+	remove, err := removePixBB()
+	if err != nil {
+		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix BB': %w", err)
 	}
 
 	collection := c.PostmanCollection{

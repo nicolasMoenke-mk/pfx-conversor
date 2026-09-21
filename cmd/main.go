@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,7 +16,6 @@ import (
 	p "io.github.com/conv-pfx/internal/collections/pix"
 	v "io.github.com/conv-pfx/internal/collections/van"
 	"io.github.com/conv-pfx/internal/convert"
-	"io.github.com/conv-pfx/internal/utils"
 )
 
 type Page struct {
@@ -167,7 +167,7 @@ var createCollections = map[string]func(values map[string]string) ([]byte, error
 		})
 	},
 	"bb:pix": func(values map[string]string) ([]byte, error) {
-		return p.BancoDoBrasilPixCollection(p.BancoDoBrasilPixConfig{
+		return p.BancoDoBrasilPixCollection(&p.BancoDoBrasilPixConfig{
 			ClientId:     values["client_id"],
 			ClientSecret: values["client_secret"],
 			BBChavePix:   values["chave_pix"],
@@ -187,6 +187,33 @@ func pathConstruct(r *http.Request) string {
 	return banco + ":" + produto
 }
 
+type campoCollection struct {
+	Chave string `json:"chave"`
+}
+
+// extractField lista as chaves das variáveis de uma collection gerada,
+// para que o front-end monte o formulário de campos a preencher.
+func extractField(data []byte) ([]campoCollection, error) {
+	var part struct {
+		Variable []struct {
+			Key string `json:"key"`
+		} `json:"variable"`
+	}
+
+	if err := json.Unmarshal(data, &part); err != nil {
+		return nil, errors.New("Erro inesperado")
+	}
+
+	fields := make([]campoCollection, 0, len(part.Variable))
+	for _, v := range part.Variable {
+		if v.Key == "bearer_token" {
+			continue
+		}
+		fields = append(fields, campoCollection{Chave: v.Key})
+	}
+	return fields, nil
+}
+
 func handlerFieldsCollection(w http.ResponseWriter, r *http.Request) {
 	gen, ok := createCollections[pathConstruct(r)]
 
@@ -201,7 +228,7 @@ func handlerFieldsCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fields, err := utils.ExtractField(data)
+	fields, err := extractField(data)
 	if err != nil {
 		responseJSON(w, Page{Success: false, Error: err.Error()})
 		return
@@ -338,6 +365,35 @@ func main() {
 		w.Header().Set("Content-Type", "application/x-pkcs12")
 		w.Header().Set("Content-Disposition", `attachment; filename="`+nomeSaida+`"`)
 		w.Write(newPfx)
+
+	})
+
+	http.HandleFunc("/convert-csr", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		var dados convert.ItauCSR
+
+		if err := json.NewDecoder(r.Body).Decode(&dados); err != nil {
+			responseJSON(w, Page{Success: false, Error: "Falha ao ler os dados enviados"})
+			return
+		}
+
+		csrPEM, keyPEM, err := convert.GenNewCSR(dados)
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: err.Error()})
+			return
+		}
+
+		responseJSON(w, Page{
+			Success:   true,
+			NomeCert:  formatarNomeArquivo(dados.CommonName, "CSR_", ".csr"),
+			CertPEM:   string(csrPEM),
+			NomeChave: formatarNomeArquivo(dados.CommonName, "ChavePrivada_", ".key"),
+			KeyPEM:    string(keyPEM),
+		})
 
 	})
 

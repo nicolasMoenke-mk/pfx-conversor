@@ -25,6 +25,7 @@
   html {
     scroll-behavior: smooth;
     color-scheme: light dark;
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -1060,6 +1061,8 @@
   }
 
   .dropzone {
+    display: block;
+
     border:
       2px dashed
       var(--border-subtle);
@@ -1095,11 +1098,14 @@
   .dropzone input[type="file"] {
     position: absolute;
 
-    inset: 0;
-
-    opacity: 0;
-
-    cursor: pointer;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .dropzone-content svg {
@@ -1834,6 +1840,15 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 14px;
+
+    min-height: 38px;
+
+    transition: opacity .15s var(--ease);
+  }
+
+  .cx-fields-grid.is-loading {
+    opacity: .45;
+    pointer-events: none;
   }
 
   .cx-field label {
@@ -2170,9 +2185,13 @@
   }
 
   .docs-nav-link.active {
-    background: color-mix(in srgb, var(--brand-primary) 10%, var(--bg-surface));
-    color: var(--brand-primary);
+    background: color-mix(in srgb, var(--docs-accent, var(--brand-primary)) 10%, var(--bg-surface));
+    color: var(--docs-accent, var(--brand-primary));
     font-weight: 700;
+  }
+
+  .docs-nav-group.active .docs-nav-group-title {
+    color: var(--docs-accent, var(--brand-primary));
   }
 
   .docs-nav-dot {
@@ -2219,7 +2238,7 @@
   }
 
   .docs-breadcrumb span:last-child {
-    color: var(--brand-primary);
+    color: var(--docs-accent, var(--brand-primary));
   }
 
   .docs-article {
@@ -2546,7 +2565,7 @@
   }
 
   .docs-toc-link:hover {
-    color: var(--brand-primary);
+    color: var(--docs-accent, var(--brand-primary));
   }
 
   .docs-toc-empty {
@@ -3231,15 +3250,15 @@
 
                 <div class="docs-hero-eyebrow">
                   <span class="docs-hero-eyebrow-dot"></span>
-                  Base de Conhecimento
+                  Documentação de Integrações
                 </div>
 
-                <h1>Documentação Técnica</h1>
+                <h1>Guias de Integração por Banco</h1>
 
                 <p>
-                  Guias operacionais de integração, autenticação,
-                  conversão de certificados e collections Postman
-                  para cada instituição homologada.
+                  Processo de criação da integração, roteiro de
+                  testes e catálogo de erros retornados — organizado
+                  por instituição homologada.
                 </p>
 
               </div>
@@ -3247,13 +3266,13 @@
               <div class="docs-hero-stats">
 
                 <div class="docs-hero-stat">
-                  <strong id="docsStatTopics">0</strong>
-                  <span>Tópicos</span>
+                  <strong id="docsStatSections">0</strong>
+                  <span>Bancos</span>
                 </div>
 
                 <div class="docs-hero-stat">
-                  <strong id="docsStatSections">0</strong>
-                  <span>Categorias</span>
+                  <strong id="docsStatTopics">0</strong>
+                  <span>Tópicos</span>
                 </div>
 
               </div>
@@ -3545,7 +3564,6 @@ const BANKS = [
     color: "#F2B90C",
     protocol: "mTLS + OAuth2",
     desc: "API PIX e Cobrança Boleto com assinatura mTLS direta.",
-    logo: "img/bb.svg",
     hasCollection: true,
     endpoints: {
       van: [
@@ -3570,7 +3588,6 @@ const BANKS = [
     color: "#EC7000",
     protocol: "mTLS Dedicated",
     desc: "Processamento e handshake mTLS de certificados A1.",
-    logo: "img/itau.svg",
     hasCollection: false,
     endpoints: {
       van: [
@@ -3594,7 +3611,6 @@ const BANKS = [
     color: "#00843D",
     protocol: "V3 mTLS",
     desc: "Conversão de certificados para gateway V3 e Open Finance.",
-    logo: "img/sicoob.svg",
     hasCollection: true,
     endpoints: {
       van: [
@@ -3619,7 +3635,6 @@ const BANKS = [
     color: "#005A36",
     protocol: "V2 Modular",
     desc: "Padrão de certificados A1 para integração Cobrança e PIX.",
-    logo: "img/sicredi.svg",
     hasCollection: true,
     endpoints: {
       van: [
@@ -3644,7 +3659,6 @@ const BANKS = [
     color: "#EC0000",
     protocol: "OAuth2 Direct",
     desc: "Conversão para portal Developer Santander Empresas.",
-    logo: "img/santander.svg",
     hasCollection: true,
     endpoints: {
       van: [
@@ -3669,7 +3683,6 @@ const BANKS = [
     color: "#CC092F",
     protocol: "ShopFácil API",
     desc: "Geração de chaves públicas e privadas para comércio eletrônico.",
-    logo: "img/bradesco.svg",
     hasCollection: true,
     endpoints: {
       van: [
@@ -3725,28 +3738,6 @@ function bankInitials(name) {
 }
 
 
-function logoMarkup(bank, size = "15px") {
-
-  return `
-    <img
-      src="${bank.logo}"
-      alt="${bank.name}"
-      loading="lazy"
-      onerror="
-        this.style.display='none';
-        this.nextElementSibling.style.display='grid';
-      "
-    >
-
-    <div
-      class="bank-logo-mono"
-      style="display:none;font-size:${size};"
-    >
-      ${bankInitials(bank.name)}
-    </div>
-  `;
-
-}
 
 
 /* =========================================================
@@ -4365,10 +4356,7 @@ async function loadCollectionFields(bank) {
   if (!panel) return;
 
 
-  panel.innerHTML =
-    `<div class="cx-fields-loading">Carregando campos...</div>`;
-
-  $("#collectionFieldsProgress").innerHTML = "";
+  panel.classList.add("is-loading");
 
   btn.disabled = true;
 
@@ -4455,6 +4443,10 @@ async function loadCollectionFields(bank) {
     panel.innerHTML =
       `<div class="cx-fields-error">${error.message}</div>`;
 
+  } finally {
+
+    panel.classList.remove("is-loading");
+
   }
 
 }
@@ -4463,6 +4455,29 @@ async function loadCollectionFields(bank) {
 /* =========================================================
    BANK VIEW / CONVERTER
 ========================================================= */
+
+function downloadTextFile(filename, content, mime) {
+
+  const blob =
+    new Blob([content], { type: mime || "text/plain" });
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+
+}
+
 
 function renderBankView(id) {
 
@@ -4473,6 +4488,15 @@ function renderBankView(id) {
 
 
   applyDynamicTheme(bank.color);
+
+
+  if (bank.id === "itau") {
+
+    renderItauCsrView(bank);
+
+    return;
+
+  }
 
 
   $("#bankViewContainer")
@@ -4499,47 +4523,28 @@ function renderBankView(id) {
 
       <div
         style="
-          display:flex;
-          align-items:center;
-          gap:16px;
           margin-bottom:28px;
         "
       >
 
-        <div
-          class="bank-logo-wrap"
+        <h1
           style="
-            width:56px;
-            height:56px;
-            --b-accent:${bank.color};
+            font-size:24px;
+            font-weight:800;
           "
         >
+          ${bank.name}
+        </h1>
 
-          ${logoMarkup(bank, "20px")}
-
-        </div>
-
-        <div>
-
-          <h1
-            style="
-              font-size:24px;
-              font-weight:800;
-            "
-          >
-            ${bank.name}
-          </h1>
-
-          <p
-            style="
-              font-size:13px;
-              color:var(--text-muted);
-            "
-          >
-            ${bank.desc}
-          </p>
-
-        </div>
+        <p
+          style="
+            font-size:13px;
+            color:var(--text-muted);
+            margin-top:4px;
+          "
+        >
+          ${bank.desc}
+        </p>
 
       </div>
 
@@ -4563,7 +4568,7 @@ function renderBankView(id) {
               data-tab="next"
             >
               Re-encodar PFX
-              (Compatibilidade)
+              (Next)
             </button>
 
           </div>
@@ -4583,9 +4588,10 @@ function renderBankView(id) {
                   (.pfx / .p12)
                 </label>
 
-                <div
+                <label
                   class="dropzone"
                   id="dropArea"
+                  for="pfxInput"
                 >
 
                   <input
@@ -4627,7 +4633,7 @@ function renderBankView(id) {
 
                   </div>
 
-                </div>
+                </label>
 
 
                 <div
@@ -4732,7 +4738,7 @@ function renderBankView(id) {
                 <div class="form-group">
 
                   <label>
-                    Nova Senha (opcional)
+                    Nova Senha
                   </label>
 
                   <input
@@ -4875,6 +4881,51 @@ function renderBankView(id) {
   };
 
 
+  ["dragenter", "dragover"].forEach(eventName => {
+
+    dropArea.addEventListener(eventName, event => {
+
+      event.preventDefault();
+
+      dropArea.classList.add("drag");
+
+    });
+
+  });
+
+
+  ["dragleave", "dragend"].forEach(eventName => {
+
+    dropArea.addEventListener(eventName, () => {
+
+      dropArea.classList.remove("drag");
+
+    });
+
+  });
+
+
+  dropArea.addEventListener("drop", event => {
+
+    event.preventDefault();
+
+    dropArea.classList.remove("drag");
+
+    const file =
+      event.dataTransfer.files[0];
+
+    if (!file) return;
+
+    pfxInput.files =
+      event.dataTransfer.files;
+
+    pfxInput.dispatchEvent(
+      new Event("change")
+    );
+
+  });
+
+
   $("#btnRemoveFile").onclick = () => {
 
     pfxInput.value = "";
@@ -4887,29 +4938,6 @@ function renderBankView(id) {
       "block";
 
   };
-
-
-  function downloadTextFile(filename, content, mime) {
-
-    const blob =
-      new Blob([content], { type: mime || "text/plain" });
-
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    URL.revokeObjectURL(url);
-
-  }
 
 
   $("#formConverter").onsubmit =
@@ -5138,6 +5166,364 @@ function renderBankView(id) {
 
 
 /* =========================================================
+   ITAÚ — GERAÇÃO DE CSR
+   ---------------------------------------------------------
+   O Itaú não usa conversão de PFX: a integração exige um CSR
+   (Certificate Signing Request) gerado a partir dos dados do
+   solicitante, junto com a chave privada correspondente
+   (ver internal/convert/csr_itau.go).
+========================================================= */
+
+function renderItauCsrView(bank) {
+
+  $("#bankViewContainer")
+    .innerHTML = `
+
+      <a
+        href="#dashboard"
+        class="btn-back"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+
+        Voltar ao Dashboard
+
+      </a>
+
+      <div
+        style="
+          margin-bottom:28px;
+        "
+      >
+
+        <h1
+          style="
+            font-size:24px;
+            font-weight:800;
+          "
+        >
+          ${bank.name}
+        </h1>
+
+        <p
+          style="
+            font-size:13px;
+            color:var(--text-muted);
+            margin-top:4px;
+          "
+        >
+          Geração de CSR (Certificate Signing Request) e chave
+          privada para o processo de certificação mTLS do Itaú —
+          sem upload de certificado, os dados abaixo são usados
+          para gerar um par de chaves novo.
+        </p>
+
+      </div>
+
+
+      <div class="converter-shell">
+
+        <div class="converter-card">
+
+          <div class="converter-body">
+
+            <form
+              id="formCsr"
+              class="form-grid"
+            >
+
+              <div class="form-group">
+
+                <label>
+                  Common Name / CN
+                  (obrigatório)
+                </label>
+
+                <input
+                  type="text"
+                  id="csrCommonName"
+                  placeholder="Ex: api.minhaempresa.com.br"
+                  required
+                >
+
+              </div>
+
+
+              <div class="form-row">
+
+                <div class="form-group">
+
+                  <label>
+                    Organização (O)
+                  </label>
+
+                  <input
+                    type="text"
+                    id="csrOrganization"
+                    placeholder="Ex: Minha Empresa LTDA"
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label>
+                    Unidade Organizacional (OU)
+                  </label>
+
+                  <input
+                    type="text"
+                    id="csrOrganizationalUnit"
+                    placeholder="Ex: TI"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="form-row">
+
+                <div class="form-group">
+
+                  <label>
+                    País (C)
+                  </label>
+
+                  <input
+                    type="text"
+                    id="csrCountry"
+                    placeholder="Ex: BR"
+                    maxlength="2"
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label>
+                    Estado (ST)
+                  </label>
+
+                  <input
+                    type="text"
+                    id="csrState"
+                    placeholder="Ex: São Paulo"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="form-row">
+
+                <div class="form-group">
+
+                  <label>
+                    Localidade / Cidade (L)
+                  </label>
+
+                  <input
+                    type="text"
+                    id="csrLocality"
+                    placeholder="Ex: São Paulo"
+                  >
+
+                </div>
+
+                <div class="form-group">
+
+                  <label>
+                    E-mail
+                  </label>
+
+                  <input
+                    type="email"
+                    id="csrEmail"
+                    placeholder="contato@minhaempresa.com.br"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <button
+                class="btn-submit"
+                type="submit"
+                id="btnCsrSubmit"
+              >
+                Gerar CSR
+              </button>
+
+            </form>
+
+            <div
+              id="csrResult"
+              style="display:none; margin-top:18px;"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+  const form =
+    $("#formCsr");
+
+  const btnSubmit =
+    $("#btnCsrSubmit");
+
+  const csrResult =
+    $("#csrResult");
+
+
+  form.onsubmit =
+    async event => {
+
+      event.preventDefault();
+
+
+      const commonName =
+        $("#csrCommonName").value.trim();
+
+      if (!commonName) {
+
+        toast(
+          "error",
+          "Campo obrigatório",
+          "Informe o Common Name (CN) antes de continuar."
+        );
+
+        return;
+
+      }
+
+
+      btnSubmit.disabled = true;
+
+      btnSubmit.textContent =
+        "Gerando CSR...";
+
+      csrResult.style.display = "none";
+      csrResult.innerHTML = "";
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/convert-csr",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                commonName: commonName,
+                organization: $("#csrOrganization").value,
+                organizationalUnit: $("#csrOrganizationalUnit").value,
+                country: $("#csrCountry").value,
+                state: $("#csrState").value,
+                locality: $("#csrLocality").value,
+                email: $("#csrEmail").value
+              })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.sucesso) {
+
+          throw new Error(
+            data.erro ||
+            "Falha ao gerar o CSR"
+          );
+
+        }
+
+
+        csrResult.style.display = "flex";
+
+        csrResult.style.flexDirection = "column";
+
+        csrResult.style.gap = "10px";
+
+        csrResult.innerHTML = `
+          <div class="file-badge active" style="justify-content:space-between;">
+            <div class="file-badge-info">
+              CSR (Certificate Signing Request)<br>
+              <span class="file-badge-size">${data.nomeCert}</span>
+            </div>
+            <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadCsr">
+              Baixar
+            </button>
+          </div>
+          <div class="file-badge active" style="justify-content:space-between;">
+            <div class="file-badge-info">
+              Chave Privada<br>
+              <span class="file-badge-size">${data.nomeChave}</span>
+            </div>
+            <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadCsrKey">
+              Baixar
+            </button>
+          </div>
+        `;
+
+        $("#btnDownloadCsr").onclick = () =>
+          downloadTextFile(data.nomeCert, data.certPem, "application/x-pem-file");
+
+        $("#btnDownloadCsrKey").onclick = () =>
+          downloadTextFile(data.nomeChave, data.keyPem, "application/x-pem-file");
+
+
+        toast(
+          "success",
+          "CSR Gerado!",
+          `${bank.name}: CSR e chave privada gerados com sucesso.`
+        );
+
+
+      } catch (error) {
+
+        toast(
+          "error",
+          "Erro ao gerar CSR",
+          error.message
+        );
+
+
+      } finally {
+
+        btnSubmit.disabled = false;
+
+        btnSubmit.textContent =
+          "Gerar CSR";
+
+      }
+
+    };
+
+}
+
+
+/* =========================================================
    DOCUMENTATION DATA
    ---------------------------------------------------------
    Esqueleto de conteúdo. Troque os textos entre [[ ]] pelo
@@ -5244,242 +5630,531 @@ function docsTable(headers, rows) {
 }
 
 
-function docsArticleSkeleton(opts) {
+function renderVarsTable(vars) {
 
-  const steps =
-    opts.steps || [
-      "[[Primeiro passo]]",
-      "[[Segundo passo]]",
-      "[[Terceiro passo]]"
-    ];
+  return docsTable(
+    ["Variável", "O que é", "Exemplo"],
+    vars.map(v => [
+      `<code>${v.key}</code>`,
+      v.desc,
+      v.example ? `<code>${v.example}</code>` : "—"
+    ])
+  );
+
+}
+
+
+function renderEndpointsTable(endpoints) {
+
+  return docsTable(
+    ["Método", "Endpoint", "O que faz"],
+    endpoints.map(e => [
+      `<code>${e.method}</code>`,
+      `<code>${e.path}</code>`,
+      e.desc
+    ])
+  );
+
+}
+
+
+function renderDocsNotes(notes) {
+
+  if (!notes || !notes.length) return "";
+
+  return notes
+    .map(n => docsCallout(n.type, n.title, n.text))
+    .join("");
+
+}
+
+
+/* ---------------------------------------------------------
+   Dados reais de cada integração, extraídos diretamente dos
+   geradores de collection em internal/collections/{pix,van}
+   e internal/convert/csr_itau.go — não são texto de exemplo.
+--------------------------------------------------------- */
+
+const BANK_DOCS = {
+
+  bb: {
+    products: ["pix", "van"],
+    authType: "OAuth2 (Basic Auth + client_credentials) sobre mTLS",
+    prereqs: [
+      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta (aba Conversor)",
+      "Aplicação cadastrada no portal Developer do Banco do Brasil, com o certificado mTLS associado",
+      "Chave Pix cadastrada no DICT, quando o produto for Pix"
+    ],
+    pix: {
+      vars: [
+        { key: "client_id", desc: "Identificador da aplicação criada no portal Developer do BB. Usado como usuário no Basic Auth da autenticação.", example: "eyJpZCI6..." },
+        { key: "client_secret", desc: "Segredo da aplicação, usado como senha no Basic Auth. Nunca deve ser exposto fora do ambiente do integrador.", example: "••••••••" },
+        { key: "bb_dev_app_key", desc: "Chave de desenvolvedor (gw-dev-app-key) exigida pelo gateway do BB em toda chamada às APIs Pix, enviada via query string.", example: "a1b2c3d4" },
+        { key: "chave_pix", desc: "Chave Pix (CPF/CNPJ, e-mail, telefone ou chave aleatória) já cadastrada no DICT, que vai receber as cobranças.", example: "11999999999" },
+        { key: "scope", desc: "Escopos OAuth2 solicitados na autenticação.", example: "cobv.write cobv.read pix.read" },
+        { key: "pix_txid", desc: "Identificador da cobrança (txid). Na collection gerada vem com um valor de exemplo — troque por um txid real ao testar em produção.", example: "AJIDJALISJSHDKUSHD" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth (client_id:client_secret) sobre mTLS e retorna o bearer_token usado nas demais chamadas." },
+        { method: "PUT", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Cria (ou atualiza) uma cobrança com vencimento vinculada à chave Pix informada." },
+        { method: "PATCH", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Altera o status da cobrança para REMOVIDA_PELO_USUARIO_RECEBEDOR, cancelando-a." }
+      ]
+    },
+    van: {
+      vars: [
+        { key: "bb_basic_token", desc: "Valor completo do header Authorization (já no formato \"Basic xxxxx\") — diferente do Pix, aqui o token Basic não é montado automaticamente a partir de client_id/secret, ele é digitado pronto.", example: "Basic ZWFhYWFh..." },
+        { key: "bb_app_key", desc: "Chave de aplicação (gw-app-key) exigida pelo gateway do BB nas chamadas de boleto.", example: "a1b2c3d4" },
+        { key: "bb_convenio", desc: "Número do convênio de cobrança contratado junto ao BB.", example: "1234567" },
+        { key: "bb_num_carteira", desc: "Número da carteira de cobrança vinculada ao convênio.", example: "17" },
+        { key: "bb_variacao_carteira", desc: "Variação da carteira, definida pelo BB no cadastro do convênio.", example: "19" },
+        { key: "bb_modalidade", desc: "Código da modalidade de cobrança (ex.: 1 = Simples).", example: "1" },
+        { key: "bb_titulo_beneficiario", desc: "Número do título atribuído pelo beneficiário (controle interno do boleto).", example: "000123" },
+        { key: "bb_titulo_cliente", desc: "Número do título atribuído pelo cliente/sacado, quando aplicável.", example: "000123" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/oauth/token", desc: "Autentica via client_credentials usando o token Basic informado em bb_basic_token, retornando o bearer_token." },
+        { method: "POST", path: "/cobrancas/v2/boletos?gw-app-key=...", desc: "Registra um novo boleto de cobrança para o convênio/carteira informados." },
+        { method: "POST", path: "/cobrancas/v2/boletos/numTitulo/baixar?gw-app-key=...", desc: "Solicita a baixa (cancelamento) de um boleto já registrado." }
+      ]
+    },
+    notes: [
+      { type: "warning", title: "Escopo fixo na Van", text: "A autenticação da Van BB sempre envia o escopo cobrancas.boletos-requisicao cobrancas.boletos-info, independentemente do que for preenchido no campo scope — é assim que o BB exige para esse produto." }
+    ],
+    errors: [
+      { code: "400", cause: "bb_basic_token preenchido sem o prefixo \"Basic \" antes do token em Base64", action: "Garanta que o valor informado já inclua o prefixo Basic, exatamente como o BB o fornece" }
+    ]
+  },
+
+  itau: {
+    products: ["pix"],
+    isCsrOnly: true,
+    prereqs: [
+      "Dados cadastrais da aplicação/domínio que vai autenticar (Common Name, Organização etc.)",
+      "Acesso ao canal de credenciamento do Itaú para submissão do CSR e obtenção do certificado assinado"
+    ]
+  },
+
+  sicoob: {
+    products: ["pix", "van"],
+    authType: "OAuth2 (Basic Auth + client_credentials), via OpenID Connect/Keycloak",
+    prereqs: [
+      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
+      "Cadastro no portal Sicoob Developers, com o certificado mTLS associado",
+      "Chave Pix cadastrada no DICT, quando o produto for Pix"
+    ],
+    pix: {
+      vars: [
+        { key: "client_id", desc: "Identificador da aplicação cadastrada no Sicoob Developers.", example: "9b2c..." },
+        { key: "client_secret", desc: "Segredo da aplicação, usado no Basic Auth da autenticação.", example: "••••••••" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
+        { key: "scope", desc: "Escopos solicitados na autenticação.", example: "cobv.write cobv.read pix.read" },
+        { key: "pix_txid", desc: "Identificador da cobrança usado na criação/remoção — vem com um valor de exemplo na collection.", example: "JHAUDHFJANXUGVFUABND" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Autentica via Keycloak (Basic Auth + client_credentials) e retorna o bearer_token." },
+        { method: "PUT", path: "/pix/api/v2/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix informada." },
+        { method: "PATCH", path: "/pix/api/v2/cobv/{txid}", desc: "Cancela a cobrança (status REMOVIDA_PELO_USUARIO_RECEBEDOR)." }
+      ]
+    },
+    van: {
+      vars: [
+        { key: "client_id", desc: "Mesma aplicação usada no Pix — o Sicoob compartilha client_id/secret entre produtos.", example: "9b2c..." },
+        { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" },
+        { key: "numeroCliente", desc: "Número do cliente/cooperado no Sicoob.", example: "12345" },
+        { key: "scope", desc: "Escopos de cobrança bancária solicitados na autenticação.", example: "boletos_inclusao boletos_consulta boletos_alteracao" },
+        { key: "codigoModalidade", desc: "Código da modalidade de cobrança do boleto.", example: "1" },
+        { key: "numeroContaCorrente", desc: "Número da conta corrente vinculada à cobrança.", example: "12345" },
+        { key: "dataVencimento", desc: "Data de vencimento do boleto (AAAA-MM-DD).", example: "2027-02-02" },
+        { key: "dataEmissao", desc: "Data de emissão do boleto (AAAA-MM-DD).", example: "2026-09-15" },
+        { key: "seuNumero", desc: "Número de controle interno do beneficiário para o título.", example: "251454" },
+        { key: "nossoNumero", desc: "Número do título atribuído pelo Sicoob — usado depois para dar baixa.", example: "1" },
+        { key: "identificacaoBoletoEmpresa", desc: "Identificação do boleto dentro da empresa (controle interno).", example: "1" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Mesma autenticação usada no Pix; retorna o bearer_token." },
+        { method: "POST", path: "/cobranca-bancaria/v3/boletos", desc: "Registra um novo boleto já com QR Code Pix vinculado (cadastro de Pix habilitado no body)." },
+        { method: "POST", path: "/cobranca-bancaria/v3/boletos/{nossoNumero}/baixar", desc: "Solicita a baixa do boleto identificado por nossoNumero." }
+      ]
+    }
+  },
+
+  sicredi: {
+    products: ["pix", "van"],
+    authType: "Pix: OAuth2 Basic + client_credentials. Van: OAuth2 password grant + x-api-key.",
+    prereqs: [
+      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
+      "Cadastro na API de Parceiros do Sicredi (usuário/senha para Van, client_id para Pix)",
+      "Chave Pix cadastrada no DICT, quando o produto for Pix"
+    ],
+    pix: {
+      vars: [
+        { key: "sicredi_api_key", desc: "Chave de API (x-api-key) do Sicredi, usada também como client_id na autenticação Pix.", example: "a1b2c3" },
+        { key: "username", desc: "Usuário de acesso à API de Parceiros do Sicredi.", example: "usuario.integracao" },
+        { key: "password", desc: "Senha correspondente ao usuário de acesso.", example: "••••••••" },
+        { key: "cooperativa", desc: "Número da cooperativa Sicredi do beneficiário.", example: "0123" },
+        { key: "posto", desc: "Número do posto de atendimento vinculado à conta.", example: "01" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
+        { key: "pix_txid", desc: "Identificador da cobrança — valor de exemplo na collection.", example: "HAUSKJLDSIJUKDHSK" },
+        { key: "scope", desc: "Escopo solicitado na autenticação.", example: "cobv.write cobv.read pix.read" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth (username:password) e client_credentials, retorna o bearer_token." },
+        { method: "PUT", path: "/api/v2/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix." },
+        { method: "PATCH", path: "/api/v2/cobv/{txid}", desc: "Cancela a cobrança." }
+      ]
+    },
+    van: {
+      vars: [
+        { key: "username", desc: "Usuário de acesso à API de Parceiros do Sicredi (mesmo conceito do Pix).", example: "usuario.integracao" },
+        { key: "password", desc: "Senha do usuário de acesso.", example: "••••••••" },
+        { key: "x-api-key", desc: "Chave de API do Sicredi, enviada no header x-api-key em toda chamada.", example: "a1b2c3" },
+        { key: "cooperativa", desc: "Número da cooperativa do beneficiário.", example: "0123" },
+        { key: "posto", desc: "Posto de atendimento vinculado à conta.", example: "01" },
+        { key: "sicredi_codBenef", desc: "Código do beneficiário da cobrança.", example: "12345" },
+        { key: "sicredi_nossoNumero", desc: "Número do título atribuído pelo Sicredi, usado para dar baixa depois.", example: "251454" },
+        { key: "scope", desc: "Escopo de cobrança solicitado.", example: "cobranca" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/auth/openapi/token", desc: "Autentica via grant_type=password (usuário/senha) + x-api-key, retorna o bearer_token." },
+        { method: "POST", path: "/cobranca/boleto/v1/boletos", desc: "Registra um novo boleto híbrido (com QR Code Pix) para o beneficiário." },
+        { method: "PATCH", path: "/cobranca/boleto/v1/boletos/{nossoNumero}/baixa", desc: "Solicita a baixa do boleto identificado por nossoNumero." }
+      ]
+    },
+    notes: [
+      { type: "info", title: "Autenticação diferente por produto", text: "O Pix do Sicredi autentica por client_credentials (Basic), enquanto a Van autentica por password grant — são fluxos OAuth2 diferentes; não reaproveite o bearer_token de um produto no outro." }
+    ]
+  },
+
+  santander: {
+    products: ["pix", "van"],
+    authType: "OAuth2 Basic + client_credentials, sobre mTLS",
+    prereqs: [
+      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
+      "Cadastro no portal Developer Santander Empresas, com o certificado mTLS associado",
+      "Workspace de cobrança criado no Santander, quando o produto for Van",
+      "Chave Pix cadastrada no DICT, quando o produto for Pix"
+    ],
+    pix: {
+      vars: [
+        { key: "client_id", desc: "Identificador da aplicação cadastrada no portal Developer Santander.", example: "abc123" },
+        { key: "client_secret", desc: "Segredo da aplicação, usado no Basic Auth da autenticação.", example: "••••••••" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
+        { key: "pix_txid", desc: "Identificador da cobrança — valor de exemplo na collection.", example: "AHUDAHIUDHAKDUHA" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth (client_id:client_secret) e retorna o bearer_token." },
+        { method: "PUT", path: "/api/v1/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix." },
+        { method: "PATCH", path: "/api/v1/cobv/{txid}", desc: "Cancela a cobrança." }
+      ]
+    },
+    van: {
+      vars: [
+        { key: "client_id", desc: "Identificador da aplicação — mesmo usado no Pix.", example: "abc123" },
+        { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" },
+        { key: "santander_app_key", desc: "Chave de aplicação (X-Application-Key), exigida em toda chamada às APIs de cobrança do Santander.", example: "a1b2c3" },
+        { key: "santander_workspace_id", desc: "Identificador do workspace de cobrança criado no Santander, usado na URL das chamadas.", example: "ws-0001" },
+        { key: "santander_client_number", desc: "Número do cliente cadastrado no Santander.", example: "123456" },
+        { key: "santander_bank_number", desc: "Código NSU / número do banco usado no boleto.", example: "654321" },
+        { key: "santander_convent_code", desc: "Código do convênio de cobrança contratado.", example: "7654321" },
+        { key: "santander_dict_type", desc: "Tipo da chave Pix vinculada ao boleto híbrido (CPF, CNPJ, EMAIL, PHONE ou EVP).", example: "EMAIL" },
+        { key: "santander_dict_key", desc: "Valor da chave Pix vinculada ao boleto híbrido.", example: "contato@empresa.com" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/auth/oauth/v2/token", desc: "Autentica via client_credentials e retorna o bearer_token." },
+        { method: "POST", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Registra um novo boleto com QR Code Pix dinâmico dentro do workspace informado." },
+        { method: "PATCH", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Solicita a baixa do boleto (operation: BAIXA) dentro do mesmo workspace." }
+      ]
+    }
+  },
+
+  bradesco: {
+    products: ["pix", "van"],
+    authType: "OAuth2 Basic + client_credentials, sobre mTLS",
+    prereqs: [
+      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
+      "Cadastro na plataforma OpenAPI/ShopFácil do Bradesco, com o certificado mTLS associado",
+      "Chave Pix cadastrada no DICT, quando o produto for Pix"
+    ],
+    pix: {
+      vars: [
+        { key: "client_id", desc: "Identificador da aplicação cadastrada no Bradesco.", example: "abc123" },
+        { key: "client_secret", desc: "Segredo da aplicação, usado no Basic Auth e também repetido no corpo da autenticação.", example: "••••••••" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
+        { key: "scope", desc: "Escopos solicitados na autenticação.", example: "pix.read pix.write cobv.read cobv.write" },
+        { key: "pix_txid", desc: "Identificador da cobrança — valor de exemplo na collection.", example: "HUAJDKJSIOHHUAHSUGD" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth + client_id/client_secret também no corpo, retorna o bearer_token." },
+        { method: "PUT", path: "/v2/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix." },
+        { method: "PATCH", path: "/v2/cobv/{txid}", desc: "Cancela a cobrança." }
+      ]
+    },
+    van: {
+      vars: [
+        { key: "client_id", desc: "Identificador da aplicação — mesmo usado no Pix.", example: "abc123" },
+        { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" }
+      ],
+      endpoints: [
+        { method: "POST", path: "/auth/server-mtls/v2/token", desc: "Autentica via mTLS + client_credentials, retorna o bearer_token." },
+        { method: "POST", path: "/boleto/cobranca-registro/v1/cobranca", desc: "Registra um novo boleto de cobrança." },
+        { method: "POST", path: "/boleto/cobranca-baixa/v1/baixar", desc: "Solicita a baixa de um boleto já registrado." }
+      ]
+    },
+    notes: [
+      { type: "warning", title: "Parâmetro grant-type com hífen", text: "A autenticação da Van Bradesco envia o campo como grant-type (com hífen), diferente do padrão OAuth2 grant_type — isso é uma exigência da própria API do Bradesco para este endpoint, não corrija ao editar a collection manualmente." },
+      { type: "warning", title: "Campos do boleto ainda não configuráveis", text: "Os dados detalhados do boleto (documento do pagador, número do título, datas, valores) vêm fixos no corpo desta collection — só client_id e client_secret são preenchidos automaticamente pelo formulário. Edite o JSON gerado manualmente para ajustar os demais valores antes de usar em produção." }
+    ]
+  }
+
+};
+
+
+function docsProcessoContent(bank) {
+
+  const info = BANK_DOCS[bank.id];
+
+  if (!info) {
+    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
+  }
+
+  if (info.isCsrOnly) {
+
+    return `
+
+      <p class="docs-lead">O ${bank.name} não usa o fluxo de conversão de PFX desta ferramenta: a integração exige um CSR (Certificate Signing Request) e uma chave privada, gerados a partir dos dados do solicitante — é isso que a aba do ${bank.name} no Dashboard faz.</p>
+
+      <h2>Pré-requisitos</h2>
+
+      <ul>
+        ${info.prereqs.map(p => `<li>${p}</li>`).join("")}
+      </ul>
+
+      ${docsCallout("info", "O que é um CSR", "É um arquivo assinado pela chave privada recém-gerada, contendo os dados de identificação (Common Name, Organização etc.) que serão enviados ao banco para que ele emita o certificado mTLS que a aplicação vai usar nas chamadas à API Pix.")}
+
+      <h2>Passo a passo</h2>
+
+      <ol>
+        <li>No Dashboard, abra o card do ${bank.name}.</li>
+        <li>Preencha ao menos o <strong>Common Name (CN)</strong> — normalmente o domínio ou identificador da aplicação que vai se autenticar.</li>
+        <li>Preencha Organização, Unidade Organizacional, País, Estado, Localidade e E-mail conforme o cadastro da empresa (opcionais, mas recomendados).</li>
+        <li>Clique em <strong>Gerar CSR</strong> — a ferramenta cria uma chave RSA 2048 nova e monta o CSR a partir desses dados.</li>
+        <li>Baixe o CSR (.csr) e a Chave Privada (.key) geradas.</li>
+        <li>Envie o arquivo .csr pelo canal de credenciamento do banco para obter o certificado assinado.</li>
+        <li>Guarde a chave .key em local seguro — ela forma o par mTLS junto com o certificado que o banco devolver.</li>
+      </ol>
+
+      ${docsCallout("warning", "A chave privada não é reaproveitável", "Cada geração de CSR cria uma chave privada nova. Se gerar um novo CSR, o certificado emitido para o CSR anterior deixa de ter par com a chave atual — guarde sempre o .csr enviado junto com a .key baixada na mesma geração.")}
+
+      <h2>Dados do formulário</h2>
+
+      ${docsTable(
+        ["Campo", "Corresponde a", "Obrigatório"],
+        [
+          ["Common Name (CN)", "Identificador principal do certificado (domínio ou nome da aplicação)", "Sim"],
+          ["Organização (O)", "Nome da empresa/instituição", "Não"],
+          ["Unidade Organizacional (OU)", "Departamento/área responsável", "Não"],
+          ["País (C)", "Sigla ISO do país (ex: BR)", "Não"],
+          ["Estado (ST)", "Estado/província", "Não"],
+          ["Localidade (L)", "Cidade", "Não"],
+          ["E-mail", "Contato técnico do responsável pela aplicação", "Não"]
+        ]
+      )}
+
+    `;
+
+  }
+
+  const isPixEVan =
+    info.products.includes("van");
 
   return `
 
-    <p class="docs-lead">${opts.lead}</p>
+    <p class="docs-lead">Integração ${isPixEVan ? "Pix e Cobrança (VAN)" : "Pix"} com o ${bank.name}, usando ${info.authType}.</p>
 
-    <h2>Visão geral</h2>
+    <h2>Pré-requisitos</h2>
 
-    <p>${opts.overview || "[[Escreva aqui uma explicação geral sobre este tópico.]]"}</p>
+    <ul>
+      ${info.prereqs.map(p => `<li>${p}</li>`).join("")}
+    </ul>
 
-    ${opts.calloutInfo || docsCallout("info", "Nota", "[[Use este bloco para observações importantes de contexto.]]")}
+    ${renderDocsNotes(info.notes)}
 
-    <h2>Passo a passo</h2>
+    <h2>Passo a passo geral</h2>
 
     <ol>
-      ${steps.map(step => `<li>${step}</li>`).join("")}
+      <li>Converta o certificado A1 do cliente para PEM na aba <strong>Conversor</strong>.</li>
+      <li>Cadastre a aplicação no portal de desenvolvedor do ${bank.name} e associe o certificado mTLS convertido.</li>
+      <li>Obtenha as credenciais (client_id/client_secret e demais chaves da tabela abaixo).</li>
+      <li>Gere a Collection na aba <strong>Collections</strong>, escolhendo ${isPixEVan ? "Pix ou Cobrança (VAN)" : "Pix"}, preenchendo os campos com os valores obtidos.</li>
+      <li>Importe a collection gerada no Postman e siga para a aba <strong>Testes</strong> desta documentação.</li>
     </ol>
 
-    ${opts.extra || ""}
+    <h2>Variáveis — Pix</h2>
+
+    ${renderVarsTable(info.pix.vars)}
+
+    ${info.van ? `<h2>Variáveis — Cobrança (VAN)</h2>${renderVarsTable(info.van.vars)}` : ""}
 
   `;
 
 }
 
 
-const DOCS_SECTIONS = [
+function docsTestesContent(bank) {
 
-  {
-    title: "Primeiros Passos",
-    topics: [
-      {
-        id: "visao-geral",
-        title: "Visão Geral",
-        content: docsArticleSkeleton({
-          lead: "[[Resumo em 1-2 frases sobre o que é esta ferramenta e para quem ela serve.]]",
-          steps: [
-            "[[O que o time de suporte precisa saber antes de usar a ferramenta]]",
-            "[[Onde encontrar os certificados A1 dos clientes]]",
-            "[[Quando usar cada aba do sistema — Conversor ou Collections]]"
-          ],
-          extra: docsCallout("tip", "Dica", "[[Inclua aqui um atalho ou boa prática rápida para quem está começando.]]")
-        })
-      },
-      {
-        id: "arquitetura",
-        title: "Como Funciona",
-        content: docsArticleSkeleton({
-          lead: "[[Explique que o processamento roda localmente, em memória, sem persistência em disco.]]",
-          calloutInfo: docsCallout("info", "Importante", "[[Detalhe o motivo de rodar como executável local — segurança de dados sensíveis do cliente.]]")
-        })
-      },
-      {
-        id: "requisitos",
-        title: "Requisitos & Instalação",
-        content: docsArticleSkeleton({
-          lead: "[[Liste requisitos de sistema operacional e como obter/atualizar o executável.]]",
-          extra: docsCode("bash", "# [[Exemplo de comando para executar a ferramenta]]\n./pfx-conversor")
-        })
-      }
-    ]
-  },
+  const info = BANK_DOCS[bank.id];
 
-  {
-    title: "Certificados Digitais",
-    topics: [
-      {
-        id: "pfx-para-pem",
-        title: "Conversão PFX → PEM",
-        content: docsArticleSkeleton({
-          lead: "[[Explique quando extrair a chave pública/privada em PEM a partir de um certificado A1 (.pfx/.p12).]]",
-          steps: [
-            "[[Selecione o banco desejado na Dashboard]]",
-            "[[Faça upload do certificado e informe a senha]]",
-            "[[Baixe a Chave Pública e a Chave Privada geradas]]"
-          ]
-        })
-      },
-      {
-        id: "reencodar-pfx",
-        title: "Re-encodar PFX",
-        content: docsArticleSkeleton({
-          lead: "[[Explique o caso de uso: compatibilizar um PFX com sistemas legados, opcionalmente trocando a senha.]]"
-        })
-      },
-      {
-        id: "erros-conversao",
-        title: "Erros comuns na conversão",
-        content: docsArticleSkeleton({
-          lead: "[[Liste os erros mais comuns ao converter certificados e como resolvê-los.]]",
-          extra: docsTable(
-            ["Erro", "Causa provável", "Solução"],
-            [
-              ["[[Falha ao abrir o pfx]]", "[[Senha incorreta]]", "[[Confirme a senha com o responsável pelo certificado]]"],
-              ["[[Certificado sem Chave Privada]]", "[[Arquivo exportado sem a chave]]", "[[Reexporte o .pfx incluindo a chave privada]]"]
-            ]
-          )
-        })
-      }
-    ]
-  },
-
-  {
-    title: "Collections Postman",
-    topics: [
-      {
-        id: "gerar-collection",
-        title: "Como gerar uma Collection",
-        content: docsArticleSkeleton({
-          lead: "[[Explique o fluxo: escolher o banco, escolher Pix ou Cobrança (VAN), preencher os campos e baixar o JSON.]]"
-        })
-      },
-      {
-        id: "campos-variaveis",
-        title: "Campos e Variáveis",
-        content: docsArticleSkeleton({
-          lead: "[[Explique o que são as variáveis da collection (client_id, chave_pix etc.) e onde encontrá-las no portal de cada banco.]]"
-        })
-      },
-      {
-        id: "pix-vs-van",
-        title: "Pix vs Cobrança (VAN)",
-        content: docsArticleSkeleton({
-          lead: "[[Diferencie os dois produtos: Pix (cobrança instantânea) e VAN (boleto registrado).]]"
-        })
-      }
-    ]
-  },
-
-  {
-    title: "Bancos Homologados",
-    topics: [
-      {
-        id: "banco-bb",
-        title: "Banco do Brasil",
-        content: docsArticleSkeleton({
-          lead: "[[Parâmetros de handshake, URLs de homologação/produção e escopos OAuth2 do BB.]]",
-          extra: docsTable(
-            ["Variável", "Descrição", "Exemplo"],
-            [["<code>bb_app_key</code>", "[[Chave de aplicação do Developer BB]]", "[[abc123]]"]]
-          )
-        })
-      },
-      {
-        id: "banco-itau",
-        title: "Itaú Unibanco",
-        content: docsArticleSkeleton({
-          lead: "[[Parâmetros de handshake mTLS dedicado do Itaú.]]"
-        })
-      },
-      {
-        id: "banco-sicoob",
-        title: "Sicoob",
-        content: docsArticleSkeleton({
-          lead: "[[Parâmetros do gateway V3 / Open Finance do Sicoob.]]"
-        })
-      },
-      {
-        id: "banco-sicredi",
-        title: "Sicredi",
-        content: docsArticleSkeleton({
-          lead: "[[Parâmetros do padrão V2 Modular do Sicredi.]]"
-        })
-      },
-      {
-        id: "banco-santander",
-        title: "Santander",
-        content: docsArticleSkeleton({
-          lead: "[[Parâmetros do portal Developer Santander Empresas.]]"
-        })
-      },
-      {
-        id: "banco-bradesco",
-        title: "Bradesco",
-        content: docsArticleSkeleton({
-          lead: "[[Parâmetros da API ShopFácil do Bradesco.]]"
-        })
-      }
-    ]
-  },
-
-  {
-    title: "Segurança & Erros",
-    topics: [
-      {
-        id: "autenticacao",
-        title: "Autenticação (OAuth2 / mTLS)",
-        content: docsArticleSkeleton({
-          lead: "[[Explique a diferença entre OAuth2 puro, mTLS dedicado e a combinação dos dois.]]"
-        })
-      },
-      {
-        id: "codigos-erro",
-        title: "Códigos de Erro Comuns",
-        content: docsArticleSkeleton({
-          lead: "[[Catálogo de erros HTTP retornados pelas APIs bancárias e como agir em cada caso.]]",
-          extra: docsTable(
-            ["Código", "Significado", "Ação recomendada"],
-            [
-              ["<code>401</code>", "[[Token inválido ou expirado]]", "[[Gerar um novo bearer_token via /oauth/token]]"],
-              ["<code>403</code>", "[[Certificado não autorizado ou escopo incorreto]]", "[[Validar o mTLS e o scope solicitado]]"],
-              ["<code>422</code>", "[[Payload inválido]]", "[[Revisar os campos obrigatórios do body]]"]
-            ]
-          )
-        })
-      },
-      {
-        id: "boas-praticas",
-        title: "Boas Práticas de Segurança",
-        content: docsArticleSkeleton({
-          lead: "[[Oriente sobre não compartilhar client_secret, girar credenciais periodicamente etc.]]"
-        })
-      }
-    ]
-  },
-
-  {
-    title: "Suporte",
-    topics: [
-      {
-        id: "faq",
-        title: "Perguntas Frequentes",
-        content: docsArticleSkeleton({
-          lead: "[[Liste aqui as dúvidas mais recorrentes do time de suporte.]]"
-        })
-      }
-    ]
+  if (!info) {
+    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
   }
 
-];
+  if (info.isCsrOnly) {
+
+    return `
+
+      <p class="docs-lead">Esta ferramenta gera apenas o CSR e a chave privada do ${bank.name} — diferente dos outros bancos, não existe aqui uma Collection Postman pronta para testar a API Pix.</p>
+
+      ${docsCallout("warning", "Sem Collection automática", "Depois de obter o certificado assinado pelo banco, monte a Collection de testes manualmente (ou peça ao banco o pacote de referência), usando o certificado + a chave gerados aqui para o mTLS.")}
+
+      <h2>Como validar o CSR gerado</h2>
+
+      <ol>
+        <li>Confirme que o arquivo .csr abre sem erro em um visualizador de certificado.</li>
+        <li>Confira se o Common Name e demais dados batem com o que foi preenchido no formulário.</li>
+        <li>Envie o CSR ao banco e aguarde o certificado assinado.</li>
+        <li>Valide que o certificado devolvido forma par com a chave baixada aqui (os hashes MD5 do módulo devem ser idênticos).</li>
+      </ol>
+
+      ${docsCode("bash", "# Conferir os dados do CSR gerado\nopenssl req -in CSR_exemplo.csr -noout -text\n\n# Conferir se o certificado devolvido forma par com a chave baixada\nopenssl x509 -noout -modulus -in certificado.crt | openssl md5\nopenssl rsa -noout -modulus -in ChavePrivada_exemplo.key | openssl md5\n# os dois hashes devem ser idênticos")}
+
+    `;
+
+  }
+
+  const isPixEVan =
+    info.products.includes("van");
+
+  return `
+
+    <p class="docs-lead">Roteiro para validar a integração ${isPixEVan ? "Pix e Cobrança (VAN)" : "Pix"} com o ${bank.name} antes de ir para produção.</p>
+
+    ${docsCallout("tip", "Antes de começar", `Gere a Collection do ${bank.name} na aba Collections (Pix${isPixEVan ? " e/ou VAN" : ""}) e importe no Postman com os campos já preenchidos.`)}
+
+    <h2>Endpoints — Pix</h2>
+
+    ${renderEndpointsTable(info.pix.endpoints)}
+
+    ${info.van ? `<h2>Endpoints — Cobrança (VAN)</h2>${renderEndpointsTable(info.van.endpoints)}` : ""}
+
+    <h2>Roteiro de teste</h2>
+
+    <ol>
+      <li>Rode a requisição de autenticação e confirme o retorno <code>200</code> com um token válido — copie o valor para a variável <code>bearer_token</code> da collection.</li>
+      <li>Rode a requisição de criação (cobrança Pix ou boleto) e confirme o retorno <code>200</code>/<code>201</code>.</li>
+      <li>Rode a requisição de remoção/baixa para confirmar que o cancelamento funciona.</li>
+      <li>Repita o ciclo em homologação antes de liberar o cliente para produção.</li>
+    </ol>
+
+    <h2>Checklist de validação</h2>
+
+    ${docsTable(
+      ["Verificação", "Resultado esperado"],
+      [
+        ["Handshake mTLS", "Conexão aceita sem erro de certificado (sem SSL handshake failure)"],
+        ["Autenticação", "HTTP 200 com token válido"],
+        ["Criação", "HTTP 200/201 com identificador da cobrança/boleto retornado"],
+        ["Cancelamento", "HTTP 200/204 confirmando a baixa"]
+      ]
+    )}
+
+  `;
+
+}
+
+
+function docsErrosContent(bank) {
+
+  const info = BANK_DOCS[bank.id];
+
+  if (!info) {
+    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
+  }
+
+  if (info.isCsrOnly) {
+
+    return `
+
+      <p class="docs-lead">Erros mais comuns ao gerar o CSR e a chave do ${bank.name} nesta ferramenta.</p>
+
+      ${docsTable(
+        ["Mensagem", "Causa", "Ação recomendada"],
+        [
+          ["Common Name é obrigatório para gerar o CSR", "O campo Common Name (CN) foi deixado em branco", "Preencha o Common Name antes de clicar em Gerar CSR"],
+          ["Falha ao gerar a chave RSA", "Erro interno ao gerar a chave — raro, geralmente ligado a recursos do sistema", "Tente novamente; se persistir, reinicie a ferramenta"],
+          ["Falha ao tentar gerar o CSR", "Dados incompatíveis com o formato exigido pelo certificado X.509", "Revise se os campos preenchidos não têm caracteres inválidos"]
+        ]
+      )}
+
+      ${docsCallout("warning", "Erros no credenciamento com o banco", "Erros retornados pelo próprio banco ao submeter o CSR (CSR rejeitado, dados divergentes do cadastro etc.) não são gerados por esta ferramenta — consulte o canal de credenciamento do banco para o motivo exato da rejeição.")}
+
+    `;
+
+  }
+
+  const isPixEVan =
+    info.products.includes("van");
+
+  const genericRows = [
+    ["<code>401</code>", "Token ausente, expirado ou credenciais inválidas", "Rode novamente a requisição de autenticação e atualize a variável bearer_token"],
+    ["<code>403</code>", "Certificado mTLS não homologado para a aplicação, ou escopo (scope) não autorizado para as credenciais", "Confirme se o certificado enviado é o mesmo associado à aplicação no portal, e se o scope solicitado foi liberado"],
+    ["<code>404</code>", "Identificador (txid, nossoNumero, workspace) inexistente ou já processado", "Confira o identificador usado na URL da requisição"],
+    ["<code>422</code>", "Payload inválido — campo obrigatório ausente ou fora do formato esperado", "Revise o body da requisição contra a tabela de variáveis da aba Processo de Criação"],
+    ["<code>429</code>", "Limite de requisições excedido (rate limit)", "Aguarde e reduza a frequência de chamadas"],
+    ["Falha no handshake SSL/TLS", "Certificado mTLS ausente, expirado ou não associado à aplicação", "Reconverta o certificado na aba Conversor e confirme a validade/associação no portal do banco"]
+  ];
+
+  const bankRows =
+    (info.errors || []).map(e => [`<code>${e.code}</code>`, e.cause, e.action]);
+
+  return `
+
+    <p class="docs-lead">Erros retornados pela API ${isPixEVan ? "Pix e Cobrança (VAN)" : "Pix"} do ${bank.name} e como agir em cada caso.</p>
+
+    ${docsCallout("info", "Padrão comum entre bancos", "A maioria dos bancos com Pix segue o padrão de erros HTTP do Banco Central para o DICT/Pix — os códigos abaixo valem, em geral, para qualquer um dos bancos desta ferramenta.")}
+
+    <h2>Erros comuns</h2>
+
+    ${docsTable(["Código", "Causa", "Ação recomendada"], [...genericRows, ...bankRows])}
+
+    ${renderDocsNotes(info.notes)}
+
+  `;
+
+}
+
+
+const DOCS_SECTIONS =
+  BANKS.map(bank => ({
+    title: bank.name,
+    accent: bank.color,
+    topics: [
+      {
+        id: `${bank.id}-processo`,
+        title: "Processo de Criação",
+        content: docsProcessoContent(bank)
+      },
+      {
+        id: `${bank.id}-testes`,
+        title: "Testes",
+        content: docsTestesContent(bank)
+      },
+      {
+        id: `${bank.id}-erros`,
+        title: "Erros Retornados",
+        content: docsErrosContent(bank)
+      }
+    ]
+  }));
 
 
 /* =========================================================
@@ -5499,7 +6174,8 @@ function flattenDocsTopics() {
 
       flat.push({
         ...topic,
-        sectionTitle: section.title
+        sectionTitle: section.title,
+        sectionAccent: section.accent
       });
 
     });
@@ -5543,34 +6219,51 @@ function renderDocsSidebar(activeId) {
 
     </div>
 
-  ` + DOCS_SECTIONS.map(section => `
+  ` + DOCS_SECTIONS.map(section => {
 
-    <div class="docs-nav-group" data-docs-group>
+    const isActiveSection =
+      section.topics.some(topic => topic.id === activeId);
 
-      <div class="docs-nav-group-title">
-        ${section.title}
+    return `
+
+      <div class="docs-nav-group ${isActiveSection ? 'active' : ''}" data-docs-group>
+
+        <div class="docs-nav-group-title">
+          <span
+            style="
+              display:inline-block;
+              width:6px;
+              height:6px;
+              border-radius:50%;
+              background:${section.accent};
+              margin-right:6px;
+            "
+          ></span>
+          ${section.title}
+        </div>
+
+        <div class="docs-nav-list">
+
+          ${section.topics.map(topic => `
+
+            <a
+              href="#documentacao/${topic.id}"
+              class="docs-nav-link ${topic.id === activeId ? 'active' : ''}"
+              data-docs-title="${(section.title + ' ' + topic.title).toLowerCase()}"
+            >
+              <span class="docs-nav-dot"></span>
+              ${topic.title}
+            </a>
+
+          `).join("")}
+
+        </div>
+
       </div>
 
-      <div class="docs-nav-list">
+    `;
 
-        ${section.topics.map(topic => `
-
-          <a
-            href="#documentacao/${topic.id}"
-            class="docs-nav-link ${topic.id === activeId ? 'active' : ''}"
-            data-docs-title="${topic.title.toLowerCase()}"
-          >
-            <span class="docs-nav-dot"></span>
-            ${topic.title}
-          </a>
-
-        `).join("")}
-
-      </div>
-
-    </div>
-
-  `).join("");
+  }).join("");
 
 
   const searchInput =
@@ -5771,6 +6464,13 @@ function renderDocsView(topicId) {
   currentDocsTopicId = topic.id;
 
 
+  if (topic.sectionAccent) {
+    document.documentElement.style.setProperty("--docs-accent", topic.sectionAccent);
+  } else {
+    document.documentElement.style.removeProperty("--docs-accent");
+  }
+
+
   const statTopics =
     $("#docsStatTopics");
 
@@ -5792,7 +6492,7 @@ function renderDocsView(topicId) {
 
 
   $("#docsArticle").innerHTML = `
-    <h1>${topic.title}</h1>
+    <h1>${topic.sectionTitle} <span style="color:var(--docs-accent, var(--brand-primary));">· ${topic.title}</span></h1>
     ${topic.content}
   `;
 

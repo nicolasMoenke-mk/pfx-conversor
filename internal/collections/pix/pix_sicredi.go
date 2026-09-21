@@ -25,10 +25,10 @@ type SicrediPixConfig struct {
 	Scope              string
 }
 
-func AuthSicrediPix() (c.PostmanItem, error) {
+func authSicrediPix() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Autenticar Pix Sicredi",
+		Name: "Login Pix Sicredi",
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -57,7 +57,7 @@ func AuthSicrediPix() (c.PostmanItem, error) {
 	}, nil
 }
 
-func CreatePixSicredi() (c.PostmanItem, error) {
+func createPixSicredi() (c.PostmanItem, error) {
 
 	createBody := map[string]any{
 		"calendario": map[string]any{
@@ -100,7 +100,7 @@ func CreatePixSicredi() (c.PostmanItem, error) {
 	}, nil
 }
 
-func RemoverPixSicredi() (c.PostmanItem, error) {
+func removePixSicredi() (c.PostmanItem, error) {
 
 	removeBody := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -112,7 +112,7 @@ func RemoverPixSicredi() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Remover Cobrança Pix",
+		Name: "Remover Pix Sicredi",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
@@ -144,17 +144,17 @@ func SicrediPixCollection(cfg *SicrediPixConfig) ([]byte, error) {
 		scope = sicrediScope
 	}
 
-	auth, err := AuthSicrediPix()
+	auth, err := authSicrediPix()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix Sicredi': %w", err)
 	}
 
-	create, err := CreatePixSicredi()
+	create, err := createPixSicredi()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix': %w", err)
 	}
 
-	remove, err := RemoverPixSicredi()
+	remove, err := removePixSicredi()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix': %w", err)
 	}

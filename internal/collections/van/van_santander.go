@@ -36,8 +36,8 @@ func AuthVanSantander() (c.PostmanItem, error) {
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant_type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: "{{santander_client_id}}", Type: "string"},
-					{Key: "client_secret", Value: "{{santander_client_secret}}", Type: "string"},
+					{Key: "client_id", Value: "{{client_id}}", Type: "string"},
+					{Key: "client_secret", Value: "{{client_secret}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -51,15 +51,15 @@ func AuthVanSantander() (c.PostmanItem, error) {
 
 func CreateSantanderVan() (c.PostmanItem, error) {
 	createBody := map[string]any{
-		"clientNumber": "{{santander_clientNumber}}",
-		"nsuCode":      "{{santander_bankNumber}}",
-		"covenantCode": "{{santander_convenantCode}}",
-		"bankNumber":   "{{santander_bankNumber}}",
+		"clientNumber": "{{santander_client_number}}",
+		"nsuCode":      "{{santander_bank_number}}",
+		"covenantCode": "{{santander_convent_code}}",
+		"bankNumber":   "{{santander_bank_number}}",
 		"dueDate":      "2027-02-02",
 		"nsuDate":      "2026-09-15",
 		"issueDate":    "2026-09-15",
 		"key": map[string]any{
-			"type":    "{{santander_key_type}}",
+			"type":    "{{santander_dict_type}}",
 			"dictKey": "{{santander_dict_key}}",
 		},
 		"environment":  "PRODUCAO",
@@ -94,7 +94,7 @@ func CreateSantanderVan() (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "X-Application-Key", Value: "{{santander_workspace_id}}", Type: "string"},
+				{Key: "X-Application-Key", Value: "{{santander_app_key}}", Type: "string"},
 			},
 			Body: &c.PostmanBody{
 				Mode: "raw",
@@ -111,8 +111,8 @@ func CreateSantanderVan() (c.PostmanItem, error) {
 
 func RemoveSantanderVan() (c.PostmanItem, error) {
 	removeBody := map[string]any{
-		"convenantCode": "{{santander_convenantCode}}",
-		"bankNumber":    "{{santander_bankNumber}}",
+		"convenantCode": "{{santander_convent_code}}",
+		"bankNumber":    "{{santander_bank_number}}",
 		"operation":     "BAIXA",
 	}
 

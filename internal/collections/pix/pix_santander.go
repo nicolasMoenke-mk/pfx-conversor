@@ -20,10 +20,10 @@ type SantanderPixConfig struct {
 	ChavePix     string
 }
 
-func AuthPixSantander() (c.PostmanItem, error) {
+func authPixSantander() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Autenticar Pix Santander",
+		Name: "Login Pix Santander",
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -52,7 +52,7 @@ func AuthPixSantander() (c.PostmanItem, error) {
 	}, nil
 }
 
-func CreatePixSantander() (c.PostmanItem, error) {
+func createPixSantander() (c.PostmanItem, error) {
 	createPix := map[string]any{
 		"calendario": map[string]any{
 			"dataDeVencimento":       "2027-02-02",
@@ -76,7 +76,7 @@ func CreatePixSantander() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Criar um Pix",
+		Name: "Criar Pix Santander",
 		Request: &c.PostmanRequest{
 			Method: "PUT",
 			Header: []c.PostmanHeader{
@@ -96,7 +96,7 @@ func CreatePixSantander() (c.PostmanItem, error) {
 	}, nil
 }
 
-func RemoverPixSantander() (c.PostmanItem, error) {
+func removePixSantander() (c.PostmanItem, error) {
 	removeBody := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
 	}
@@ -107,7 +107,7 @@ func RemoverPixSantander() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Remover Pix Ativo",
+		Name: "Remover Pix Santander",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
@@ -138,17 +138,17 @@ func SantanderPixCollection(cfg *SantanderPixConfig) ([]byte, error) {
 		scope = santanderScope
 	}
 
-	auth, err := AuthPixSantander()
+	auth, err := authPixSantander()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao gerar item 'Auth Pix Santander'")
 	}
 
-	create, err := CreatePixSantander()
+	create, err := createPixSantander()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao gerar item 'Criar Pix Santander': %w", err)
 	}
 
-	remove, err := RemoverPixSantander()
+	remove, err := removePixSantander()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao gerar item 'Remover Pix Santander': %w", err)
 	}
