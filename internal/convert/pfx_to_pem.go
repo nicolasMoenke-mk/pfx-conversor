@@ -6,12 +6,19 @@ import (
 	"encoding/pem"
 	"errors"
 
-	"golang.org/x/crypto/pkcs12"
+	sslpkcs12 "software.sslmate.com/src/go-pkcs12"
 )
 
+// decodePFX usa sslpkcs12.DecodeChain (não golang.org/x/crypto/pkcs12) pelo
+// mesmo motivo do BB: certificados brasileiros costumam vir com a cadeia
+// (raiz/intermediários) já embutida no .pfx, e o pacote x/crypto só sabe
+// ler um PFX com exatamente um par chave/certificado — falha com "expected
+// exactly two safe bags" assim que há mais de um certificado no arquivo.
+// Aqui só a folha (chave + certificado da aplicação) importa, então a
+// cadeia retornada é descartada.
 func decodePFX(pfxData []byte, password string) (crypto.PrivateKey, *x509.Certificate, error) {
 
-	key, cert, err := pkcs12.Decode(pfxData, password)
+	key, cert, _, err := sslpkcs12.DecodeChain(pfxData, password)
 	if err != nil {
 		return nil, nil, errors.New("Falha ao ler certificado!")
 	}

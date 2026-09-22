@@ -1644,6 +1644,13 @@
       color-mix(in srgb, var(--selected-accent) 60%, transparent);
   }
 
+  /* A aba Utilidades não representa nenhum banco — fixa --selected-accent
+     na cor da marca aqui dentro, em vez de herdar a cor do último banco
+     selecionado na aba Collections (que fica setada em :root). */
+  [data-view="utilidades"] {
+    --selected-accent: var(--brand-primary);
+  }
+
   .cx-format-pill {
     flex-shrink: 0;
     display: inline-flex;
@@ -1928,12 +1935,17 @@
 
     min-height: 38px;
 
-    transition: opacity .15s var(--ease);
+    transition: opacity .15s var(--ease), height .22s var(--ease);
   }
 
   .cx-fields-grid.is-loading {
     opacity: .45;
     pointer-events: none;
+  }
+
+  .cx-field {
+    display: flex;
+    flex-direction: column;
   }
 
   .cx-field label {
@@ -1944,16 +1956,19 @@
   }
 
   .cx-field-key {
+    display: block;
+    margin-top: 2px;
+
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     font-size: 9.5px;
     font-weight: 500;
     color: var(--text-subtle);
-    margin-left: 5px;
   }
 
   .cx-field input {
     width: 100%;
     height: 38px;
+    margin-top: auto;
 
     padding: 0 12px;
     border-radius: 9px;
@@ -2400,6 +2415,32 @@
 
     background: var(--bg-surface-elevated);
     color: var(--brand-primary);
+  }
+
+  /* imagens (prints, diagramas) */
+
+  .docs-figure {
+    margin: 16px 0;
+  }
+
+  .docs-figure img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+
+    background: #fff;
+  }
+
+  .docs-figure figcaption {
+    margin-top: 8px;
+
+    font-size: 11.5px;
+    color: var(--text-subtle);
+    text-align: center;
   }
 
   /* callouts */
@@ -4114,7 +4155,7 @@ const BANKS = [
     name: "Sicredi",
     color: "#005A36",
     protocol: "OAuth2 + x-api-key",
-    desc: "Cobrança de boleto híbrido (Pix) e Cobrança Bancária via API de Parceiros Sicredi.",
+    desc: "Boleto híbrido (Pix) e Cobrança Bancária via API de Parceiros Sicredi.",
     hasCollection: true,
     endpoints: {
       van: [
@@ -4130,7 +4171,7 @@ const BANKS = [
     },
     auth: "OAuth2 (client_credentials no Pix, password no VAN)",
     environment: "Produção",
-    security: "Api-Key"
+    security: "Certificado próprio Sicredi"
   },
 
   {
@@ -4771,11 +4812,6 @@ function humanizeFieldLabel(key) {
 }
 
 
-function isSecretField(key) {
-  return /secret|senha|password/i.test(key);
-}
-
-
 function updateFieldsProgress(bank) {
 
   const progressEl =
@@ -4835,6 +4871,11 @@ async function loadCollectionFields(bank) {
 
   if (!panel) return;
 
+  const startHeight =
+    panel.getBoundingClientRect().height;
+
+  panel.style.height = `${startHeight}px`;
+  panel.style.overflow = "hidden";
 
   panel.classList.add("is-loading");
 
@@ -4873,9 +4914,6 @@ async function loadCollectionFields(bank) {
           const value =
             collectionFieldValues[cacheKey] || "";
 
-          const inputType =
-            isSecretField(field.chave) ? "password" : "text";
-
           return `
             <div class="cx-field">
               <label>
@@ -4883,7 +4921,7 @@ async function loadCollectionFields(bank) {
                 <span class="cx-field-key">${field.chave}</span>
               </label>
               <input
-                type="${inputType}"
+                type="text"
                 data-field="${field.chave}"
                 value="${value.replace(/"/g, "&quot;")}"
                 placeholder="Valor para ${field.chave}"
@@ -4926,6 +4964,26 @@ async function loadCollectionFields(bank) {
   } finally {
 
     panel.classList.remove("is-loading");
+
+    requestAnimationFrame(() => {
+
+      const endHeight =
+        panel.scrollHeight;
+
+      panel.style.height = `${endHeight}px`;
+
+      panel.addEventListener("transitionend", function onHeightSettled(event) {
+
+        if (event.propertyName !== "height") return;
+
+        panel.style.height = "";
+        panel.style.overflow = "";
+
+        panel.removeEventListener("transitionend", onHeightSettled);
+
+      });
+
+    });
 
   }
 
@@ -4981,6 +5039,15 @@ function renderBankView(id) {
   if (bank.id === "itau") {
 
     renderItauCsrView(bank);
+
+    return;
+
+  }
+
+
+  if (bank.id === "sicredi") {
+
+    renderSicrediConvertView(bank);
 
     return;
 
@@ -5434,6 +5501,24 @@ function renderBankView(id) {
   };
 
 
+  // Depois de converter com sucesso, limpa o formulário (arquivo, senha,
+  // nomes) para já deixar pronto pro próximo certificado — só o painel de
+  // resultado (com os arquivos gerados) continua visível.
+  function resetConverterForm() {
+
+    pfxInput.value = "";
+    fileBadge.classList.remove("active");
+    dropArea.style.display = "block";
+
+    $("#pfxPass").value = "";
+    $("#nomeCertInput").value = "";
+    $("#nomeChaveInput").value = "";
+    $("#novaSenhaInput").value = "";
+    $("#nomeSaidaInput").value = "";
+
+  }
+
+
   $("#formConverter").onsubmit =
     async event => {
 
@@ -5492,6 +5577,11 @@ function renderBankView(id) {
             $("#nomeChaveInput").value
           );
 
+          formData.append(
+            "banco",
+            bank.id
+          );
+
 
           const response =
             await fetch(
@@ -5523,39 +5613,53 @@ function renderBankView(id) {
 
           converterResult.style.gap = "10px";
 
-          converterResult.innerHTML = `
+          // Itens sempre presentes (chave pública/privada) + a cadeia
+          // raiz/intermediários, que só vem preenchida para o BB (única
+          // integração cujo mTLS exige a cadeia completa do certificado).
+          const arquivos = [
+            { label: "Chave Pública", nome: data.nomeCert, conteudo: data.certPem, id: "btnDownloadCert" },
+            { label: "Chave Privada", nome: data.nomeChave, conteudo: data.keyPem, id: "btnDownloadKey" }
+          ];
+
+          if (data.raizPem) {
+            arquivos.push({ label: "Certificado Raiz", nome: data.nomeRaiz, conteudo: data.raizPem, id: "btnDownloadRaiz" });
+          }
+
+          if (data.intermed1Pem) {
+            arquivos.push({ label: "Certificado Intermediário 1", nome: data.nomeIntermed1, conteudo: data.intermed1Pem, id: "btnDownloadIntermed1" });
+          }
+
+          if (data.intermed2Pem) {
+            arquivos.push({ label: "Certificado Intermediário 2", nome: data.nomeIntermed2, conteudo: data.intermed2Pem, id: "btnDownloadIntermed2" });
+          }
+
+          converterResult.innerHTML = arquivos.map(arq => `
             <div class="file-badge active" style="justify-content:space-between;">
               <div class="file-badge-info">
-                Chave Pública<br>
-                <span class="file-badge-size">${data.nomeCert}</span>
+                ${arq.label}<br>
+                <span class="file-badge-size">${arq.nome}</span>
               </div>
-              <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadCert">
+              <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="${arq.id}">
                 Baixar
               </button>
             </div>
-            <div class="file-badge active" style="justify-content:space-between;">
-              <div class="file-badge-info">
-                Chave Privada<br>
-                <span class="file-badge-size">${data.nomeChave}</span>
-              </div>
-              <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadKey">
-                Baixar
-              </button>
-            </div>
-          `;
+          `).join("");
 
-          $("#btnDownloadCert").onclick = () =>
-            downloadTextFile(data.nomeCert, data.certPem, "application/x-pem-file");
-
-          $("#btnDownloadKey").onclick = () =>
-            downloadTextFile(data.nomeChave, data.keyPem, "application/x-pem-file");
+          arquivos.forEach(arq => {
+            $(`#${arq.id}`).onclick = () =>
+              downloadTextFile(arq.nome, arq.conteudo, "application/x-pem-file");
+          });
 
 
           toast(
             "success",
             "Conversão Concluída!",
-            `${bank.name}: Chaves geradas com sucesso.`
+            bank.id === "bb" && data.raizPem
+              ? `${bank.name}: chave pública, privada e cadeia de certificados geradas com sucesso.`
+              : `${bank.name}: Chaves geradas com sucesso.`
           );
+
+          resetConverterForm();
 
         } else {
 
@@ -5631,6 +5735,8 @@ function renderBankView(id) {
             "PFX Gerado!",
             `${bank.name}: novo arquivo .pfx pronto para download.`
           );
+
+          resetConverterForm();
 
         }
 
@@ -6018,6 +6124,318 @@ function renderItauCsrView(bank) {
 
 
 /* =========================================================
+   SICREDI — CONVERSOR .CER/.KEY -> PEM
+   ---------------------------------------------------------
+   O Sicredi não usa certificado A1/.pfx: o próprio banco gera
+   e entrega um .cer e um .key prontos (via "Registrar CSR" no
+   portal Developer). O único ajuste necessário é normalizar
+   esses dois arquivos para PEM, para usar nos campos
+   path_cert_client/path_key_client do sistema.
+========================================================= */
+
+function wireDropzone({ inputId, dropAreaId, fileBadgeId, fileNameId, fileSizeId, removeBtnId }) {
+
+  const input = $(`#${inputId}`);
+  const dropArea = $(`#${dropAreaId}`);
+  const fileBadge = $(`#${fileBadgeId}`);
+
+  const showFile = file => {
+
+    if (!file) return;
+
+    $(`#${fileNameId}`).textContent = file.name;
+    $(`#${fileSizeId}`).textContent = `${(file.size / 1024).toFixed(1)} KB`;
+
+    dropArea.style.display = "none";
+    fileBadge.classList.add("active");
+
+  };
+
+  input.onchange = () => showFile(input.files[0]);
+
+  ["dragenter", "dragover"].forEach(eventName => {
+    dropArea.addEventListener(eventName, event => {
+      event.preventDefault();
+      dropArea.classList.add("drag");
+    });
+  });
+
+  ["dragleave", "dragend"].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+      dropArea.classList.remove("drag");
+    });
+  });
+
+  dropArea.addEventListener("drop", event => {
+
+    event.preventDefault();
+    dropArea.classList.remove("drag");
+
+    const file = event.dataTransfer.files[0];
+    if (!file) return;
+
+    input.files = event.dataTransfer.files;
+    input.dispatchEvent(new Event("change"));
+
+  });
+
+  $(`#${removeBtnId}`).onclick = () => {
+    input.value = "";
+    fileBadge.classList.remove("active");
+    dropArea.style.display = "block";
+  };
+
+}
+
+
+function sicrediDropzoneHtml({ label, inputId, dropAreaId, accept, hint, fileBadgeId, fileNameId, fileSizeId, removeBtnId, placeholderName }) {
+
+  return `
+
+    <div class="form-group">
+
+      <label>${label}</label>
+
+      <label class="dropzone" id="${dropAreaId}" for="${inputId}">
+
+        <input type="file" id="${inputId}" accept="${accept}" required>
+
+        <div class="dropzone-content">
+
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+
+          <strong>Clique ou arraste o ${label.toLowerCase()} aqui</strong>
+          <span>${hint}</span>
+
+        </div>
+
+      </label>
+
+      <div class="file-badge" id="${fileBadgeId}">
+
+        <span style="color:var(--brand-primary)">📄</span>
+
+        <div class="file-badge-info">
+          <div id="${fileNameId}">${placeholderName}</div>
+          <div class="file-badge-size" id="${fileSizeId}">0 KB</div>
+        </div>
+
+        <button type="button" class="btn-remove-file" id="${removeBtnId}">Remover</button>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+function renderSicrediConvertView(bank) {
+
+  $("#bankViewContainer").innerHTML = `
+
+    <a href="#dashboard" class="btn-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      Voltar ao Main Menu
+    </a>
+
+    <div style="margin-bottom:28px;">
+
+      <h1 style="font-size:24px; font-weight:800;">${bank.name}</h1>
+
+      <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+        O Sicredi não usa certificado A1/.pfx — o próprio banco entrega um .cer e um .key
+        prontos pelo portal Developer. Aqui só normalizamos os dois para PEM, prontos para
+        usar em path_cert_client/path_key_client no sistema.
+      </p>
+
+    </div>
+
+    <div class="converter-shell">
+
+      <div class="converter-card">
+
+        <div class="converter-body">
+
+          <form id="formSicredi" class="form-grid">
+
+            ${sicrediDropzoneHtml({
+              label: "Certificado (.cer)",
+              inputId: "sicrediCerInput",
+              dropAreaId: "sicrediCerDropArea",
+              accept: ".cer,.crt,.pem",
+              hint: "Formatos suportados: .cer, .crt, .pem",
+              fileBadgeId: "sicrediCerFileBadge",
+              fileNameId: "sicrediCerFileName",
+              fileSizeId: "sicrediCerFileSize",
+              removeBtnId: "btnRemoveSicrediCer",
+              placeholderName: "certificado.cer"
+            })}
+
+            ${sicrediDropzoneHtml({
+              label: "Chave privada (.key)",
+              inputId: "sicrediKeyInput",
+              dropAreaId: "sicrediKeyDropArea",
+              accept: ".key,.pem",
+              hint: "Formatos suportados: .key, .pem",
+              fileBadgeId: "sicrediKeyFileBadge",
+              fileNameId: "sicrediKeyFileName",
+              fileSizeId: "sicrediKeyFileSize",
+              removeBtnId: "btnRemoveSicrediKey",
+              placeholderName: "chave_privada.key"
+            })}
+
+            <div class="form-row">
+
+              <div class="form-group">
+                <label>Nome Certificado</label>
+                <input type="text" id="sicrediNomeCertInput" placeholder="Ex: PROVEDORNET26">
+              </div>
+
+              <div class="form-group">
+                <label>Nome Chave Privada</label>
+                <input type="text" id="sicrediNomeChaveInput" placeholder="Ex: PROVEDORNET26">
+              </div>
+
+            </div>
+
+            <button class="btn-submit" type="submit" id="btnSicrediSubmit">
+              Converter para PEM
+            </button>
+
+          </form>
+
+          <div id="sicrediResult" style="display:none; margin-top:18px;"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  wireDropzone({
+    inputId: "sicrediCerInput",
+    dropAreaId: "sicrediCerDropArea",
+    fileBadgeId: "sicrediCerFileBadge",
+    fileNameId: "sicrediCerFileName",
+    fileSizeId: "sicrediCerFileSize",
+    removeBtnId: "btnRemoveSicrediCer"
+  });
+
+  wireDropzone({
+    inputId: "sicrediKeyInput",
+    dropAreaId: "sicrediKeyDropArea",
+    fileBadgeId: "sicrediKeyFileBadge",
+    fileNameId: "sicrediKeyFileName",
+    fileSizeId: "sicrediKeyFileSize",
+    removeBtnId: "btnRemoveSicrediKey"
+  });
+
+
+  const form = $("#formSicredi");
+  const btnSubmit = $("#btnSicrediSubmit");
+  const sicrediResult = $("#sicrediResult");
+
+  form.onsubmit = async event => {
+
+    event.preventDefault();
+
+    const cerInput = $("#sicrediCerInput");
+    const keyInput = $("#sicrediKeyInput");
+
+    if (!cerInput.files[0] || !keyInput.files[0]) {
+      toast("error", "Arquivos obrigatórios", "Selecione o .cer e o .key antes de continuar.");
+      return;
+    }
+
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Convertendo...";
+
+    sicrediResult.style.display = "none";
+    sicrediResult.innerHTML = "";
+
+    const formData = new FormData();
+    formData.append("cerfile", cerInput.files[0]);
+    formData.append("keyfile", keyInput.files[0]);
+    formData.append("nomeCert", $("#sicrediNomeCertInput").value);
+    formData.append("nomeChave", $("#sicrediNomeChaveInput").value);
+
+    try {
+
+      const response = await fetch("/convert-sicredi-pem", { method: "POST", body: formData });
+      const data = await response.json();
+
+      if (!data.sucesso) {
+        throw new Error(data.erro || "Falha na conversão");
+      }
+
+      sicrediResult.style.display = "flex";
+      sicrediResult.style.flexDirection = "column";
+      sicrediResult.style.gap = "10px";
+
+      sicrediResult.innerHTML = `
+        <div class="file-badge active" style="justify-content:space-between;">
+          <div class="file-badge-info">
+            Certificado (PEM)<br>
+            <span class="file-badge-size">${data.nomeCert}</span>
+          </div>
+          <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadSicrediCer">
+            Baixar
+          </button>
+        </div>
+        <div class="file-badge active" style="justify-content:space-between;">
+          <div class="file-badge-info">
+            Chave Privada (PEM)<br>
+            <span class="file-badge-size">${data.nomeChave}</span>
+          </div>
+          <button type="button" class="btn-submit" style="height:34px;width:auto;padding:0 14px;" id="btnDownloadSicrediKey">
+            Baixar
+          </button>
+        </div>
+      `;
+
+      $("#btnDownloadSicrediCer").onclick = () =>
+        downloadTextFile(data.nomeCert, data.certPem, "application/x-pem-file");
+
+      $("#btnDownloadSicrediKey").onclick = () =>
+        downloadTextFile(data.nomeChave, data.keyPem, "application/x-pem-file");
+
+      toast("success", "Conversão Concluída!", `${bank.name}: certificado e chave convertidos para PEM.`);
+
+      // Limpa o formulário, deixando pronto pro próximo certificado — o
+      // painel de resultado com os arquivos gerados continua visível.
+      $("#btnRemoveSicrediCer").click();
+      $("#btnRemoveSicrediKey").click();
+      $("#sicrediNomeCertInput").value = "";
+      $("#sicrediNomeChaveInput").value = "";
+
+    } catch (error) {
+
+      toast("error", "Erro na conversão", error.message);
+
+    } finally {
+
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Converter para PEM";
+
+    }
+
+  };
+
+}
+
+
+/* =========================================================
    DOCUMENTATION DATA
    ---------------------------------------------------------
    Esqueleto de conteúdo. Troque os textos entre [[ ]] pelo
@@ -6097,6 +6515,31 @@ function docsCode(lang, code) {
 }
 
 
+// docsImage monta um print/diagrama já com moldura, cantos arredondados e
+// legenda opcional — nunca insira <img> "cru" no conteúdo da documentação,
+// sempre passe pela função pra herdar o CSS que impede a imagem de estourar
+// a largura do card (.docs-figure, definido junto com .docs-article).
+function docsImage(src, alt, legenda) {
+
+  return `
+
+    <figure class="docs-figure">
+
+      <img
+        src="${src}"
+        alt="${alt || ""}"
+        loading="lazy"
+      >
+
+      ${legenda ? `<figcaption>${legenda}</figcaption>` : ""}
+
+    </figure>
+
+  `;
+
+}
+
+
 function docsTable(headers, rows) {
 
   return `
@@ -6169,241 +6612,422 @@ function renderDocsNotes(notes) {
    e internal/convert/csr_itau.go — não são texto de exemplo.
 --------------------------------------------------------- */
 
+/* ---------------------------------------------------------
+   Origem do conteúdo: documentação interna de homologação e
+   atualização de Pix/Van (base de suporte) + os geradores de
+   collection em internal/collections/{pix,van} e o conversor
+   em internal/convert/*.go. Os passos de extração manual de
+   chave (OpenSSL, Gerenciador de Certificados do Windows para
+   o cliente final) foram removidos sempre que a aba Conversor
+   já faz aquele passo automaticamente — o que sobra aqui é só
+   o que ainda é manual (cadastro no portal do banco, upload
+   de certificado, preenchimento de campos no sistema).
+--------------------------------------------------------- */
+
 const BANK_DOCS = {
 
   bb: {
-    products: ["pix", "van"],
-    authType: "OAuth2 (Basic Auth + client_credentials) sobre mTLS",
-    prereqs: [
-      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta (aba Conversor)",
-      "Aplicação cadastrada no portal Developer do Banco do Brasil, com o certificado mTLS associado",
-      "Chave Pix cadastrada no DICT, quando o produto for Pix"
-    ],
     pix: {
+      authType: "OAuth2 (Basic Auth + client_credentials) sobre mTLS",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente (o Conversor já extrai a cadeia completa)",
+        "Aplicativo cadastrado no portal Developer do BB",
+        "Chave Pix no DICT"
+      ],
+      escopo: "PIX V2",
+      criacaoSteps: [
+        "Converta o certificado na aba <strong>Conversor</strong> (PFX → Chaves PEM) — só para o BB, já sai com os 5 arquivos: pública, privada, raiz e os 2 intermediários.",
+        "No portal Developer do BB, crie o aplicativo com escopo <strong>PIX V2</strong> e, na aba Certificados, envie os 5 arquivos.",
+        "Ative a produção (CNPJ + aceite no Internet Banking) e copie <code>client_id</code>, <code>client_secret</code> e <code>developer_application_key</code>.",
+        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — preencha os campos e teste a comunicação."
+      ],
+      criacaoNotaCadeia: "Se o .pfx não trouxer a cadeia completa, raiz/intermediários saem vazios do Conversor — peça o pacote completo ao emissor ou extraia pelo Gerenciador de Certificados do Windows.",
+      atualizacaoSteps: [
+        "Peça o novo certificado ao cliente e reconverta na aba Conversor (já sai com os 5 arquivos).",
+        "No portal Developer do BB, abra o app existente &gt; Certificados &gt; Enviar Certificado, e substitua pelos novos.",
+        "As credenciais não mudam — atualize só <code>path_cert_client</code> e <code>path_key_client</code> no sistema e teste."
+      ],
       vars: [
-        { key: "client_id", desc: "Identificador da aplicação criada no portal Developer do BB. Usado como usuário no Basic Auth da autenticação.", example: "eyJpZCI6..." },
-        { key: "client_secret", desc: "Segredo da aplicação, usado como senha no Basic Auth. Nunca deve ser exposto fora do ambiente do integrador.", example: "••••••••" },
-        { key: "bb_dev_app_key", desc: "Chave de desenvolvedor (gw-dev-app-key) exigida pelo gateway do BB em toda chamada às APIs Pix, enviada via query string.", example: "a1b2c3d4" },
-        { key: "chave_pix", desc: "Chave Pix (CPF/CNPJ, e-mail, telefone ou chave aleatória) já cadastrada no DICT, que vai receber as cobranças.", example: "11999999999" },
-        { key: "scope", desc: "Escopos OAuth2 solicitados na autenticação.", example: "cobv.write cobv.read pix.read" },
-        { key: "pix_txid", desc: "Identificador da cobrança (txid). Na collection gerada vem com um valor de exemplo — troque por um txid real ao testar em produção.", example: "AJIDJALISJSHDKUSHD" }
+        { key: "client_id", desc: "Usuário do Basic Auth (app do portal Developer).", example: "eyJpZCI6..." },
+        { key: "client_secret", desc: "Senha do Basic Auth.", example: "••••••••" },
+        { key: "bb_dev_app_key", desc: "Chave de desenvolvedor (gw-dev-app-key), na query string.", example: "a1b2c3d4" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
+        { key: "scope", desc: "Escopos OAuth2 da autenticação.", example: "cobv.write cobv.read pix.read" },
+        { key: "pix_txid", desc: "ID da cobrança — troque pelo valor real em produção.", example: "AJIDJALISJSHDKUSHD" }
       ],
       endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth (client_id:client_secret) sobre mTLS e retorna o bearer_token usado nas demais chamadas." },
-        { method: "PUT", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Cria (ou atualiza) uma cobrança com vencimento vinculada à chave Pix informada." },
-        { method: "PATCH", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Altera o status da cobrança para REMOVIDA_PELO_USUARIO_RECEBEDOR, cancelando-a." }
+        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
+        { method: "PUT", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Cria/atualiza a cobrança." },
+        { method: "PATCH", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Cancela a cobrança." }
       ]
     },
     van: {
+      authType: "OAuth2 client_credentials com token Basic fixo (sem certificado/mTLS)",
+      mtls: false,
+      prereqs: [
+        "Convênio de cobrança com o BB",
+        "Token Basic, gw-app-key, convênio, carteira e variação (fornecidos pelo gerente da conta)"
+      ],
+      criacaoInfo: "Sem cadastro de portal — o BB fornece o token Basic e os demais dados direto ao contratar a Cobrança Bancária. Preencha na aba Collections.",
+      atualizacaoInfo: "Token fixo, não expira — sem renovação periódica. Se o BB trocar o token, só atualize bb_basic_token no sistema.",
       vars: [
-        { key: "bb_basic_token", desc: "Valor completo do header Authorization (já no formato \"Basic xxxxx\") — diferente do Pix, aqui o token Basic não é montado automaticamente a partir de client_id/secret, ele é digitado pronto.", example: "Basic ZWFhYWFh..." },
-        { key: "bb_app_key", desc: "Chave de aplicação (gw-app-key) exigida pelo gateway do BB nas chamadas de boleto.", example: "a1b2c3d4" },
-        { key: "bb_convenio", desc: "Número do convênio de cobrança contratado junto ao BB.", example: "1234567" },
-        { key: "bb_num_carteira", desc: "Número da carteira de cobrança vinculada ao convênio.", example: "17" },
-        { key: "bb_variacao_carteira", desc: "Variação da carteira, definida pelo BB no cadastro do convênio.", example: "19" },
-        { key: "bb_modalidade", desc: "Código da modalidade de cobrança (ex.: 1 = Simples).", example: "1" },
-        { key: "bb_titulo_beneficiario", desc: "Número do título atribuído pelo beneficiário (controle interno do boleto).", example: "000123" },
-        { key: "bb_titulo_cliente", desc: "Número do título atribuído pelo cliente/sacado, quando aplicável.", example: "000123" }
+        { key: "bb_basic_token", desc: "Header Authorization completo, já no formato \"Basic xxxxx\".", example: "Basic ZWFhYWFh..." },
+        { key: "bb_app_key", desc: "Chave de aplicação (gw-app-key) do gateway do BB.", example: "a1b2c3d4" },
+        { key: "bb_convenio", desc: "Número do convênio de cobrança.", example: "1234567" },
+        { key: "bb_num_carteira", desc: "Número da carteira vinculada ao convênio.", example: "17" },
+        { key: "bb_variacao_carteira", desc: "Variação da carteira.", example: "19" },
+        { key: "bb_modalidade", desc: "Código da modalidade (ex.: 1 = Simples).", example: "1" },
+        { key: "bb_titulo_beneficiario", desc: "Número do título do beneficiário.", example: "000123" },
+        { key: "bb_titulo_cliente", desc: "Número do título do cliente/sacado.", example: "000123" }
       ],
       endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica via client_credentials usando o token Basic informado em bb_basic_token, retornando o bearer_token." },
-        { method: "POST", path: "/cobrancas/v2/boletos?gw-app-key=...", desc: "Registra um novo boleto de cobrança para o convênio/carteira informados." },
-        { method: "POST", path: "/cobrancas/v2/boletos/numTitulo/baixar?gw-app-key=...", desc: "Solicita a baixa (cancelamento) de um boleto já registrado." }
+        { method: "POST", path: "/oauth/token", desc: "Autentica com o token Basic e retorna o bearer_token." },
+        { method: "POST", path: "/cobrancas/v2/boletos?gw-app-key=...", desc: "Registra um novo boleto." },
+        { method: "POST", path: "/cobrancas/v2/boletos/numTitulo/baixar?gw-app-key=...", desc: "Baixa (cancela) um boleto." }
+      ],
+      notes: [
+        { type: "warning", title: "Escopo fixo na Van", text: "A autenticação sempre envia cobrancas.boletos-requisicao cobrancas.boletos-info, não importa o que for preenchido em scope." }
+      ],
+      errors: [
+        { code: "400", cause: "bb_basic_token sem o prefixo \"Basic \"", action: "Inclua o prefixo Basic, exatamente como o BB fornece" }
       ]
-    },
-    notes: [
-      { type: "warning", title: "Escopo fixo na Van", text: "A autenticação da Van BB sempre envia o escopo cobrancas.boletos-requisicao cobrancas.boletos-info, independentemente do que for preenchido no campo scope — é assim que o BB exige para esse produto." }
-    ],
-    errors: [
-      { code: "400", cause: "bb_basic_token preenchido sem o prefixo \"Basic \" antes do token em Base64", action: "Garanta que o valor informado já inclua o prefixo Basic, exatamente como o BB o fornece" }
-    ]
+    }
   },
 
   itau: {
-    products: ["pix"],
     isCsrOnly: true,
     prereqs: [
-      "Dados cadastrais da aplicação/domínio que vai autenticar (Common Name, Organização etc.)",
-      "Acesso ao canal de credenciamento do Itaú para submissão do CSR e obtenção do certificado assinado"
+      "Solicitação de credenciamento no portal Developer do Itaú",
+      "Credencial por e-mail do Itaú — expira em 7 dias",
+      "Dados do solicitante para o CSR (Common Name = a credencial recebida)"
+    ],
+    atualizacaoInfo: "Nunca atualizamos uma integração do Itaú — o esperado é repetir o credenciamento: gerar um novo CSR aqui com a nova credencial recebida por e-mail. O certificado dura 1 ano.",
+    errors: [
+      { code: "Credencial expirada", cause: "Mais de 7 dias entre o e-mail do Itaú e o envio do CSR", action: "Solicite uma nova credencial — a anterior não serve mais" }
     ]
   },
 
   sicoob: {
-    products: ["pix", "van"],
-    authType: "OAuth2 (Basic Auth + client_credentials), via OpenID Connect/Keycloak",
-    prereqs: [
-      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
-      "Cadastro no portal Sicoob Developers, com o certificado mTLS associado",
-      "Chave Pix cadastrada no DICT, quando o produto for Pix"
-    ],
     pix: {
+      authType: "OAuth2 (Basic Auth + client_credentials), via OpenID Connect/Keycloak",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente (aba Conversor)",
+        "Cadastro no portal Sicoob Developers",
+        "Chave Pix no DICT"
+      ],
+      escopo: "Pix Recebimentos",
+      criacaoSteps: [
+        "Converta o certificado na aba <strong>Conversor</strong> (PFX → Chaves PEM).",
+        "No Sicoob Developers, envie <strong>só a chave pública</strong> e selecione o escopo <strong>Pix Recebimentos</strong>.",
+        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong>.",
+        "<code>client_id</code> e <code>client_secret</code> recebem a <strong>mesma</strong> credencial (particularidade do Sicoob); <code>path_cert_client</code>/<code>path_key_client</code> recebem as chaves do Conversor. Teste a comunicação."
+      ],
+      atualizacaoSteps: [
+        "Peça o novo certificado e reconverta na aba Conversor.",
+        "O Sicoob <strong>não exige</strong> reenvio no portal — só atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema e teste."
+      ],
       vars: [
-        { key: "client_id", desc: "Identificador da aplicação cadastrada no Sicoob Developers.", example: "9b2c..." },
-        { key: "client_secret", desc: "Segredo da aplicação, usado no Basic Auth da autenticação.", example: "••••••••" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
-        { key: "scope", desc: "Escopos solicitados na autenticação.", example: "cobv.write cobv.read pix.read" },
-        { key: "pix_txid", desc: "Identificador da cobrança usado na criação/remoção — vem com um valor de exemplo na collection.", example: "JHAUDHFJANXUGVFUABND" }
+        { key: "client_id", desc: "App cadastrada no Sicoob Developers.", example: "9b2c..." },
+        { key: "client_secret", desc: "Mesma credencial do client_id (particularidade do Sicoob).", example: "••••••••" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
+        { key: "scope", desc: "Escopos da autenticação.", example: "cobv.write cobv.read pix.read" },
+        { key: "pix_txid", desc: "ID da cobrança — troque pelo valor real.", example: "JHAUDHFJANXUGVFUABND" }
       ],
       endpoints: [
-        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Autentica via Keycloak (Basic Auth + client_credentials) e retorna o bearer_token." },
-        { method: "PUT", path: "/pix/api/v2/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix informada." },
-        { method: "PATCH", path: "/pix/api/v2/cobv/{txid}", desc: "Cancela a cobrança (status REMOVIDA_PELO_USUARIO_RECEBEDOR)." }
+        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Autentica e retorna o bearer_token." },
+        { method: "PUT", path: "/pix/api/v2/cobv/{txid}", desc: "Cria a cobrança." },
+        { method: "PATCH", path: "/pix/api/v2/cobv/{txid}", desc: "Cancela a cobrança." }
+      ],
+      errors: [
+        { code: "401", cause: "client_id e client_secret com valores diferentes", action: "No Sicoob as duas credenciais são iguais — use a mesma nos dois campos" }
       ]
     },
     van: {
+      authType: "Mesma autenticação do Pix (Basic Auth + client_credentials via Keycloak)",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente",
+        "Integração Sicoob já configurada no Next"
+      ],
+      criacaoSteps: [
+        "Na aba <strong>Conversor</strong>, use <strong>Re-encodar PFX (Compatibilidade)</strong> e gere o novo .pfx.",
+        "No Next: <strong>Configurações &gt; Integrações &gt; Sicoob</strong> — suba o novo .pfx (e a senha, se mudou)."
+      ],
+      atualizacaoInfo: "Mesmo processo da criação, ao lado — repita quando o certificado vencer. Sem reenvio no portal.",
       vars: [
-        { key: "client_id", desc: "Mesma aplicação usada no Pix — o Sicoob compartilha client_id/secret entre produtos.", example: "9b2c..." },
+        { key: "client_id", desc: "Mesma app usada no Pix.", example: "9b2c..." },
         { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" },
-        { key: "numeroCliente", desc: "Número do cliente/cooperado no Sicoob.", example: "12345" },
-        { key: "scope", desc: "Escopos de cobrança bancária solicitados na autenticação.", example: "boletos_inclusao boletos_consulta boletos_alteracao" },
-        { key: "codigoModalidade", desc: "Código da modalidade de cobrança do boleto.", example: "1" },
-        { key: "numeroContaCorrente", desc: "Número da conta corrente vinculada à cobrança.", example: "12345" },
-        { key: "dataVencimento", desc: "Data de vencimento do boleto (AAAA-MM-DD).", example: "2027-02-02" },
-        { key: "dataEmissao", desc: "Data de emissão do boleto (AAAA-MM-DD).", example: "2026-09-15" },
-        { key: "seuNumero", desc: "Número de controle interno do beneficiário para o título.", example: "251454" },
-        { key: "nossoNumero", desc: "Número do título atribuído pelo Sicoob — usado depois para dar baixa.", example: "1" },
-        { key: "identificacaoBoletoEmpresa", desc: "Identificação do boleto dentro da empresa (controle interno).", example: "1" }
+        { key: "numeroCliente", desc: "Número do cliente/cooperado.", example: "12345" },
+        { key: "scope", desc: "Escopos de cobrança bancária.", example: "boletos_inclusao boletos_consulta boletos_alteracao" },
+        { key: "codigoModalidade", desc: "Modalidade de cobrança do boleto.", example: "1" },
+        { key: "numeroContaCorrente", desc: "Conta corrente vinculada.", example: "12345" },
+        { key: "dataVencimento", desc: "Vencimento do boleto (AAAA-MM-DD).", example: "2027-02-02" },
+        { key: "dataEmissao", desc: "Emissão do boleto (AAAA-MM-DD).", example: "2026-09-15" },
+        { key: "seuNumero", desc: "Controle interno do beneficiário.", example: "251454" },
+        { key: "nossoNumero", desc: "Título do Sicoob — usado na baixa.", example: "1" },
+        { key: "identificacaoBoletoEmpresa", desc: "Identificação interna do boleto.", example: "1" }
       ],
       endpoints: [
-        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Mesma autenticação usada no Pix; retorna o bearer_token." },
-        { method: "POST", path: "/cobranca-bancaria/v3/boletos", desc: "Registra um novo boleto já com QR Code Pix vinculado (cadastro de Pix habilitado no body)." },
-        { method: "POST", path: "/cobranca-bancaria/v3/boletos/{nossoNumero}/baixar", desc: "Solicita a baixa do boleto identificado por nossoNumero." }
+        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Mesma autenticação do Pix." },
+        { method: "POST", path: "/cobranca-bancaria/v3/boletos", desc: "Registra o boleto com QR Code Pix." },
+        { method: "POST", path: "/cobranca-bancaria/v3/boletos/{nossoNumero}/baixar", desc: "Baixa o boleto." }
       ]
     }
   },
 
   sicredi: {
-    products: ["pix", "van"],
-    authType: "Pix: OAuth2 Basic + client_credentials. Van: OAuth2 password grant + x-api-key.",
-    prereqs: [
-      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
-      "Cadastro na API de Parceiros do Sicredi (usuário/senha para Van, client_id para Pix)",
-      "Chave Pix cadastrada no DICT, quando o produto for Pix"
-    ],
     pix: {
+      authType: "OAuth2 Basic + client_credentials (sem certificado A1 — chaves emitidas pelo Sicredi)",
+      mtls: true,
+      prereqs: [
+        "Acesso liberado a \"APIs de Recebimento\" no portal Sicredi (chamado se não tiver)",
+        "Dados para o CSR: CNPJ do associado/parceiro, cooperativa e conta do cliente",
+        "Chave Pix no DICT"
+      ],
+      criacaoSteps: [
+        "No portal Developer Sicredi, confirme o acesso a <strong>APIs de Recebimento &gt; Certificados e Credenciais</strong> (ou abra chamado pedindo \"Acesso à API Pix\").",
+        "Em <strong>Registrar CSR</strong>, preencha os dados do cliente e aguarde o banco processar.",
+        "Baixe o <strong>.cer</strong> e o <strong>.key</strong> (<strong>sempre sem frase secreta</strong>) e gere as credenciais no próprio portal.",
+        "Na aba <strong>Conversor</strong> desta ferramenta, no card do Sicredi, envie os dois arquivos para normalizar em PEM.",
+        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — preencha e teste."
+      ],
+      atualizacaoSteps: [
+        "O certificado dura <strong>2 anos</strong> — repita o registro de CSR no portal Sicredi.",
+        "Baixe o novo .cer/.key e converta na aba Conversor (card Sicredi).",
+        "Atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema."
+      ],
       vars: [
-        { key: "sicredi_api_key", desc: "Chave de API (x-api-key) do Sicredi, usada também como client_id na autenticação Pix.", example: "a1b2c3" },
-        { key: "username", desc: "Usuário de acesso à API de Parceiros do Sicredi.", example: "usuario.integracao" },
-        { key: "password", desc: "Senha correspondente ao usuário de acesso.", example: "••••••••" },
-        { key: "cooperativa", desc: "Número da cooperativa Sicredi do beneficiário.", example: "0123" },
-        { key: "posto", desc: "Número do posto de atendimento vinculado à conta.", example: "01" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
-        { key: "pix_txid", desc: "Identificador da cobrança — valor de exemplo na collection.", example: "HAUSKJLDSIJUKDHSK" },
-        { key: "scope", desc: "Escopo solicitado na autenticação.", example: "cobv.write cobv.read pix.read" }
+        { key: "sicredi_api_key", desc: "x-api-key, também usada como client_id no Pix.", example: "a1b2c3" },
+        { key: "username", desc: "Usuário da API de Parceiros.", example: "usuario.integracao" },
+        { key: "password", desc: "Senha do usuário.", example: "••••••••" },
+        { key: "cooperativa", desc: "Cooperativa do beneficiário.", example: "0123" },
+        { key: "posto", desc: "Posto de atendimento da conta.", example: "01" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
+        { key: "pix_txid", desc: "ID da cobrança.", example: "HAUSKJLDSIJUKDHSK" },
+        { key: "scope", desc: "Escopo da autenticação.", example: "cobv.write cobv.read pix.read" }
       ],
       endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth (username:password) e client_credentials, retorna o bearer_token." },
-        { method: "PUT", path: "/api/v2/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix." },
+        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
+        { method: "PUT", path: "/api/v2/cobv/{txid}", desc: "Cria a cobrança." },
         { method: "PATCH", path: "/api/v2/cobv/{txid}", desc: "Cancela a cobrança." }
+      ],
+      notes: [
+        { type: "info", title: "Autenticação diferente por produto", text: "Pix usa client_credentials (Basic); Van usa password grant — não reaproveite o bearer_token entre os dois." }
       ]
     },
     van: {
+      authType: "OAuth2 password grant + x-api-key (usuário/senha fixos, sem certificado)",
+      mtls: false,
+      prereqs: [
+        "Cadastro na API de Parceiros do Sicredi",
+        "x-api-key fornecida pelo banco"
+      ],
+      criacaoInfo: "Sem cadastro de portal — usuário, senha e x-api-key vêm do banco ao contratar a Van. Preencha na aba Collections.",
+      atualizacaoInfo: "Credenciais fixas, não expiram — sem renovação periódica.",
       vars: [
-        { key: "username", desc: "Usuário de acesso à API de Parceiros do Sicredi (mesmo conceito do Pix).", example: "usuario.integracao" },
-        { key: "password", desc: "Senha do usuário de acesso.", example: "••••••••" },
-        { key: "x-api-key", desc: "Chave de API do Sicredi, enviada no header x-api-key em toda chamada.", example: "a1b2c3" },
-        { key: "cooperativa", desc: "Número da cooperativa do beneficiário.", example: "0123" },
-        { key: "posto", desc: "Posto de atendimento vinculado à conta.", example: "01" },
-        { key: "sicredi_codBenef", desc: "Código do beneficiário da cobrança.", example: "12345" },
-        { key: "sicredi_nossoNumero", desc: "Número do título atribuído pelo Sicredi, usado para dar baixa depois.", example: "251454" },
-        { key: "scope", desc: "Escopo de cobrança solicitado.", example: "cobranca" }
+        { key: "username", desc: "Usuário da API de Parceiros.", example: "usuario.integracao" },
+        { key: "password", desc: "Senha do usuário.", example: "••••••••" },
+        { key: "x-api-key", desc: "Enviada no header x-api-key em toda chamada.", example: "a1b2c3" },
+        { key: "cooperativa", desc: "Cooperativa do beneficiário.", example: "0123" },
+        { key: "posto", desc: "Posto de atendimento da conta.", example: "01" },
+        { key: "sicredi_codBenef", desc: "Código do beneficiário.", example: "12345" },
+        { key: "sicredi_nossoNumero", desc: "Título do Sicredi — usado na baixa.", example: "251454" },
+        { key: "scope", desc: "Escopo de cobrança.", example: "cobranca" }
       ],
       endpoints: [
-        { method: "POST", path: "/auth/openapi/token", desc: "Autentica via grant_type=password (usuário/senha) + x-api-key, retorna o bearer_token." },
-        { method: "POST", path: "/cobranca/boleto/v1/boletos", desc: "Registra um novo boleto híbrido (com QR Code Pix) para o beneficiário." },
-        { method: "PATCH", path: "/cobranca/boleto/v1/boletos/{nossoNumero}/baixa", desc: "Solicita a baixa do boleto identificado por nossoNumero." }
+        { method: "POST", path: "/auth/openapi/token", desc: "Autentica (usuário/senha + x-api-key) e retorna o bearer_token." },
+        { method: "POST", path: "/cobranca/boleto/v1/boletos", desc: "Registra o boleto híbrido (QR Code Pix)." },
+        { method: "PATCH", path: "/cobranca/boleto/v1/boletos/{nossoNumero}/baixa", desc: "Baixa o boleto." }
       ]
-    },
-    notes: [
-      { type: "info", title: "Autenticação diferente por produto", text: "O Pix do Sicredi autentica por client_credentials (Basic), enquanto a Van autentica por password grant — são fluxos OAuth2 diferentes; não reaproveite o bearer_token de um produto no outro." }
-    ]
+    }
   },
 
   santander: {
-    products: ["pix", "van"],
-    authType: "OAuth2 Basic + client_credentials, sobre mTLS",
-    prereqs: [
-      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
-      "Cadastro no portal Developer Santander Empresas, com o certificado mTLS associado",
-      "Workspace de cobrança criado no Santander, quando o produto for Van",
-      "Chave Pix cadastrada no DICT, quando o produto for Pix"
-    ],
     pix: {
+      authType: "OAuth2 Basic + client_credentials, sobre mTLS",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente (aba Conversor)",
+        "Cadastro no portal Developer Santander Empresas",
+        "Chave Pix no DICT"
+      ],
+      escopo: "PIX - QR Code",
+      criacaoSteps: [
+        "Converta o certificado na aba <strong>Conversor</strong>.",
+        "No portal Developer Santander, crie o app com escopo <strong>PIX - QR Code</strong>.",
+        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 Edição &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — preencha e teste."
+      ],
+      atualizacaoSteps: [
+        "Converta o novo certificado na aba Conversor.",
+        "No portal, abra o app &gt; <strong>Renovar</strong>, e envie a chave pública nova.",
+        "Atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema e teste."
+      ],
       vars: [
-        { key: "client_id", desc: "Identificador da aplicação cadastrada no portal Developer Santander.", example: "abc123" },
-        { key: "client_secret", desc: "Segredo da aplicação, usado no Basic Auth da autenticação.", example: "••••••••" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
-        { key: "pix_txid", desc: "Identificador da cobrança — valor de exemplo na collection.", example: "AHUDAHIUDHAKDUHA" }
+        { key: "client_id", desc: "App cadastrada no portal Developer.", example: "abc123" },
+        { key: "client_secret", desc: "Segredo do Basic Auth.", example: "••••••••" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
+        { key: "pix_txid", desc: "ID da cobrança.", example: "AHUDAHIUDHAKDUHA" }
       ],
       endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth (client_id:client_secret) e retorna o bearer_token." },
-        { method: "PUT", path: "/api/v1/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix." },
+        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
+        { method: "PUT", path: "/api/v1/cobv/{txid}", desc: "Cria a cobrança." },
         { method: "PATCH", path: "/api/v1/cobv/{txid}", desc: "Cancela a cobrança." }
       ]
     },
     van: {
+      authType: "OAuth2 client_credentials, sobre mTLS",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente",
+        "Workspace de cobrança criado no Santander"
+      ],
+      criacaoSteps: [
+        "Na aba <strong>Conversor</strong>, use <strong>Re-encodar PFX</strong> para gerar o novo .pfx.",
+        "Extraia a chave pública (<strong>PFX → Chaves PEM</strong>) e envie no portal Developer Santander (app da integração).",
+        "No Next: <strong>Configurações &gt; Integrações &gt; Santander</strong> — suba o novo .pfx."
+      ],
+      atualizacaoInfo: "Mesmos passos da criação, ao lado — repita quando o certificado do cliente for renovado.",
       vars: [
-        { key: "client_id", desc: "Identificador da aplicação — mesmo usado no Pix.", example: "abc123" },
+        { key: "client_id", desc: "Mesma app usada no Pix.", example: "abc123" },
         { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" },
-        { key: "santander_app_key", desc: "Chave de aplicação (X-Application-Key), exigida em toda chamada às APIs de cobrança do Santander.", example: "a1b2c3" },
-        { key: "santander_workspace_id", desc: "Identificador do workspace de cobrança criado no Santander, usado na URL das chamadas.", example: "ws-0001" },
-        { key: "santander_client_number", desc: "Número do cliente cadastrado no Santander.", example: "123456" },
-        { key: "santander_bank_number", desc: "Código NSU / número do banco usado no boleto.", example: "654321" },
-        { key: "santander_convent_code", desc: "Código do convênio de cobrança contratado.", example: "7654321" },
-        { key: "santander_dict_type", desc: "Tipo da chave Pix vinculada ao boleto híbrido (CPF, CNPJ, EMAIL, PHONE ou EVP).", example: "EMAIL" },
-        { key: "santander_dict_key", desc: "Valor da chave Pix vinculada ao boleto híbrido.", example: "contato@empresa.com" }
+        { key: "santander_app_key", desc: "X-Application-Key em toda chamada.", example: "a1b2c3" },
+        { key: "santander_workspace_id", desc: "Workspace de cobrança, usado na URL.", example: "ws-0001" },
+        { key: "santander_client_number", desc: "Número do cliente no Santander.", example: "123456" },
+        { key: "santander_bank_number", desc: "Código NSU/banco do boleto.", example: "654321" },
+        { key: "santander_convent_code", desc: "Convênio de cobrança.", example: "7654321" },
+        { key: "santander_dict_type", desc: "Tipo da chave Pix do boleto híbrido.", example: "EMAIL" },
+        { key: "santander_dict_key", desc: "Valor da chave Pix do boleto híbrido.", example: "contato@empresa.com" }
       ],
       endpoints: [
-        { method: "POST", path: "/auth/oauth/v2/token", desc: "Autentica via client_credentials e retorna o bearer_token." },
-        { method: "POST", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Registra um novo boleto com QR Code Pix dinâmico dentro do workspace informado." },
-        { method: "PATCH", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Solicita a baixa do boleto (operation: BAIXA) dentro do mesmo workspace." }
+        { method: "POST", path: "/auth/oauth/v2/token", desc: "Autentica e retorna o bearer_token." },
+        { method: "POST", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Registra o boleto com QR Code Pix." },
+        { method: "PATCH", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Baixa o boleto (operation: BAIXA)." }
       ]
     }
   },
 
   bradesco: {
-    products: ["pix", "van"],
-    authType: "OAuth2 Basic + client_credentials, sobre mTLS",
-    prereqs: [
-      "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
-      "Cadastro na plataforma OpenAPI do Bradesco, com o certificado mTLS associado",
-      "Chave Pix cadastrada no DICT, quando o produto for Pix"
-    ],
     pix: {
+      authType: "OAuth2 Basic + client_credentials, sobre mTLS",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente (aba Conversor)",
+        "Inscrição no produto \"Pix QR Code\" no portal Bradesco",
+        "Chave Pix no DICT"
+      ],
+      escopo: "Pix QR Code",
+      criacaoSteps: [
+        "Converta o certificado na aba <strong>Conversor</strong>.",
+        "No portal Developer Bradesco: <strong>Products &gt; Pix QR Code</strong> &gt; inscreva-se, depois registre o app em \"Aplicações registradas\".",
+        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — <code>path_cert_host</code> é o certificado do próprio Bradesco (qrpix.bradesco.com.br). Teste."
+      ],
+      atualizacaoSteps: [
+        "Converta o novo certificado na aba Conversor.",
+        "Em \"Aplicações registradas\", envie a nova chave pública.",
+        "Atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema e teste."
+      ],
       vars: [
-        { key: "client_id", desc: "Identificador da aplicação cadastrada no Bradesco.", example: "abc123" },
-        { key: "client_secret", desc: "Segredo da aplicação, usado no Basic Auth e também repetido no corpo da autenticação.", example: "••••••••" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT que vai receber a cobrança.", example: "11999999999" },
-        { key: "scope", desc: "Escopos solicitados na autenticação.", example: "pix.read pix.write cobv.read cobv.write" },
-        { key: "pix_txid", desc: "Identificador da cobrança — valor de exemplo na collection.", example: "HUAJDKJSIOHHUAHSUGD" }
+        { key: "client_id", desc: "App cadastrada no Bradesco.", example: "abc123" },
+        { key: "client_secret", desc: "Usado no Basic Auth e no corpo da autenticação.", example: "••••••••" },
+        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
+        { key: "scope", desc: "Escopos da autenticação.", example: "pix.read pix.write cobv.read cobv.write" },
+        { key: "pix_txid", desc: "ID da cobrança.", example: "HUAJDKJSIOHHUAHSUGD" }
       ],
       endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica com Basic Auth + client_id/client_secret também no corpo, retorna o bearer_token." },
-        { method: "PUT", path: "/v2/cobv/{txid}", desc: "Cria a cobrança com vencimento vinculada à chave Pix." },
+        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
+        { method: "PUT", path: "/v2/cobv/{txid}", desc: "Cria a cobrança." },
         { method: "PATCH", path: "/v2/cobv/{txid}", desc: "Cancela a cobrança." }
       ]
     },
     van: {
+      authType: "OAuth2 client_credentials, sobre mTLS (grant-type com hífen)",
+      mtls: true,
+      prereqs: [
+        "Certificado A1 do cliente",
+        "Cadastro no portal Bradesco para Cobrança Bancária"
+      ],
+      criacaoSteps: [
+        "Na aba <strong>Conversor</strong>, use <strong>Re-encodar PFX</strong> para gerar o novo .pfx.",
+        "Extraia a chave pública e envie no portal (app da integração).",
+        "No Next: <strong>Configurações &gt; Integrações &gt; Bradesco</strong> — suba o novo .pfx."
+      ],
+      atualizacaoInfo: "Mesmos passos da criação, ao lado — repita quando o certificado vencer.",
       vars: [
-        { key: "client_id", desc: "Identificador da aplicação — mesmo usado no Pix.", example: "abc123" },
+        { key: "client_id", desc: "Mesma app usada no Pix.", example: "abc123" },
         { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" }
       ],
       endpoints: [
-        { method: "POST", path: "/auth/server-mtls/v2/token", desc: "Autentica via mTLS + client_credentials, retorna o bearer_token." },
-        { method: "POST", path: "/boleto/cobranca-registro/v1/cobranca", desc: "Registra um novo boleto de cobrança." },
-        { method: "POST", path: "/boleto/cobranca-baixa/v1/baixar", desc: "Solicita a baixa de um boleto já registrado." }
+        { method: "POST", path: "/auth/server-mtls/v2/token", desc: "Autentica via mTLS e retorna o bearer_token." },
+        { method: "POST", path: "/boleto/cobranca-registro/v1/cobranca", desc: "Registra o boleto." },
+        { method: "POST", path: "/boleto/cobranca-baixa/v1/baixar", desc: "Baixa o boleto." }
+      ],
+      notes: [
+        { type: "warning", title: "grant-type com hífen", text: "É proposital (exigência do Bradesco) — não corrija na collection." },
+        { type: "warning", title: "Boleto com dados fixos", text: "Documento, título, datas e valores vêm fixos no body — edite o JSON manualmente se precisar mudar." }
       ]
-    },
-    notes: [
-      { type: "warning", title: "Parâmetro grant-type com hífen", text: "A autenticação da Van Bradesco envia o campo como grant-type (com hífen), diferente do padrão OAuth2 grant_type — isso é uma exigência da própria API do Bradesco para este endpoint, não corrija ao editar a collection manualmente." },
-      { type: "warning", title: "Campos do boleto ainda não configuráveis", text: "Os dados detalhados do boleto (documento do pagador, número do título, datas, valores) vêm fixos no corpo desta collection — só client_id e client_secret são preenchidos automaticamente pelo formulário. Edite o JSON gerado manualmente para ajustar os demais valores antes de usar em produção." }
-    ]
+    }
   }
 
 };
 
 
-function docsProcessoContent(bank) {
+function docsOL(items) {
+  return `<ol>${items.map(i => `<li>${i}</li>`).join("")}</ol>`;
+}
+
+
+function docsProductLabel(product) {
+  return product === "van" ? "Cobrança (VAN)" : "Pix";
+}
+
+
+function docsPostmanGuideContent() {
+
+  return `
+
+    <p class="docs-lead">Passo a passo único para instalar o Postman e testar qualquer banco. Leia antes da aba "Testes" de cada integração, que só traz os detalhes específicos daquele banco.</p>
+
+    <h2>1. Instalar e importar</h2>
+
+    ${docsOL([
+      "Baixe em <code>postman.com/downloads</code> e abra — não precisa criar conta.",
+      "Na aba <strong>Collections</strong> desta ferramenta, gere a collection do banco/produto e baixe o .json.",
+      "No Postman, <strong>Import</strong> &gt; selecione o arquivo. A collection aparece com as requisições de Autenticação, Criação e Remoção/Baixa."
+    ])}
+
+    ${docsCallout("tip", "bearer_token preenche sozinho", "Depois de rodar a Autenticação com sucesso, um script já grava o token na variável bearer_token — não precisa copiar e colar manualmente.")}
+
+    <h2>2. Certificado (mTLS) por host</h2>
+
+    <p>Bancos com mTLS (indicado na aba Testes de cada um) exigem certificado por host, não por requisição:</p>
+
+    ${docsOL([
+      "<strong>Settings &gt; Certificates &gt; Add Certificate</strong>.",
+      "<strong>Host</strong>: domínio da API (ex.: <code>api-pix.bb.com.br</code>, sem https://).",
+      "<strong>CRT file</strong>/<strong>KEY file</strong>: chave pública/privada geradas na aba Conversor.",
+      "Repita para cada host diferente da collection (ex.: o BB usa um host para autenticar e outro para as chamadas Pix)."
+    ])}
+
+    ${docsCallout("warning", "Sem certificado = handshake falha", "Sem certificado cadastrado para o host, a requisição falha antes de chegar no banco — mesmo com usuário/senha certos.")}
+
+    <h2>3. Rodando os testes</h2>
+
+    ${docsOL([
+      "<strong>Autenticação</strong> — espere <code>200</code> e o bearer_token preenchido.",
+      "<strong>Criação</strong> — espere <code>200</code>/<code>201</code> com os dados da cobrança.",
+      "<strong>Remoção/Baixa</strong> — confirma o cancelamento, evitando deixar cobrança de teste presa no banco."
+    ])}
+
+    <p>Status ruim? Veja a aba <strong>Erros Retornados</strong> da integração.</p>
+
+  `;
+
+}
+
+
+function docsProcessoContent(bank, product) {
 
   const info = BANK_DOCS[bank.id];
 
@@ -6415,7 +7039,7 @@ function docsProcessoContent(bank) {
 
     return `
 
-      <p class="docs-lead">O ${bank.name} não usa o fluxo de conversão de PFX desta ferramenta: a integração exige um CSR (Certificate Signing Request) e uma chave privada, gerados a partir dos dados do solicitante — é isso que a aba do ${bank.name} no Main Menu faz.</p>
+      <p class="docs-lead">O ${bank.name} não usa conversão de PFX: a integração exige um CSR + chave privada, gerados aqui a partir dos dados do solicitante.</p>
 
       <h2>Pré-requisitos</h2>
 
@@ -6423,78 +7047,76 @@ function docsProcessoContent(bank) {
         ${info.prereqs.map(p => `<li>${p}</li>`).join("")}
       </ul>
 
-      ${docsCallout("info", "O que é um CSR", "É um arquivo assinado pela chave privada recém-gerada, contendo os dados de identificação (Common Name, Organização etc.) que serão enviados ao banco para que ele emita o certificado mTLS que a aplicação vai usar nas chamadas à API Pix.")}
-
       <h2>Passo a passo</h2>
 
       <ol>
         <li>No Main Menu, abra o card do ${bank.name}.</li>
-        <li>Preencha ao menos o <strong>Common Name (CN)</strong> — normalmente o domínio ou identificador da aplicação que vai se autenticar.</li>
-        <li>Preencha Organização, Unidade Organizacional, País, Estado, Localidade e E-mail conforme o cadastro da empresa (opcionais, mas recomendados).</li>
-        <li>Clique em <strong>Gerar CSR</strong> — a ferramenta cria uma chave RSA 2048 nova e monta o CSR a partir desses dados.</li>
-        <li>Baixe o CSR (.csr) e a Chave Privada (.key) geradas.</li>
-        <li>Envie o arquivo .csr pelo canal de credenciamento do banco para obter o certificado assinado.</li>
-        <li>Guarde a chave .key em local seguro — ela forma o par mTLS junto com o certificado que o banco devolver.</li>
+        <li>Preencha o <strong>Common Name (CN)</strong> com a credencial recebida por e-mail do Itaú — os demais campos são opcionais.</li>
+        <li>Clique em <strong>Gerar CSR</strong> e baixe o CSR (.csr) e a Chave Privada (.key).</li>
+        <li>Envie o .csr pelo canal de credenciamento do Itaú para obter o certificado assinado.</li>
       </ol>
 
-      ${docsCallout("warning", "A chave privada não é reaproveitável", "Cada geração de CSR cria uma chave privada nova. Se gerar um novo CSR, o certificado emitido para o CSR anterior deixa de ter par com a chave atual — guarde sempre o .csr enviado junto com a .key baixada na mesma geração.")}
-
-      <h2>Dados do formulário</h2>
-
-      ${docsTable(
-        ["Campo", "Corresponde a", "Obrigatório"],
-        [
-          ["Common Name (CN)", "Identificador principal do certificado (domínio ou nome da aplicação)", "Sim"],
-          ["Organização (O)", "Nome da empresa/instituição", "Não"],
-          ["Unidade Organizacional (OU)", "Departamento/área responsável", "Não"],
-          ["País (C)", "Sigla ISO do país (ex: BR)", "Não"],
-          ["Estado (ST)", "Estado/província", "Não"],
-          ["Localidade (L)", "Cidade", "Não"],
-          ["E-mail", "Contato técnico do responsável pela aplicação", "Não"]
-        ]
-      )}
+      ${docsCallout("warning", "Prazo de 7 dias e chave não reaproveitável", "Conclua o processo em até 7 dias após o e-mail do Itaú. Cada CSR gera uma chave nova — guarde o .csr junto com a .key baixada na mesma geração.")}
 
     `;
 
   }
 
-  const isPixEVan =
-    info.products.includes("van");
+  const p = info[product];
+  const label = docsProductLabel(product);
+
+  if (!p) {
+    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
+  }
+
+  const prereqsList =
+    p.escopo ? [...p.prereqs, `Escopo: <strong>${p.escopo}</strong>`] : p.prereqs;
+
+  const prereqsHtml = `
+    <h2>Pré-requisitos</h2>
+    <ul>${prereqsList.map(x => `<li>${x}</li>`).join("")}</ul>
+  `;
+
+  if (!p.criacaoSteps) {
+
+    return `
+
+      <p class="docs-lead">Integração ${label} com o ${bank.name} — ${p.authType}.</p>
+
+      ${prereqsHtml}
+
+      ${docsCallout("info", "Sem passo a passo de portal", p.criacaoInfo)}
+
+      <h2>Variáveis</h2>
+
+      ${renderVarsTable(p.vars)}
+
+    `;
+
+  }
 
   return `
 
-    <p class="docs-lead">Integração ${isPixEVan ? "Pix e Cobrança (VAN)" : "Pix"} com o ${bank.name}, usando ${info.authType}.</p>
+    <p class="docs-lead">Integração ${label} com o ${bank.name} — ${p.authType}.</p>
 
-    <h2>Pré-requisitos</h2>
+    ${prereqsHtml}
 
-    <ul>
-      ${info.prereqs.map(p => `<li>${p}</li>`).join("")}
-    </ul>
+    <h2>Passo a passo</h2>
 
-    ${renderDocsNotes(info.notes)}
+    ${docsOL(p.criacaoSteps)}
 
-    <h2>Passo a passo geral</h2>
+    ${p.criacaoNotaCadeia ? docsCallout("warning", "Se a cadeia vier vazia", p.criacaoNotaCadeia) : ""}
 
-    <ol>
-      <li>Converta o certificado A1 do cliente para PEM na aba <strong>Conversor</strong>.</li>
-      <li>Cadastre a aplicação no portal de desenvolvedor do ${bank.name} e associe o certificado mTLS convertido.</li>
-      <li>Obtenha as credenciais (client_id/client_secret e demais chaves da tabela abaixo).</li>
-      <li>Gere a Collection na aba <strong>Collections</strong>, escolhendo ${isPixEVan ? "Pix ou Cobrança (VAN)" : "Pix"}, preenchendo os campos com os valores obtidos.</li>
-      <li>Importe a collection gerada no Postman e siga para a aba <strong>Testes</strong> desta documentação.</li>
-    </ol>
+    <h2>Variáveis</h2>
 
-    <h2>Variáveis — Pix</h2>
-
-    ${renderVarsTable(info.pix.vars)}
-
-    ${info.van ? `<h2>Variáveis — Cobrança (VAN)</h2>${renderVarsTable(info.van.vars)}` : ""}
+    ${renderVarsTable(p.vars)}
 
   `;
 
 }
 
 
-function docsTestesContent(bank) {
+function docsAtualizacaoContent(bank, product) {
 
   const info = BANK_DOCS[bank.id];
 
@@ -6506,67 +7128,101 @@ function docsTestesContent(bank) {
 
     return `
 
-      <p class="docs-lead">Esta ferramenta gera apenas o CSR e a chave privada do ${bank.name} — diferente dos outros bancos, não existe aqui uma Collection Postman pronta para testar a API Pix.</p>
+      <p class="docs-lead">O que fazer quando o credenciamento do ${bank.name} precisar ser renovado.</p>
 
-      ${docsCallout("warning", "Sem Collection automática", "Depois de obter o certificado assinado pelo banco, monte a Collection de testes manualmente (ou peça ao banco o pacote de referência), usando o certificado + a chave gerados aqui para o mTLS.")}
-
-      <h2>Como validar o CSR gerado</h2>
-
-      <ol>
-        <li>Confirme que o arquivo .csr abre sem erro em um visualizador de certificado.</li>
-        <li>Confira se o Common Name e demais dados batem com o que foi preenchido no formulário.</li>
-        <li>Envie o CSR ao banco e aguarde o certificado assinado.</li>
-        <li>Valide que o certificado devolvido forma par com a chave baixada aqui (os hashes MD5 do módulo devem ser idênticos).</li>
-      </ol>
-
-      ${docsCode("bash", "# Conferir os dados do CSR gerado\nopenssl req -in CSR_exemplo.csr -noout -text\n\n# Conferir se o certificado devolvido forma par com a chave baixada\nopenssl x509 -noout -modulus -in certificado.crt | openssl md5\nopenssl rsa -noout -modulus -in ChavePrivada_exemplo.key | openssl md5\n# os dois hashes devem ser idênticos")}
+      ${docsCallout("info", "Ainda sem um caso real", info.atualizacaoInfo)}
 
     `;
 
   }
 
-  const isPixEVan =
-    info.products.includes("van");
+  const p = info[product];
+  const label = docsProductLabel(product);
+
+  if (!p) {
+    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
+  }
+
+  const parts = [
+    `<p class="docs-lead">O que fazer quando o certificado (ou as credenciais) da integração ${label} do ${bank.name} vencer.</p>`
+  ];
+
+  if (p.atualizacaoInfo) {
+    parts.push(docsCallout("info", "Processo de atualização", p.atualizacaoInfo));
+  }
+
+  if (p.atualizacaoSteps) {
+    parts.push(`<h2>Passo a passo</h2>${docsOL(p.atualizacaoSteps)}`);
+  }
+
+  return parts.join("\n");
+
+}
+
+
+function docsTestesContent(bank, product) {
+
+  const info = BANK_DOCS[bank.id];
+
+  if (!info) {
+    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
+  }
+
+  if (info.isCsrOnly) {
+
+    return `
+
+      <p class="docs-lead">Não existe Collection Postman pronta para o ${bank.name} — só CSR e chave privada.</p>
+
+      <ol>
+        <li>Envie o CSR ao banco e aguarde o certificado assinado.</li>
+        <li>Valide que o certificado forma par com a chave baixada aqui (hashes MD5 do módulo idênticos).</li>
+      </ol>
+
+      ${docsCode("bash", "openssl x509 -noout -modulus -in certificado.crt | openssl md5\nopenssl rsa -noout -modulus -in ChavePrivada_exemplo.key | openssl md5\n# os dois hashes devem ser idênticos")}
+
+    `;
+
+  }
+
+  const p = info[product];
+  const label = docsProductLabel(product);
+
+  if (!p) {
+    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
+  }
+
+  const introCallout =
+    p.mtls === false
+      ? docsCallout("tip", "Antes de começar", `Veja o <a href="#documentacao/postman-guia">guia geral do Postman</a>. Este produto não usa mTLS — só usuário/senha ou token.`)
+      : docsCallout("tip", "Antes de começar", `Veja o <a href="#documentacao/postman-guia">guia geral do Postman</a> para importar a collection e configurar o certificado mTLS do host.`);
 
   return `
 
-    <p class="docs-lead">Roteiro para validar a integração ${isPixEVan ? "Pix e Cobrança (VAN)" : "Pix"} com o ${bank.name} antes de ir para produção.</p>
+    <p class="docs-lead">Roteiro para validar a integração ${label} com o ${bank.name}.</p>
 
-    ${docsCallout("tip", "Antes de começar", `Gere a Collection do ${bank.name} na aba Collections (Pix${isPixEVan ? " e/ou VAN" : ""}) e importe no Postman com os campos já preenchidos.`)}
+    ${introCallout}
 
-    <h2>Endpoints — Pix</h2>
+    <h2>Endpoints</h2>
 
-    ${renderEndpointsTable(info.pix.endpoints)}
+    ${renderEndpointsTable(p.endpoints)}
 
-    ${info.van ? `<h2>Endpoints — Cobrança (VAN)</h2>${renderEndpointsTable(info.van.endpoints)}` : ""}
+    ${renderDocsNotes(p.notes)}
 
     <h2>Roteiro de teste</h2>
 
-    <ol>
-      <li>Rode a requisição de autenticação e confirme o retorno <code>200</code> com um token válido — copie o valor para a variável <code>bearer_token</code> da collection.</li>
-      <li>Rode a requisição de criação (cobrança Pix ou boleto) e confirme o retorno <code>200</code>/<code>201</code>.</li>
-      <li>Rode a requisição de remoção/baixa para confirmar que o cancelamento funciona.</li>
-      <li>Repita o ciclo em homologação antes de liberar o cliente para produção.</li>
-    </ol>
-
-    <h2>Checklist de validação</h2>
-
-    ${docsTable(
-      ["Verificação", "Resultado esperado"],
-      [
-        ["Handshake mTLS", "Conexão aceita sem erro de certificado (sem SSL handshake failure)"],
-        ["Autenticação", "HTTP 200 com token válido"],
-        ["Criação", "HTTP 200/201 com identificador da cobrança/boleto retornado"],
-        ["Cancelamento", "HTTP 200/204 confirmando a baixa"]
-      ]
-    )}
+    ${docsOL([
+      `<strong>Autenticação</strong> — espere <code>200</code>${p.mtls === false ? "" : " (sem erro de handshake mTLS)"} e o bearer_token preenchido.`,
+      "<strong>Criação</strong> — espere <code>200</code>/<code>201</code> com o identificador da cobrança/boleto.",
+      "<strong>Remoção/Baixa</strong> — espere <code>200</code>/<code>204</code> confirmando o cancelamento."
+    ])}
 
   `;
 
 }
 
 
-function docsErrosContent(bank) {
+function docsErrosContent(bank, product) {
 
   const info = BANK_DOCS[bank.id];
 
@@ -6578,77 +7234,107 @@ function docsErrosContent(bank) {
 
     return `
 
-      <p class="docs-lead">Erros mais comuns ao gerar o CSR e a chave do ${bank.name} nesta ferramenta.</p>
+      <p class="docs-lead">Erros mais comuns ao gerar o CSR e a chave do ${bank.name}.</p>
 
       ${docsTable(
-        ["Mensagem", "Causa", "Ação recomendada"],
+        ["Mensagem", "Causa", "Ação"],
         [
-          ["Common Name é obrigatório para gerar o CSR", "O campo Common Name (CN) foi deixado em branco", "Preencha o Common Name antes de clicar em Gerar CSR"],
-          ["Falha ao gerar a chave RSA", "Erro interno ao gerar a chave — raro, geralmente ligado a recursos do sistema", "Tente novamente; se persistir, reinicie a ferramenta"],
-          ["Falha ao tentar gerar o CSR", "Dados incompatíveis com o formato exigido pelo certificado X.509", "Revise se os campos preenchidos não têm caracteres inválidos"]
+          ["Common Name é obrigatório", "Campo CN em branco", "Preencha o Common Name"],
+          ["Falha ao gerar a chave RSA", "Erro interno, raro", "Tente de novo; persistindo, reinicie a ferramenta"],
+          ["Falha ao tentar gerar o CSR", "Caracteres inválidos nos campos", "Revise os dados preenchidos"],
+          ...(info.errors || []).map(e => [e.code, e.cause, e.action])
         ]
       )}
 
-      ${docsCallout("warning", "Erros no credenciamento com o banco", "Erros retornados pelo próprio banco ao submeter o CSR (CSR rejeitado, dados divergentes do cadastro etc.) não são gerados por esta ferramenta — consulte o canal de credenciamento do banco para o motivo exato da rejeição.")}
+      ${docsCallout("warning", "Rejeição pelo banco", "CSR rejeitado ou dados divergentes não é erro desta ferramenta — consulte o canal de credenciamento do banco.")}
 
     `;
 
   }
 
-  const isPixEVan =
-    info.products.includes("van");
+  const p = info[product];
+  const label = docsProductLabel(product);
+
+  if (!p) {
+    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
+  }
 
   const genericRows = [
-    ["<code>401</code>", "Token ausente, expirado ou credenciais inválidas", "Rode novamente a requisição de autenticação e atualize a variável bearer_token"],
-    ["<code>403</code>", "Certificado mTLS não homologado para a aplicação, ou escopo (scope) não autorizado para as credenciais", "Confirme se o certificado enviado é o mesmo associado à aplicação no portal, e se o scope solicitado foi liberado"],
-    ["<code>404</code>", "Identificador (txid, nossoNumero, workspace) inexistente ou já processado", "Confira o identificador usado na URL da requisição"],
-    ["<code>422</code>", "Payload inválido — campo obrigatório ausente ou fora do formato esperado", "Revise o body da requisição contra a tabela de variáveis da aba Processo de Criação"],
-    ["<code>429</code>", "Limite de requisições excedido (rate limit)", "Aguarde e reduza a frequência de chamadas"],
-    ["Falha no handshake SSL/TLS", "Certificado mTLS ausente, expirado ou não associado à aplicação", "Reconverta o certificado na aba Conversor e confirme a validade/associação no portal do banco"]
+    ["<code>401</code>", "Token ausente, expirado ou credenciais inválidas", "Rode a Autenticação de novo"],
+    ["<code>403</code>",
+      p.mtls === false ? "Escopo não autorizado" : "Certificado não homologado ou escopo não autorizado",
+      p.mtls === false ? "Confirme se o scope foi liberado pelo banco" : "Confirme o certificado no portal e o scope liberado"],
+    ["<code>404</code>", "Identificador (txid, nossoNumero...) inexistente", "Confira o identificador na URL"],
+    ["<code>422</code>", "Payload inválido ou campo faltando", "Revise o body contra a aba Processo de Criação"],
+    ["<code>429</code>", "Limite de requisições excedido", "Aguarde e reduza a frequência"]
   ];
 
+  if (p.mtls !== false) {
+    genericRows.push(["Falha SSL/TLS", "Certificado ausente ou não cadastrado no Postman", "Reconverta na aba Conversor e cheque Settings > Certificates"]);
+  }
+
   const bankRows =
-    (info.errors || []).map(e => [`<code>${e.code}</code>`, e.cause, e.action]);
+    (p.errors || []).map(e => [`<code>${e.code}</code>`, e.cause, e.action]);
 
   return `
 
-    <p class="docs-lead">Erros retornados pela API ${isPixEVan ? "Pix e Cobrança (VAN)" : "Pix"} do ${bank.name} e como agir em cada caso.</p>
-
-    ${docsCallout("info", "Padrão comum entre bancos", "A maioria dos bancos com Pix segue o padrão de erros HTTP do Banco Central para o DICT/Pix — os códigos abaixo valem, em geral, para qualquer um dos bancos desta ferramenta.")}
+    <p class="docs-lead">Erros da API ${label} do ${bank.name} e como agir.</p>
 
     <h2>Erros comuns</h2>
 
-    ${docsTable(["Código", "Causa", "Ação recomendada"], [...genericRows, ...bankRows])}
-
-    ${renderDocsNotes(info.notes)}
+    ${docsTable(["Código", "Causa", "Ação"], [...genericRows, ...bankRows])}
 
   `;
 
 }
 
 
-const DOCS_SECTIONS =
-  BANKS.map(bank => ({
-    title: bank.name,
+function buildBankDocsSections(bank) {
+
+  const info = BANK_DOCS[bank.id];
+
+  if (!info) return [];
+
+  if (info.isCsrOnly) {
+    return [{
+      title: bank.name,
+      accent: bank.color,
+      topics: [
+        { id: `${bank.id}-processo`, title: "Processo de Criação", content: docsProcessoContent(bank, "pix") },
+        { id: `${bank.id}-atualizacao`, title: "Processo de Atualização", content: docsAtualizacaoContent(bank, "pix") },
+        { id: `${bank.id}-testes`, title: "Testes", content: docsTestesContent(bank, "pix") },
+        { id: `${bank.id}-erros`, title: "Erros Retornados", content: docsErrosContent(bank, "pix") }
+      ]
+    }];
+  }
+
+  const products =
+    info.van ? ["pix", "van"] : ["pix"];
+
+  return products.map(product => ({
+    title: `${bank.name} · ${docsProductLabel(product)}`,
     accent: bank.color,
     topics: [
-      {
-        id: `${bank.id}-processo`,
-        title: "Processo de Criação",
-        content: docsProcessoContent(bank)
-      },
-      {
-        id: `${bank.id}-testes`,
-        title: "Testes",
-        content: docsTestesContent(bank)
-      },
-      {
-        id: `${bank.id}-erros`,
-        title: "Erros Retornados",
-        content: docsErrosContent(bank)
-      }
+      { id: `${bank.id}-${product}-processo`, title: "Processo de Criação", content: docsProcessoContent(bank, product) },
+      { id: `${bank.id}-${product}-atualizacao`, title: "Processo de Atualização", content: docsAtualizacaoContent(bank, product) },
+      { id: `${bank.id}-${product}-testes`, title: "Testes", content: docsTestesContent(bank, product) },
+      { id: `${bank.id}-${product}-erros`, title: "Erros Retornados", content: docsErrosContent(bank, product) }
     ]
   }));
+
+}
+
+
+const DOCS_SECTIONS = [
+  {
+    title: "Guia Postman",
+    accent: "var(--brand-primary)",
+    topics: [
+      { id: "postman-guia", title: "Como Usar o Postman", content: docsPostmanGuideContent() }
+    ]
+  },
+  ...BANKS.flatMap(buildBankDocsSections)
+];
 
 
 /* =========================================================
@@ -6972,7 +7658,7 @@ function renderDocsView(topicId) {
     $("#docsStatSections");
 
   if (statTopics) statTopics.textContent = flat.length;
-  if (statSections) statSections.textContent = DOCS_SECTIONS.length;
+  if (statSections) statSections.textContent = BANKS.length;
 
 
   renderDocsSidebar(topic.id);
@@ -7840,6 +8526,16 @@ $("#btnGenerateCollection")
           "Download Iniciado",
           `Collection do ${bank.name} gerada com sucesso no formato Postman 2.1.`
         );
+
+        // Limpa os campos preenchidos, deixando pronto pra gerar a
+        // próxima collection (outro cliente, outro banco etc.).
+        collectionFields.forEach(field => {
+          const cacheKey =
+            `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
+          delete collectionFieldValues[cacheKey];
+        });
+
+        loadCollectionFields(bank);
 
 
       } catch (error) {

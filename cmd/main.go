@@ -26,6 +26,15 @@ type Page struct {
 	CertPEM   string `json:"certPem,omitempty"`
 	NomeChave string `json:"nomeChave,omitempty"`
 	KeyPEM    string `json:"keyPem,omitempty"`
+
+	// Preenchidos somente na conversão do Banco do Brasil, cujo portal
+	// Developer exige o envio da cadeia de certificação completa.
+	NomeRaiz      string `json:"nomeRaiz,omitempty"`
+	RaizPEM       string `json:"raizPem,omitempty"`
+	NomeIntermed1 string `json:"nomeIntermed1,omitempty"`
+	Intermed1PEM  string `json:"intermed1Pem,omitempty"`
+	NomeIntermed2 string `json:"nomeIntermed2,omitempty"`
+	Intermed2PEM  string `json:"intermed2Pem,omitempty"`
 }
 
 type FaturaResponse struct {
@@ -52,6 +61,7 @@ func formatarNomeArquivo(nomeInput, prefixo, extensao string) string {
 	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".crt")
 	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".key")
 	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".pfx")
+	nomeLimpo = strings.TrimSuffix(nomeLimpo, ".cer")
 
 	if nomeLimpo == "" {
 		return prefixo + extensao
@@ -266,7 +276,7 @@ func extractField(data []byte) ([]campoCollection, error) {
 
 	fields := make([]campoCollection, 0, len(part.Variable))
 	for _, v := range part.Variable {
-		if v.Key == "bearer_token" {
+		if v.Key == "bearer_token" || v.Key == "pix_txid" {
 			continue
 		}
 		fields = append(fields, campoCollection{Chave: v.Key})
@@ -363,20 +373,102 @@ func main() {
 			return
 		}
 
+		nomePub := formatarNomeArquivo(r.FormValue("nomeCert"), "ChavePublica", ".pem")
+		nomePriv := formatarNomeArquivo(r.FormValue("nomeChave"), "ChavePrivada", ".pem")
+
+		if r.FormValue("banco") == "bb" {
+			keyPEM, certPEM, cadeia, err := convert.ConvertPFXBB(pfxByte, senha)
+			if err != nil {
+				responseJSON(w, Page{Success: false, Error: err.Error()})
+				return
+			}
+
+			responseJSON(w, Page{
+				Success:       true,
+				NomeCert:      nomePub,
+				CertPEM:       string(certPEM),
+				NomeChave:     nomePriv,
+				KeyPEM:        string(keyPEM),
+				NomeRaiz:      formatarNomeArquivo(r.FormValue("nomeCert"), "CertificadoRaiz", ".cer"),
+				RaizPEM:       cadeia.Raiz,
+				NomeIntermed1: formatarNomeArquivo(r.FormValue("nomeCert"), "CertificadoIntermediario1", ".cer"),
+				Intermed1PEM:  cadeia.Intermed1,
+				NomeIntermed2: formatarNomeArquivo(r.FormValue("nomeCert"), "CertificadoIntermediario2", ".cer"),
+				Intermed2PEM:  cadeia.Intermed2,
+			})
+			return
+		}
+
 		keyPEM, certPEM, err := convert.ConvertPFX(pfxByte, senha)
 		if err != nil {
 			responseJSON(w, Page{Success: false, Error: err.Error()})
 			return
 		}
 
-		nomePub := formatarNomeArquivo(r.FormValue("nomeCert"), "ChavePublica", ".pem")
-		nomePriv := formatarNomeArquivo(r.FormValue("nomeChave"), "ChavePrivada", ".pem")
-
 		responseJSON(w, Page{
 			Success:   true,
 			NomeCert:  nomePub,
 			CertPEM:   string(certPEM),
 			NomeChave: nomePriv,
+			KeyPEM:    string(keyPEM),
+		})
+
+	})
+
+	http.HandleFunc("/convert-sicredi-pem", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
+			responseJSON(w, Page{Success: false, Error: "O arquivo excede o limite permitido 10MB"})
+			return
+		}
+
+		cerFile, _, err := r.FormFile("cerfile")
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: "Falha ao carregar o certificado .cer"})
+			return
+		}
+		defer cerFile.Close()
+
+		cerByte, err := io.ReadAll(cerFile)
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: "Falha ao ler o conteúdo do .cer"})
+			return
+		}
+
+		keyFile, _, err := r.FormFile("keyfile")
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: "Falha ao carregar a chave .key"})
+			return
+		}
+		defer keyFile.Close()
+
+		keyByte, err := io.ReadAll(keyFile)
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: "Falha ao ler o conteúdo do .key"})
+			return
+		}
+
+		certPEM, err := convert.ConvertCERtoPEM(cerByte)
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: err.Error()})
+			return
+		}
+
+		keyPEM, err := convert.ConvertKEYtoPEM(keyByte)
+		if err != nil {
+			responseJSON(w, Page{Success: false, Error: err.Error()})
+			return
+		}
+
+		responseJSON(w, Page{
+			Success:   true,
+			NomeCert:  formatarNomeArquivo(r.FormValue("nomeCert"), "CertificadoPublico", ".pem"),
+			CertPEM:   string(certPEM),
+			NomeChave: formatarNomeArquivo(r.FormValue("nomeChave"), "ChavePrivada", ".pem"),
 			KeyPEM:    string(keyPEM),
 		})
 

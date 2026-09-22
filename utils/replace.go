@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -61,9 +62,11 @@ func findInvoiceColumn(headers []string) (int, bool) {
 
 // findHeaderRow procura, dentre as primeiras linhas da planilha, a primeira
 // que contenha uma coluna de fatura — cobre planilhas onde a linha 0 não é
-// o cabeçalho de verdade (título do relatório, linhas em branco etc.). Só
-// considera linhas com pelo menos 2 colunas preenchidas, para não confundir
-// uma célula de título isolada com um cabeçalho de tabela de verdade.
+// o cabeçalho de verdade (título do relatório, linhas em branco etc.). Uma
+// planilha com uma única coluna (só "Fatura", sem mais nada) é um caso
+// válido e não é descartada aqui — quem filtra título de relatório solto
+// (frase longa que contenha a palavra "fatura") é o maxHeaderCellLength em
+// findInvoiceColumn, não a quantidade de colunas da linha.
 func findHeaderRow(rows [][]string) (headerRow int, colIndex int, err error) {
 	maxScan := 10
 	if maxScan > len(rows) {
@@ -71,15 +74,32 @@ func findHeaderRow(rows [][]string) (headerRow int, colIndex int, err error) {
 	}
 
 	for i := 0; i < maxScan; i++ {
-		if len(rows[i]) < 2 {
-			continue
-		}
 		if idx, ok := findInvoiceColumn(rows[i]); ok {
 			return i, idx, nil
 		}
 	}
 
 	return -1, -1, fmt.Errorf("nenhuma coluna de fatura encontrada nas primeiras %d linhas da planilha — cabeçalho da linha 1: %v", maxScan, rows[0])
+}
+
+// numeroComSeparadorDeMilhar reconhece um número inteiro formatado com
+// separador de milhar — vírgula ou espaço (padrão en-US/agrupamento SI) ou
+// ponto (padrão pt-BR, o mais comum vindo do Excel em português), sempre
+// agrupado de 3 em 3 dígitos. O Excel aplica esse formato automaticamente
+// em muitas colunas numéricas, e a planilha do usuário pode ter isso mesmo
+// numa coluna que é só um código/identificador, não um valor monetário.
+// Não casa com texto solto (ex.: "Total: 15") nem com números decimais.
+var numeroComSeparadorDeMilhar = regexp.MustCompile(`^\d{1,3}([.,]\d{3}|\x{00a0}\d{3}| \d{3})+$`)
+
+// limparSeparadorDeMilhar remove o separador de milhar de um número que
+// bate com numeroComSeparadorDeMilhar, devolvendo só os dígitos. Qualquer
+// outro valor (incluindo números decimais de verdade ou texto) passa
+// intocado.
+func limparSeparadorDeMilhar(s string) string {
+	if !numeroComSeparadorDeMilhar.MatchString(s) {
+		return s
+	}
+	return strings.NewReplacer(",", "", ".", "", " ", "", " ", "").Replace(s)
 }
 
 // somenteNumeros verifica se a string contém apenas dígitos — usado para
@@ -167,6 +187,7 @@ func ExtractValues(file []byte, nomeArquivo string) ([]string, error) {
 		}
 
 		v := strings.TrimSpace(row[colIndex])
+		v = limparSeparadorDeMilhar(v)
 		if !somenteNumeros(v) {
 			continue
 		}
