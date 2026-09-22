@@ -82,9 +82,21 @@ func responseJSON(w http.ResponseWriter, res any) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
-func atoi(s string) int {
-	n, _ := strconv.Atoi(s)
-	return n
+// atoiCampo converte um campo numérico do formulário. Campo vazio é
+// tratado como zero (válido); um valor preenchido que não seja numérico
+// retorna erro em vez de virar 0 silenciosamente.
+func atoiCampo(values map[string]string, campo string) (int, error) {
+	raw := strings.TrimSpace(values[campo])
+	if raw == "" {
+		return 0, nil
+	}
+
+	n, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, fmt.Errorf("o campo %q precisa ser um número válido (valor recebido: %q)", campo, raw)
+	}
+
+	return n, nil
 }
 
 // createCollections monta a collection Postman de cada banco/produto a partir
@@ -92,18 +104,48 @@ func atoi(s string) int {
 // gera a collection "vazia", usada apenas para descobrir os campos existentes.
 var createCollections = map[string]func(values map[string]string) ([]byte, error){
 	"sicoob:van": func(values map[string]string) ([]byte, error) {
+		numeroCliente, err := atoiCampo(values, "numeroCliente")
+		if err != nil {
+			return nil, err
+		}
+
+		codigoModalidade, err := atoiCampo(values, "codigoModalidade")
+		if err != nil {
+			return nil, err
+		}
+
+		numeroContaCorrente, err := atoiCampo(values, "numeroContaCorrente")
+		if err != nil {
+			return nil, err
+		}
+
+		seuNumero, err := atoiCampo(values, "seuNumero")
+		if err != nil {
+			return nil, err
+		}
+
+		nossoNumero, err := atoiCampo(values, "nossoNumero")
+		if err != nil {
+			return nil, err
+		}
+
+		idBoletoEmpresa, err := atoiCampo(values, "identificacaoBoletoEmpresa")
+		if err != nil {
+			return nil, err
+		}
+
 		return v.SicoobVanCollection(&v.SicoobVanConfig{
 			ClientId:         values["client_id"],
 			ClientSecret:     values["client_secret"],
 			Scope:            values["scope"],
-			NumeroCliente:    atoi(values["numeroCliente"]),
-			CodigoModalidade: atoi(values["codigoModalidade"]),
-			ContaCorrente:    atoi(values["numeroContaCorrente"]),
+			NumeroCliente:    numeroCliente,
+			CodigoModalidade: codigoModalidade,
+			ContaCorrente:    numeroContaCorrente,
 			DataVencimento:   values["dataVencimento"],
 			DataEmissao:      values["dataEmissao"],
-			SeuNumero:        atoi(values["seuNumero"]),
-			NossoNumero:      atoi(values["nossoNumero"]),
-			IdBoletoEmpresa:  atoi(values["identificacaoBoletoEmpresa"]),
+			SeuNumero:        seuNumero,
+			NossoNumero:      nossoNumero,
+			IdBoletoEmpresa:  idBoletoEmpresa,
 		})
 	},
 	"sicoob:pix": func(values map[string]string) ([]byte, error) {
@@ -181,6 +223,7 @@ var createCollections = map[string]func(values map[string]string) ([]byte, error
 			BbModalidade:   values["bb_modalidade"],
 			BbTituloBenef:  values["bb_titulo_beneficiario"],
 			BbTituloClient: values["bb_titulo_cliente"],
+			Scope:          values["scope"],
 		})
 	},
 	"bb:pix": func(values map[string]string) ([]byte, error) {

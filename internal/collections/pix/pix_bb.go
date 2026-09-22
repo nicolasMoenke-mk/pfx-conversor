@@ -93,9 +93,9 @@ func CreatePixBB() (c.PostmanItem, error) {
 			},
 			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
-				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key={{bb_dev_app_key}}",
+				Raw:  bbPixBase + "/pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}",
 				Host: []string{bbPixHost},
-				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", "{{bb_dev_app_key}}"},
+				Path: []string{"pix", "v2", "cobv", "{{pix_txid}}", "?gw-dev-app-key=", "{{bb_dev_app_key}}"},
 			},
 		},
 	}, nil
@@ -123,9 +123,9 @@ func RemovePixBB() (c.PostmanItem, error) {
 			},
 			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
-				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key={{bb_dev_app_key}}",
+				Raw:  bbPixBase + "/pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}",
 				Host: []string{bbPixHost},
-				Path: []string{"pix", "v2", "cobv", bbTXID, "?gw-dev-app-key=", "{{bb_dev_app_key}}"},
+				Path: []string{"pix", "v2", "cobv", "{{pix_txid}}", "?gw-dev-app-key=", "{{bb_dev_app_key}}"},
 			},
 		},
 	}, nil
