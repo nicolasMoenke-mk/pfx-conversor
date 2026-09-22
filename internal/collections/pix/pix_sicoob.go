@@ -24,9 +24,10 @@ type SicoobPixConfig struct {
 	Scope        string `json:"scope"`
 }
 
-func authPixSicoob() (c.PostmanItem, error) {
+func AuthPixSicoob() c.PostmanItem {
 	return c.PostmanItem{
-		Name: "Login Pix Sicoob",
+		Name:  "Autenticação Gerar Bearer Token",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -53,10 +54,10 @@ func authPixSicoob() (c.PostmanItem, error) {
 				Path: []string{"auth", "realms", "cooperado", "protocol", "openid-connect", "token"},
 			},
 		},
-	}, nil
+	}
 }
 
-func createPixSicoob() (c.PostmanItem, error) {
+func CreatePixSicoob() (c.PostmanItem, error) {
 
 	createBody := map[string]any{
 		"calendario": map[string]any{
@@ -79,17 +80,14 @@ func createPixSicoob() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Criar Pix Sicoob",
+		Name: "Criação de Cobrança via Pix",
 		Request: &c.PostmanRequest{
 			Method: "PUT",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(cBody),
-			},
+			Body: c.RawJSONBody(string(cBody)),
 			Url: c.PostmanURL{
 				Raw:  sicoobBaseUrlApi + "/pix/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicoobHostApi},
@@ -99,7 +97,7 @@ func createPixSicoob() (c.PostmanItem, error) {
 	}, nil
 }
 
-func removePixSicoob() (c.PostmanItem, error) {
+func RemoverPixSicoob() (c.PostmanItem, error) {
 
 	rm := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -111,17 +109,14 @@ func removePixSicoob() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Remover Pix Sicoob",
+		Name: "Remover Cobrança via Pix",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(remove),
-			},
+			Body: c.RawJSONBody(string(remove)),
 			Url: c.PostmanURL{
 				Raw:  sicoobBaseUrlApi + "/pix/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicoobHostApi},
@@ -141,19 +136,16 @@ func SicoobPixCollection(cfg *SicoobPixConfig) ([]byte, error) {
 		scope = sicoobScope
 	}
 
-	auth, err := authPixSicoob()
+	auth := AuthPixSicoob()
+
+	create, err := CreatePixSicoob()
 	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix Sicoob': %w", err)
+		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix': %w", err)
 	}
 
-	create, err := createPixSicoob()
+	remove, err := RemoverPixSicoob()
 	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix Sicoob': %w", err)
-	}
-
-	remove, err := removePixSicoob()
-	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix Sicoob': %w", err)
+		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix': %w", err)
 	}
 
 	collection := c.PostmanCollection{

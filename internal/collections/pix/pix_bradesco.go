@@ -25,7 +25,8 @@ type BradescoPixConfig struct {
 func AuthBradescoPix() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Auth Pix Bradesco",
+		Name:  "Auth Pix Bradesco",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -89,10 +90,7 @@ func CreatePixBradesco() (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  bradescoPixBase + "/v2/cobv/{{pix_txid}}",
 				Host: []string{bradescoPixHost},
@@ -122,10 +120,7 @@ func RemoverPixBradesco() (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rm),
-			},
+			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
 				Raw:  bradescoPixBase + "/v2/cobv/{{pix_txid}}",
 				Host: []string{bradescoPixHost},
@@ -141,7 +136,7 @@ func BradescoPixCollection(cfg *BradescoPixConfig) ([]byte, error) {
 		return nil, fmt.Errorf("Configuração não pode ser nula")
 	}
 
-	scope := bradescoScope
+	scope := cfg.Scope
 	if scope == "" {
 		scope = bradescoScope
 	}

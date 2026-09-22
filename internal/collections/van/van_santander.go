@@ -26,7 +26,8 @@ type SantanderVanConfig struct {
 
 func AuthVanSantander() (c.PostmanItem, error) {
 	return c.PostmanItem{
-		Name: "Autenticar Van Santander",
+		Name:  "Autenticar Van Santander",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
@@ -96,10 +97,7 @@ func CreateSantanderVan() (c.PostmanItem, error) {
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 				{Key: "X-Application-Key", Value: "{{santander_app_key}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips",
 				Host: []string{santanderVanHost},
@@ -130,10 +128,7 @@ func RemoveSantanderVan() (c.PostmanItem, error) {
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 				{Key: "X-Application-Key", Value: "{{santander_app_key}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rm),
-			},
+			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
 				Raw:  santanderVanBase + "/collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips",
 				Host: []string{santanderVanHost},

@@ -25,10 +25,11 @@ type SicrediPixConfig struct {
 	Scope              string
 }
 
-func authSicrediPix() (c.PostmanItem, error) {
+func AuthSicrediPix() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Login Pix Sicredi",
+		Name:  "Autenticar Pix Sicredi",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -57,7 +58,7 @@ func authSicrediPix() (c.PostmanItem, error) {
 	}, nil
 }
 
-func createPixSicredi() (c.PostmanItem, error) {
+func CreatePixSicredi() (c.PostmanItem, error) {
 
 	createBody := map[string]any{
 		"calendario": map[string]any{
@@ -87,10 +88,7 @@ func createPixSicredi() (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  sicrediPixBase + "/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicrediPixHost},
@@ -100,7 +98,7 @@ func createPixSicredi() (c.PostmanItem, error) {
 	}, nil
 }
 
-func removePixSicredi() (c.PostmanItem, error) {
+func RemoverPixSicredi() (c.PostmanItem, error) {
 
 	removeBody := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -112,17 +110,14 @@ func removePixSicredi() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Remover Pix Sicredi",
+		Name: "Remover Cobrança Pix",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rm),
-			},
+			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
 				Raw:  sicrediPixBase + "/api/v2/cobv/{{pix_txid}}",
 				Host: []string{sicrediPixHost},
@@ -144,17 +139,17 @@ func SicrediPixCollection(cfg *SicrediPixConfig) ([]byte, error) {
 		scope = sicrediScope
 	}
 
-	auth, err := authSicrediPix()
+	auth, err := AuthSicrediPix()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix Sicredi': %w", err)
 	}
 
-	create, err := createPixSicredi()
+	create, err := CreatePixSicredi()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix': %w", err)
 	}
 
-	remove, err := removePixSicredi()
+	remove, err := RemoverPixSicredi()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix': %w", err)
 	}

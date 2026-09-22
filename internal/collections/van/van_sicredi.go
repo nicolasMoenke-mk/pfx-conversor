@@ -28,12 +28,13 @@ type SicrediVanConfig struct {
 func AuthVanSicredi() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Autenticar Van Sicredi",
+		Name:  "Autenticar Van Sicredi",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/x-www-form-urlencoded", Type: "string"},
-				{Key: "x-api-key", Value: "{{sicredi_api_key}}", Type: "string"},
+				{Key: "x-api-key", Value: "{{x-api-key}}", Type: "string"},
 				{Key: "context", Value: "COBRANCA", Type: "string"},
 			},
 			Body: &c.PostmanBody{
@@ -92,14 +93,11 @@ func CreateSicrediVan() (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "Cooperativa", Value: "{{sicredi_coop}}", Type: "string"},
-				{Key: "Posto", Value: "{{sicredi_posto}}", Type: "string"},
-				{Key: "X-Api-Key", Value: "{{sicredi_api_key}}", Type: "string"},
+				{Key: "Cooperativa", Value: "{{cooperativa}}", Type: "string"},
+				{Key: "Posto", Value: "{{posto}}", Type: "string"},
+				{Key: "X-Api-Key", Value: "{{x-api-key}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  sicrediVanBase + "/cobranca/boleto/v1/boletos",
 				Host: []string{sicrediVanHost},
@@ -118,9 +116,9 @@ func RemoveSicrediVan() (c.PostmanItem, error) {
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
-				{Key: "Cooperativa", Value: "{{sicredi_coop}}", Type: "string"},
-				{Key: "Posto", Value: "{{sicredi_posto}}", Type: "string"},
-				{Key: "X-Api-Key", Value: "{{sicredi_api_key}}", Type: "string"},
+				{Key: "Cooperativa", Value: "{{cooperativa}}", Type: "string"},
+				{Key: "Posto", Value: "{{posto}}", Type: "string"},
+				{Key: "X-Api-Key", Value: "{{x-api-key}}", Type: "string"},
 				{Key: "CodigoBeneficiario", Value: "{{sicredi_codBenef}}", Type: "string"},
 			},
 			Url: c.PostmanURL{

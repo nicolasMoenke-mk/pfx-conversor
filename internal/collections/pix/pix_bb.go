@@ -25,10 +25,11 @@ type BancoDoBrasilPixConfig struct {
 	Scope        string
 }
 
-func authPixBB() (c.PostmanItem, error) {
+func AuthPixBB() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Login Pix BB",
+		Name:  "Autenticar Pix BB",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -58,7 +59,7 @@ func authPixBB() (c.PostmanItem, error) {
 	}, nil
 }
 
-func createPixBB() (c.PostmanItem, error) {
+func CreatePixBB() (c.PostmanItem, error) {
 
 	createBody := map[string]any{
 		"calendario": map[string]any{
@@ -90,10 +91,7 @@ func createPixBB() (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key={{bb_dev_app_key}}",
 				Host: []string{bbPixHost},
@@ -104,7 +102,7 @@ func createPixBB() (c.PostmanItem, error) {
 
 }
 
-func removePixBB() (c.PostmanItem, error) {
+func RemovePixBB() (c.PostmanItem, error) {
 
 	removeBody := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
@@ -123,10 +121,7 @@ func removePixBB() (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rm),
-			},
+			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
 				Raw:  bbPixBase + "/pix/v2/cobv/" + bbTXID + "?gw-dev-app-key={{bb_dev_app_key}}",
 				Host: []string{bbPixHost},
@@ -138,28 +133,24 @@ func removePixBB() (c.PostmanItem, error) {
 
 func BancoDoBrasilPixCollection(cfg *BancoDoBrasilPixConfig) ([]byte, error) {
 
-	if cfg == nil {
-		return nil, fmt.Errorf("Configuração não pode ser nula!")
+	auth, err := AuthPixBB()
+	if err != nil {
+		return nil, fmt.Errorf("Configuração não pode ser nula")
+	}
+
+	create, err := CreatePixBB()
+	if err != nil {
+		return nil, errors.New("Erro inesperado")
+	}
+
+	remove, err := RemovePixBB()
+	if err != nil {
+		return nil, errors.New("Erro inesperado")
 	}
 
 	scope := cfg.Scope
 	if scope == "" {
 		scope = bbScope
-	}
-
-	auth, err := authPixBB()
-	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Auth Pix BB': %w", err)
-	}
-
-	create, err := createPixBB()
-	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Criar Pix BB': %w", err)
-	}
-
-	remove, err := removePixBB()
-	if err != nil {
-		return nil, fmt.Errorf("Falha ao criar item 'Remover Pix BB': %w", err)
 	}
 
 	collection := c.PostmanCollection{
@@ -169,6 +160,7 @@ func BancoDoBrasilPixCollection(cfg *BancoDoBrasilPixConfig) ([]byte, error) {
 			Schema:      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		},
 		Variable: []c.PostmanVariable{
+			{Key: "bearer_token", Value: "", Type: "string"},
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
 			{Key: "bb_dev_app_key", Value: cfg.BBAppKey, Type: "string"},

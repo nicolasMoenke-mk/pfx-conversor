@@ -20,10 +20,11 @@ type SantanderPixConfig struct {
 	ChavePix     string
 }
 
-func authPixSantander() (c.PostmanItem, error) {
+func AuthPixSantander() (c.PostmanItem, error) {
 
 	return c.PostmanItem{
-		Name: "Login Pix Santander",
+		Name:  "Autenticar Pix Santander",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -52,7 +53,7 @@ func authPixSantander() (c.PostmanItem, error) {
 	}, nil
 }
 
-func createPixSantander() (c.PostmanItem, error) {
+func CreatePixSantander() (c.PostmanItem, error) {
 	createPix := map[string]any{
 		"calendario": map[string]any{
 			"dataDeVencimento":       "2027-02-02",
@@ -76,17 +77,14 @@ func createPixSantander() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Criar Pix Santander",
+		Name: "Criar um Pix",
 		Request: &c.PostmanRequest{
 			Method: "PUT",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  santanderPixBase + "/api/v1/cobv/{{pix_txid}}",
 				Host: []string{santanderPixHost},
@@ -96,7 +94,7 @@ func createPixSantander() (c.PostmanItem, error) {
 	}, nil
 }
 
-func removePixSantander() (c.PostmanItem, error) {
+func RemoverPixSantander() (c.PostmanItem, error) {
 	removeBody := map[string]any{
 		"status": "REMOVIDA_PELO_USUARIO_RECEBEDOR",
 	}
@@ -107,17 +105,14 @@ func removePixSantander() (c.PostmanItem, error) {
 	}
 
 	return c.PostmanItem{
-		Name: "Remover Pix Santander",
+		Name: "Remover Pix Ativo",
 		Request: &c.PostmanRequest{
 			Method: "PATCH",
 			Header: []c.PostmanHeader{
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rm),
-			},
+			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
 				Raw:  santanderPixBase + "/api/v1/cobv/{{pix_txid}}",
 				Host: []string{santanderPixHost},
@@ -138,17 +133,17 @@ func SantanderPixCollection(cfg *SantanderPixConfig) ([]byte, error) {
 		scope = santanderScope
 	}
 
-	auth, err := authPixSantander()
+	auth, err := AuthPixSantander()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao gerar item 'Auth Pix Santander'")
 	}
 
-	create, err := createPixSantander()
+	create, err := CreatePixSantander()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao gerar item 'Criar Pix Santander': %w", err)
 	}
 
-	remove, err := removePixSantander()
+	remove, err := RemoverPixSantander()
 	if err != nil {
 		return nil, fmt.Errorf("Falha ao gerar item 'Remover Pix Santander': %w", err)
 	}

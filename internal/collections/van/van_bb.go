@@ -31,7 +31,8 @@ func AuthVanBB(cfg BancoDoBrasilVanConfig) c.PostmanItem {
 	cfg.Scope = "cobrancas.boletos-requisicao cobrancas.boletos-info"
 
 	return c.PostmanItem{
-		Name: "Autenticar Van BB",
+		Name:  "Autenticar Van BB",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
@@ -104,10 +105,7 @@ func CreateBBVan(cfg BancoDoBrasilVanConfig) (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  bbVanBase + "/cobrancas/v2/boletos?gw-app-key=" + cfg.BbAppKey,
 				Host: []string{bbVanHost},
@@ -136,10 +134,7 @@ func RemoveBBVan(cfg BancoDoBrasilVanConfig) (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rm),
-			},
+			Body: c.RawJSONBody(string(rm)),
 			Url: c.PostmanURL{
 				Raw:  bbVanBase + "/cobrancas/v2/boletos/numTitulo/baixar?gw-app-key=" + cfg.BbAppKey,
 				Host: []string{bbVanHost},

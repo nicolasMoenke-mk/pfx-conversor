@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='3' fill='%232563eb'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='15.5' r='1.6' fill='white'/%3E%3Crect x='11.2' y='15.5' width='1.6' height='3' fill='white'/%3E%3C/svg%3E">
 <title>BankHub Core · Suporte & Operações</title>
 
 <style>
@@ -631,7 +632,7 @@
     display: grid;
 
     grid-template-columns:
-      repeat(4, 1fr);
+      repeat(3, 1fr);
 
     gap: 14px;
 
@@ -2981,14 +2982,10 @@
           stroke="currentColor"
           stroke-width="2"
         >
-          <path d="M3 21h18"/>
-          <path d="M3 10h18"/>
-          <path d="M5 6l7-3 7 3"/>
-          <path d="M4 10v11"/>
-          <path d="M20 10v11"/>
-          <path d="M8 14v3"/>
-          <path d="M12 14v3"/>
-          <path d="M16 14v3"/>
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
         </svg>
       </div>
 
@@ -3025,7 +3022,7 @@
           <rect x="3" y="16" width="7" height="5" rx="1"/>
         </svg>
 
-        Dashboard
+        Main Menu
       </a>
 
       <a
@@ -3062,10 +3059,11 @@
           stroke="currentColor"
           stroke-width="2"
         >
-          <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-          <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-          <path d="M7 21h10"/>
-          <path d="M12 3v18"/>
+          <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.2 4.7 3 6.1V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-1.9c1.8-1.4 3-3.6 3-6.1a7 7 0 0 0-7-7Z"/>
+          <circle cx="12" cy="9" r="3"/>
+          <path d="M9 21h6"/>
+          <path d="M5 12H3.5a1.5 1.5 0 0 1 0-3H5"/>
+          <path d="M19 12h1.5a1.5 1.5 0 0 0 0-3H19"/>
         </svg>
 
         Collections
@@ -3119,43 +3117,6 @@
       >
         ☰
       </button>
-
-      <button
-        class="search-btn"
-        id="searchBtn"
-      >
-
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="11" cy="11" r="8"/>
-          <path d="m21 21-4.3-4.3"/>
-        </svg>
-
-        <span>
-          Pesquisar banco, chave ou payload...
-        </span>
-
-        <kbd>Ctrl K</kbd>
-
-      </button>
-
-      <div style="display:flex; gap:8px;">
-
-        <button
-          class="theme-btn"
-          id="themeToggle"
-          aria-label="Alternar Tema"
-        >
-          🌓
-        </button>
-
-      </div>
 
     </header>
 
@@ -3263,30 +3224,6 @@
 
             <div class="kpi-caption">
               Zero persistência em disco
-            </div>
-
-          </div>
-
-          <div class="kpi-card">
-
-            <div class="kpi-header">
-
-              <span class="kpi-title">
-                Disponibilidade APIs
-              </span>
-
-              <span class="kpi-icon">
-                🌐
-              </span>
-
-            </div>
-
-            <div class="kpi-value">
-              99.98%
-            </div>
-
-            <div class="kpi-caption up">
-              Sem alertas de instabilidade
             </div>
 
           </div>
@@ -4113,7 +4050,7 @@ const BANKS = [
     name: "Banco do Brasil",
     color: "#F2B90C",
     protocol: "mTLS + OAuth2",
-    desc: "API PIX e Cobrança Boleto com assinatura mTLS direta.",
+    desc: "Cobrança Bancária (boletos) e Pix Cobrança (cobv) via gateway BB com certificado mTLS.",
     hasCollection: true,
     endpoints: {
       van: [
@@ -4127,7 +4064,7 @@ const BANKS = [
         "PATCH /pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}"
       ]
     },
-    auth: "OAuth2 + mTLS",
+    auth: "OAuth2 (Basic) + mTLS",
     environment: "Produção",
     security: "Certificado A1"
   },
@@ -4136,23 +4073,16 @@ const BANKS = [
     id: "itau",
     name: "Itaú Unibanco",
     color: "#EC7000",
-    protocol: "mTLS Dedicated",
-    desc: "Processamento e handshake mTLS de certificados A1.",
+    protocol: "CSR + mTLS",
+    desc: "Geração de CSR e chave privada para credenciamento mTLS — não há conversão de PFX aqui.",
     hasCollection: false,
     endpoints: {
-      van: [
-        "POST /oauth/token",
-        "GET /pix",
-        "POST /pix"
-      ],
-      pix: [
-        "GET /payments",
-        "POST /payments"
-      ]
+      van: [],
+      pix: []
     },
     auth: "mTLS Dedicated",
-    environment: "Produção",
-    security: "Certificado A1"
+    environment: "Credenciamento",
+    security: "CSR + RSA 2048"
   },
 
   {
@@ -4160,7 +4090,7 @@ const BANKS = [
     name: "Sicoob",
     color: "#00843D",
     protocol: "V3 mTLS",
-    desc: "Conversão de certificados para gateway V3 e Open Finance.",
+    desc: "Cobrança Bancária (boletos, v3) e Pix Cobrança (cobv, v2) via Keycloak OAuth2 + mTLS.",
     hasCollection: true,
     endpoints: {
       van: [
@@ -4174,7 +4104,7 @@ const BANKS = [
         "PATCH /pix/api/v2/cobv/{{pix_txid}}"
       ]
     },
-    auth: "OAuth2 + mTLS",
+    auth: "OAuth2 (Basic) + mTLS via Keycloak",
     environment: "Produção",
     security: "Certificado A1"
   },
@@ -4183,8 +4113,8 @@ const BANKS = [
     id: "sicredi",
     name: "Sicredi",
     color: "#005A36",
-    protocol: "V2 Modular",
-    desc: "Padrão de certificados A1 para integração Cobrança e PIX.",
+    protocol: "OAuth2 + x-api-key",
+    desc: "Cobrança de boleto híbrido (Pix) e Cobrança Bancária via API de Parceiros Sicredi.",
     hasCollection: true,
     endpoints: {
       van: [
@@ -4198,17 +4128,17 @@ const BANKS = [
         "PATCH /api/v2/cobv/{{pix_txid}}"
       ]
     },
-    auth: "OAuth2",
+    auth: "OAuth2 (client_credentials no Pix, password no VAN)",
     environment: "Produção",
-    security: "Certificado A1"
+    security: "Api-Key"
   },
 
   {
     id: "santander",
     name: "Santander",
     color: "#EC0000",
-    protocol: "OAuth2 Direct",
-    desc: "Conversão para portal Developer Santander Empresas.",
+    protocol: "OAuth2 + mTLS",
+    desc: "Cobrança de boletos em workspace dedicado e Pix Cobrança (cobv) via portal Developer Santander.",
     hasCollection: true,
     endpoints: {
       van: [
@@ -4222,7 +4152,7 @@ const BANKS = [
         "PATCH /api/v1/cobv/{{pix_txid}}"
       ]
     },
-    auth: "OAuth2 Direct",
+    auth: "OAuth2 (Basic) + mTLS",
     environment: "Produção",
     security: "Certificado A1"
   },
@@ -4231,8 +4161,8 @@ const BANKS = [
     id: "bradesco",
     name: "Bradesco",
     color: "#CC092F",
-    protocol: "ShopFácil API",
-    desc: "Geração de chaves públicas e privadas para comércio eletrônico.",
+    protocol: "OpenAPI + mTLS",
+    desc: "Cobrança Bancária (registro e baixa de boletos) e Pix Cobrança (cobv) via OpenAPI Bradesco.",
     hasCollection: true,
     endpoints: {
       van: [
@@ -4246,7 +4176,7 @@ const BANKS = [
         "PATCH /v2/cobv/{{pix_txid}}"
       ]
     },
-    auth: "OAuth2 + mTLS",
+    auth: "OAuth2 (Basic) + mTLS",
     environment: "Produção",
     security: "Certificado A1"
   }
@@ -5029,6 +4959,14 @@ function downloadTextFile(filename, content, mime) {
 }
 
 
+/*
+ * Re-encodar PFX (compatibilidade) só faz sentido para os bancos cujo
+ * portal exige o PKCS#12 num formato de encriptação específico — os
+ * demais bancos aceitam o PFX convertido normalmente, então a aba não
+ * deve aparecer para eles.
+ */
+const BANKS_COM_REENCODE = ["sicoob", "santander", "bradesco"];
+
 function renderBankView(id) {
 
   const bank =
@@ -5049,6 +4987,10 @@ function renderBankView(id) {
   }
 
 
+  const mostraReencode =
+    BANKS_COM_REENCODE.includes(bank.id);
+
+
   $("#bankViewContainer")
     .innerHTML = `
 
@@ -5067,7 +5009,7 @@ function renderBankView(id) {
           <path d="m15 18-6-6 6-6"/>
         </svg>
 
-        Voltar ao Dashboard
+        Voltar ao Main Menu
 
       </a>
 
@@ -5113,13 +5055,15 @@ function renderBankView(id) {
               (.pem)
             </button>
 
-            <button
-              class="tab-btn"
-              data-tab="next"
-            >
-              Re-encodar PFX
-              (Compatibilidade)
-            </button>
+            ${mostraReencode ? `
+              <button
+                class="tab-btn"
+                data-tab="next"
+              >
+                Re-encodar PFX
+                (Compatibilidade)
+              </button>
+            ` : ""}
 
           </div>
 
@@ -5744,7 +5688,7 @@ function renderItauCsrView(bank) {
           <path d="m15 18-6-6 6-6"/>
         </svg>
 
-        Voltar ao Dashboard
+        Voltar ao Main Menu
 
       </a>
 
@@ -6422,7 +6366,7 @@ const BANK_DOCS = {
     authType: "OAuth2 Basic + client_credentials, sobre mTLS",
     prereqs: [
       "Certificado digital A1 do cliente, convertido para PEM nesta ferramenta",
-      "Cadastro na plataforma OpenAPI/ShopFácil do Bradesco, com o certificado mTLS associado",
+      "Cadastro na plataforma OpenAPI do Bradesco, com o certificado mTLS associado",
       "Chave Pix cadastrada no DICT, quando o produto for Pix"
     ],
     pix: {
@@ -6471,7 +6415,7 @@ function docsProcessoContent(bank) {
 
     return `
 
-      <p class="docs-lead">O ${bank.name} não usa o fluxo de conversão de PFX desta ferramenta: a integração exige um CSR (Certificate Signing Request) e uma chave privada, gerados a partir dos dados do solicitante — é isso que a aba do ${bank.name} no Dashboard faz.</p>
+      <p class="docs-lead">O ${bank.name} não usa o fluxo de conversão de PFX desta ferramenta: a integração exige um CSR (Certificate Signing Request) e uma chave privada, gerados a partir dos dados do solicitante — é isso que a aba do ${bank.name} no Main Menu faz.</p>
 
       <h2>Pré-requisitos</h2>
 
@@ -6484,7 +6428,7 @@ function docsProcessoContent(bank) {
       <h2>Passo a passo</h2>
 
       <ol>
-        <li>No Dashboard, abra o card do ${bank.name}.</li>
+        <li>No Main Menu, abra o card do ${bank.name}.</li>
         <li>Preencha ao menos o <strong>Common Name (CN)</strong> — normalmente o domínio ou identificador da aplicação que vai se autenticar.</li>
         <li>Preencha Organização, Unidade Organizacional, País, Estado, Localidade e E-mail conforme o cadastro da empresa (opcionais, mas recomendados).</li>
         <li>Clique em <strong>Gerar CSR</strong> — a ferramenta cria uma chave RSA 2048 nova e monta o CSR a partir desses dados.</li>
@@ -7968,90 +7912,6 @@ document.head.appendChild(
 
 
 /* =========================================================
-   THEME TOGGLE
-========================================================= */
-
-$("#themeToggle")
-  .onclick = () => {
-
-    const isDark =
-      document.documentElement
-        .dataset.theme === "dark";
-
-
-    const newTheme =
-      isDark
-        ? "light"
-        : "dark";
-
-
-    document.documentElement
-      .dataset.theme =
-      newTheme;
-
-
-    localStorage.setItem(
-      "hub_theme",
-      newTheme
-    );
-
-
-    const hash =
-      location.hash.slice(1)
-      || "dashboard";
-
-
-    const [view, param] =
-      hash.split("/");
-
-
-    if (view === "banco") {
-
-      const bank =
-        BANKS.find(
-          item => item.id === param
-        ) || BANKS[0];
-
-
-      applyDynamicTheme(
-        bank.color
-      );
-
-    } else {
-
-      applyDynamicTheme(null);
-
-    }
-
-
-    /*
-     * Se estiver dentro de Collections,
-     * mantemos a cor do banco selecionado.
-     */
-
-    if (view === "collections") {
-
-      const bank =
-        COLLECTION_BANKS.find(
-          item =>
-            item.id ===
-            selectedCollectionBankId
-        ) || COLLECTION_BANKS[0];
-
-
-      document.documentElement
-        .style
-        .setProperty(
-          "--selected-accent",
-          bank.color
-        );
-
-    }
-
-  };
-
-
-/* =========================================================
    INITIAL THEME
 ========================================================= */
 
@@ -8100,30 +7960,6 @@ $$(".nav-link")
     );
 
   });
-
-
-/* =========================================================
-   SEARCH SHORTCUT
-========================================================= */
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      (event.ctrlKey || event.metaKey)
-      &&
-      event.key.toLowerCase() === "k"
-    ) {
-
-      event.preventDefault();
-
-      $("#searchBtn").focus();
-
-    }
-
-  }
-);
 
 
 /* =========================================================

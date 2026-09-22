@@ -19,7 +19,8 @@ type BradescoVanConfig struct {
 
 func AuthVanBradesco(cfg BradescoVanConfig) (c.PostmanItem, error) {
 	return c.PostmanItem{
-		Name: "Autenticação Van Gerar Bearer Token ",
+		Name:  "Autenticação Van Gerar Bearer Token ",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Method: "POST",
 			Header: []c.PostmanHeader{
@@ -29,8 +30,8 @@ func AuthVanBradesco(cfg BradescoVanConfig) (c.PostmanItem, error) {
 				Mode: "urlencoded",
 				Urlencoded: []c.PostmanParam{
 					{Key: "grant-type", Value: "client_credentials", Type: "string"},
-					{Key: "client_id", Value: "{{bradesco_client_id}}", Type: "string"},
-					{Key: "client_secret", Value: "{{bradesco_client_secret}}", Type: "string"},
+					{Key: "client_id", Value: "{{client_id}}", Type: "string"},
+					{Key: "client_secret", Value: "{{client_secret}}", Type: "string"},
 				},
 			},
 			Url: c.PostmanURL{
@@ -116,10 +117,7 @@ func CreateBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(body),
-			},
+			Body: c.RawJSONBody(string(body)),
 			Url: c.PostmanURL{
 				Raw:  bradescoBaseUrl + "/boleto/cobranca-registro/v1/cobranca",
 				Host: []string{bradescoHost},
@@ -156,10 +154,7 @@ func RemoveBradescoVan(cfg BradescoVanConfig) (c.PostmanItem, error) {
 				{Key: "Content-Type", Value: "application/json", Type: "string"},
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rmBody),
-			},
+			Body: c.RawJSONBody(string(rmBody)),
 			Url: c.PostmanURL{
 				Raw:  bradescoBaseUrl + "/boleto/cobranca-baixa/v1/baixar",
 				Host: []string{bradescoHost},
@@ -192,7 +187,7 @@ func BradescoVanCollection(cfg *BradescoVanConfig) ([]byte, error) {
 			Schema:      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		},
 		Variable: []c.PostmanVariable{
-			{Key: "bearer_token", Value: "Bearer {{bearer_token}}", Type: "string"},
+			{Key: "bearer_token", Value: "", Type: "string"},
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
 			{Key: "nuCPFCNPJ", Value: fmt.Sprint(), Type: "string"},

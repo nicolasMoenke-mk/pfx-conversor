@@ -32,7 +32,8 @@ type SicoobVanConfig struct {
 
 func AuthVanSicoob() (c.PostmanItem, error) {
 	return c.PostmanItem{
-		Name: "Autenticação Van Gerar Bearer Token",
+		Name:  "Autenticação Van Gerar Bearer Token",
+		Event: c.AutoSetBearerTokenEvent(),
 		Request: &c.PostmanRequest{
 			Auth: &c.PostmanAuth{
 				Type: "basic",
@@ -108,10 +109,7 @@ func CreateSicoobVan() (c.PostmanItem, error) {
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 				{Key: "client_id", Value: "{{client_id}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(bolBody),
-			},
+			Body: c.RawJSONBody(string(bolBody)),
 			Url: c.PostmanURL{
 				Raw:  sicoobBaseUrlApi + "/cobranca-bancaria/v3/boletos",
 				Host: []string{sicoobHostApiVan},
@@ -144,14 +142,11 @@ func RemoveSicoobVan() (c.PostmanItem, error) {
 				{Key: "Authorization", Value: "Bearer {{bearer_token}}", Type: "string"},
 				{Key: "client_id", Value: "{{client_id}}", Type: "string"},
 			},
-			Body: &c.PostmanBody{
-				Mode: "raw",
-				Raw:  string(rmBody),
-			},
+			Body: c.RawJSONBody(string(rmBody)),
 			Url: c.PostmanURL{
-				Raw:  sicoobBaseUrlApi + "/cobranca-bancaria/v3/boletos/{{sicoob_nossoNumero}}/baixar",
+				Raw:  sicoobBaseUrlApi + "/cobranca-bancaria/v3/boletos/{{nossoNumero}}/baixar",
 				Host: []string{sicoobHostApiVan},
-				Path: []string{"cobranca-bancaria", "v3", "boletos", "{{sicoob_nossoNumero}}", "baixar"},
+				Path: []string{"cobranca-bancaria", "v3", "boletos", "{{nossoNumero}}", "baixar"},
 			},
 		},
 	}, nil
@@ -163,7 +158,7 @@ func SicoobVanCollection(cfg *SicoobVanConfig) ([]byte, error) {
 		return nil, fmt.Errorf("Configuração não pode ser nula!")
 	}
 
-	scope := sicoobScope
+	scope := cfg.Scope
 	if scope == "" {
 		scope = sicoobScope
 	}
@@ -194,7 +189,7 @@ func SicoobVanCollection(cfg *SicoobVanConfig) ([]byte, error) {
 			{Key: "client_id", Value: cfg.ClientId, Type: "string"},
 			{Key: "client_secret", Value: cfg.ClientSecret, Type: "string"},
 			{Key: "numeroCliente", Value: fmt.Sprintf("%d", cfg.NumeroCliente), Type: "string"},
-			{Key: "scope", Value: cfg.Scope, Type: "string"},
+			{Key: "scope", Value: scope, Type: "string"},
 			{Key: "codigoModalidade", Value: fmt.Sprintf("%d", cfg.CodigoModalidade), Type: "string"},
 			{Key: "numeroContaCorrente", Value: fmt.Sprintf("%d", cfg.ContaCorrente), Type: "string"},
 			{Key: "dataVencimento", Value: cfg.DataVencimento, Type: "string"},
