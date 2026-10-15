@@ -239,9 +239,6 @@
     transition: width .2s var(--ease);
   }
 
-  .content-container.content-container--wide {
-    width: min(1560px, calc(100% - 64px));
-  }
 }
 
 /* =========================================================
@@ -1052,6 +1049,30 @@
     border-color: var(--border-focus);
   }
 
+  .query-select {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 14px;
+
+    border-radius: var(--radius-sm);
+
+    border: 1px solid var(--border-subtle);
+
+    background: var(--bg-base);
+    color: var(--text-main);
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition: border-color .2s;
+  }
+
+  .query-select:focus {
+    border-color: var(--border-focus);
+  }
+
   .form-row {
     display: grid;
 
@@ -1342,6 +1363,49 @@
     line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  /* ---- bloco "código" (usado pelo resultado da ferramenta de faturas) ---- */
+
+  .docs-code-block {
+    margin: 16px 0;
+
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+  }
+
+  .docs-code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 8px 12px;
+
+    background: var(--bg-surface-elevated);
+    border-bottom: 1px solid var(--border-subtle);
+
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-subtle);
+  }
+
+  .docs-code-copy {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+
+    transition: color .2s;
+  }
+
+  .docs-code-copy:hover {
+    color: var(--brand-primary);
   }
 
   /* ---- remessa erro list ---- */
@@ -2088,616 +2152,6 @@
     transform: translateY(2px);
   }
 
-  /* =====================================================
-     DOCUMENTATION
-  ===================================================== */
-
-  .docs-page {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  /* ---- hero ---- */
-
-  .docs-hero {
-    padding: 22px 26px;
-
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .docs-hero-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .docs-hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-
-    color: var(--brand-primary);
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-
-    margin-bottom: 6px;
-  }
-
-  .docs-hero-eyebrow-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  .docs-hero h1 {
-    font-size: clamp(19px, 1.4vw + 12px, 24px);
-    font-weight: 800;
-    letter-spacing: -.02em;
-  }
-
-  .docs-hero p {
-    margin-top: 4px;
-    max-width: 560px;
-    font-size: 12.5px;
-    color: var(--text-muted);
-  }
-
-  .docs-hero-stats {
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-
-  .docs-hero-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 76px;
-    padding: 10px 14px;
-
-    border-radius: var(--radius-md);
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-  }
-
-  .docs-hero-stat strong {
-    font-size: 16px;
-    font-weight: 800;
-  }
-
-  .docs-hero-stat span {
-    margin-top: 2px;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--text-subtle);
-  }
-
-  /* ---- shell layout ---- */
-
-  .docs-shell {
-    display: grid;
-    grid-template-columns: 270px minmax(0, 1fr) 240px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* ---- sidebar nav ---- */
-
-  .docs-sidebar {
-    position: sticky;
-    top: 84px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-
-    padding: 16px;
-
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-
-    max-height: calc(100vh - 104px);
-    overflow-y: auto;
-  }
-
-  .docs-sidebar-search {
-    position: relative;
-  }
-
-  .docs-sidebar-search svg {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-subtle);
-    pointer-events: none;
-  }
-
-  .docs-sidebar-search input {
-    width: 100%;
-    height: 36px;
-
-    padding: 0 10px 0 32px;
-    border-radius: 9px;
-
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-base);
-
-    font-size: 12px;
-    outline: none;
-
-    transition: border-color .2s;
-  }
-
-  .docs-sidebar-search input:focus {
-    border-color: var(--brand-primary);
-  }
-
-  .docs-nav-group-title {
-    padding: 0 8px 6px;
-
-    font-size: 9.5px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--text-subtle);
-  }
-
-  .docs-nav-list {
-    display: grid;
-    gap: 2px;
-  }
-
-  .docs-nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    padding: 8px 10px;
-    border-radius: 9px;
-
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-align: left;
-
-    transition: background .2s var(--ease), color .2s var(--ease);
-  }
-
-  .docs-nav-link:hover {
-    background: var(--bg-surface-elevated);
-    color: var(--text-main);
-  }
-
-  .docs-nav-link.active {
-    background: color-mix(in srgb, var(--docs-accent, var(--brand-primary)) 10%, var(--bg-surface));
-    color: var(--docs-accent, var(--brand-primary));
-    font-weight: 700;
-  }
-
-  .docs-nav-group.active .docs-nav-group-title {
-    color: var(--docs-accent, var(--brand-primary));
-  }
-
-  .docs-nav-dot {
-    width: 5px;
-    height: 5px;
-    flex-shrink: 0;
-
-    border-radius: 50%;
-    background: currentColor;
-    opacity: .5;
-  }
-
-  .docs-nav-empty {
-    padding: 6px 10px;
-    font-size: 11.5px;
-    color: var(--text-subtle);
-  }
-
-  /* ---- article content ---- */
-
-  .docs-content {
-    min-width: 0;
-
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-
-    padding: 36px 44px;
-  }
-
-  .docs-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    margin-bottom: 16px;
-
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--text-subtle);
-  }
-
-  .docs-breadcrumb span:last-child {
-    color: var(--docs-accent, var(--brand-primary));
-  }
-
-  .docs-article {
-    max-width: 860px;
-  }
-
-  .docs-article h1 {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -.02em;
-    margin-bottom: 6px;
-  }
-
-  .docs-lead {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text-muted);
-
-    margin: 0 0 24px;
-    padding-bottom: 20px;
-
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .docs-article h2 {
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -.01em;
-    margin: 28px 0 10px;
-    scroll-margin-top: 90px;
-  }
-
-  .docs-article h2:first-of-type {
-    margin-top: 0;
-  }
-
-  .docs-article h3 {
-    font-size: 13.5px;
-    font-weight: 750;
-    margin: 20px 0 8px;
-    scroll-margin-top: 90px;
-  }
-
-  .docs-article p {
-    font-size: 13.5px;
-    line-height: 1.7;
-    color: var(--text-main);
-    margin-bottom: 12px;
-  }
-
-  .docs-article ul,
-  .docs-article ol {
-    margin: 0 0 14px 20px;
-    display: grid;
-    gap: 6px;
-  }
-
-  .docs-article li {
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: var(--text-main);
-  }
-
-  .docs-article strong {
-    font-weight: 750;
-  }
-
-  .docs-article code {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 12px;
-
-    padding: 2px 6px;
-    border-radius: 5px;
-
-    background: var(--bg-surface-elevated);
-    color: var(--brand-primary);
-  }
-
-  /* imagens (prints, diagramas) */
-
-  .docs-figure {
-    margin: 16px 0;
-  }
-
-  .docs-figure img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-
-    border-radius: 12px;
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-
-    background: #fff;
-  }
-
-  .docs-figure figcaption {
-    margin-top: 8px;
-
-    font-size: 11.5px;
-    color: var(--text-subtle);
-    text-align: center;
-  }
-
-  /* callouts */
-
-  .docs-callout {
-    display: flex;
-    gap: 10px;
-
-    padding: 14px 16px;
-    margin: 16px 0;
-
-    border-radius: 12px;
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-base);
-
-    font-size: 13px;
-    line-height: 1.6;
-  }
-
-  .docs-callout svg {
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .docs-callout--info {
-    border-color: color-mix(in srgb, var(--brand-primary) 30%, var(--border-subtle));
-    background: color-mix(in srgb, var(--brand-primary) 6%, var(--bg-base));
-  }
-
-  .docs-callout--info svg {
-    color: var(--brand-primary);
-  }
-
-  .docs-callout--tip {
-    border-color: color-mix(in srgb, var(--success) 35%, var(--border-subtle));
-    background: color-mix(in srgb, var(--success) 8%, var(--bg-base));
-  }
-
-  .docs-callout--tip svg {
-    color: var(--success);
-  }
-
-  .docs-callout--warning {
-    border-color: color-mix(in srgb, var(--warning) 40%, var(--border-subtle));
-    background: color-mix(in srgb, var(--warning) 10%, var(--bg-base));
-  }
-
-  .docs-callout--warning svg {
-    color: var(--warning);
-  }
-
-  .docs-callout--danger {
-    border-color: color-mix(in srgb, var(--danger) 35%, var(--border-subtle));
-    background: color-mix(in srgb, var(--danger) 8%, var(--bg-base));
-  }
-
-  .docs-callout--danger svg {
-    color: var(--danger);
-  }
-
-  /* code block */
-
-  .docs-code-block {
-    margin: 16px 0;
-
-    border-radius: 12px;
-    border: 1px solid var(--border-subtle);
-    overflow: hidden;
-  }
-
-  .docs-code-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 8px 12px;
-
-    background: var(--bg-surface-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--text-subtle);
-  }
-
-  .docs-code-copy {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 700;
-
-    transition: color .2s;
-  }
-
-  .docs-code-copy:hover {
-    color: var(--brand-primary);
-  }
-
-  .docs-code-block pre {
-    margin: 0;
-    padding: 14px 16px;
-    overflow-x: auto;
-
-    background: var(--bg-base);
-
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--text-main);
-  }
-
-  /* table */
-
-  .docs-table-wrap {
-    margin: 16px 0;
-
-    border-radius: 12px;
-    border: 1px solid var(--border-subtle);
-    overflow: hidden;
-  }
-
-  .docs-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-  }
-
-  .docs-table th {
-    text-align: left;
-    padding: 10px 14px;
-
-    background: var(--bg-surface-elevated);
-    border-bottom: 1px solid var(--border-subtle);
-
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--text-subtle);
-  }
-
-  .docs-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--text-main);
-  }
-
-  .docs-table tr:last-child td {
-    border-bottom: 0;
-  }
-
-  .docs-table code {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 11.5px;
-    color: var(--brand-primary);
-  }
-
-  /* footer nav (prev/next) */
-
-  .docs-footer-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-
-    margin-top: 32px;
-    padding-top: 20px;
-
-    border-top: 1px solid var(--border-subtle);
-  }
-
-  .docs-footer-link {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-
-    padding: 14px 16px;
-    border-radius: 12px;
-    border: 1px solid var(--border-subtle);
-
-    transition: border-color .2s, transform .2s var(--ease);
-  }
-
-  .docs-footer-link:hover {
-    border-color: var(--brand-primary);
-    transform: translateY(-1px);
-  }
-
-  .docs-footer-link.next {
-    text-align: right;
-    align-items: flex-end;
-  }
-
-  .docs-footer-link small {
-    font-size: 9px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--text-subtle);
-  }
-
-  .docs-footer-link strong {
-    font-size: 13px;
-    color: var(--text-main);
-  }
-
-  /* ---- right rail: on this page ---- */
-
-  .docs-toc {
-    position: sticky;
-    top: 84px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    padding: 16px;
-
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-  }
-
-  .docs-toc-title {
-    font-size: 9.5px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--text-subtle);
-  }
-
-  .docs-toc-list {
-    display: grid;
-    gap: 8px;
-  }
-
-  .docs-toc-link {
-    font-size: 12px;
-    line-height: 1.4;
-    color: var(--text-muted);
-    text-align: left;
-
-    transition: color .2s;
-  }
-
-  .docs-toc-link:hover {
-    color: var(--docs-accent, var(--brand-primary));
-  }
-
-  .docs-toc-empty {
-    font-size: 11.5px;
-    color: var(--text-subtle);
-  }
 
   /* =====================================================
      TOASTS
@@ -3067,50 +2521,6 @@
       </a>
 
       <a
-        href="#documentacao"
-        class="nav-link"
-        data-nav="documentacao"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-          <path d="M6 6h10"/>
-          <path d="M6 10h10"/>
-        </svg>
-
-        Documentação
-      </a>
-
-      <a
-        href="#collections"
-        class="nav-link"
-        data-nav="collections"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.2 4.7 3 6.1V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-1.9c1.8-1.4 3-3.6 3-6.1a7 7 0 0 0-7-7Z"/>
-          <circle cx="12" cy="9" r="3"/>
-          <path d="M9 21h6"/>
-          <path d="M5 12H3.5a1.5 1.5 0 0 1 0-3H5"/>
-          <path d="M19 12h1.5a1.5 1.5 0 0 0 0-3H19"/>
-        </svg>
-
-        Collections
-      </a>
-
-      <a
         href="#utilidades"
         class="nav-link"
         data-nav="utilidades"
@@ -3306,311 +2716,6 @@
       >
 
         <div id="bankViewContainer"></div>
-
-      </section>
-
-
-      <!-- ===================================================
-           DOCUMENTAÇÃO
-      ==================================================== -->
-
-      <section
-        class="view"
-        data-view="documentacao"
-      >
-
-        <div class="docs-page">
-
-          <!-- HERO -->
-
-          <div class="docs-hero">
-
-            <div class="docs-hero-top">
-
-              <div>
-
-                <div class="docs-hero-eyebrow">
-                  <span class="docs-hero-eyebrow-dot"></span>
-                  Documentação de Integrações
-                </div>
-
-                <h1>Guias de Integração por Banco</h1>
-
-                <p>
-                  Processo de criação da integração, roteiro de
-                  testes e catálogo de erros retornados — organizado
-                  por instituição homologada.
-                </p>
-
-              </div>
-
-              <div class="docs-hero-stats">
-
-                <div class="docs-hero-stat">
-                  <strong id="docsStatSections">0</strong>
-                  <span>Bancos</span>
-                </div>
-
-                <div class="docs-hero-stat">
-                  <strong id="docsStatTopics">0</strong>
-                  <span>Tópicos</span>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- SHELL -->
-
-          <div class="docs-shell">
-
-            <aside
-              class="docs-sidebar"
-              id="docsSidebar"
-            ></aside>
-
-            <div class="docs-content">
-
-              <div
-                class="docs-breadcrumb"
-                id="docsBreadcrumb"
-              ></div>
-
-              <article
-                class="docs-article"
-                id="docsArticle"
-              ></article>
-
-              <div
-                class="docs-footer-nav"
-                id="docsFooterNav"
-              ></div>
-
-            </div>
-
-            <aside
-              class="docs-toc"
-              id="docsToc"
-            ></aside>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ===================================================
-           COLLECTIONS
-      ==================================================== -->
-
-      <section
-        class="view"
-        data-view="collections"
-      >
-
-        <div class="collections-page">
-
-          <!-- HERO -->
-
-          <div class="cx-hero">
-
-            <div class="cx-hero-heading">
-
-              <div class="cx-hero-eyebrow">
-
-                <span class="cx-hero-eyebrow-dot"></span>
-
-                Developer Toolkit
-
-              </div>
-
-              <h1>
-                Collections Postman
-              </h1>
-
-              <p>
-                Monte rapidamente uma Collection completa para o
-                gateway selecionado, já estruturada com autenticação,
-                endpoints e configurações específicas da instituição.
-              </p>
-
-            </div>
-
-            <div class="cx-hero-stats">
-
-              <div class="cx-hero-stat">
-                <strong id="cxStatBanks">5</strong>
-                <span>Bancos</span>
-              </div>
-
-              <div class="cx-hero-stat">
-                <strong>2</strong>
-                <span>Produtos</span>
-              </div>
-
-              <div class="cx-hero-stat">
-                <strong>v2.1</strong>
-                <span>Postman</span>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- WORKSPACE -->
-
-          <div class="cx-layout">
-
-            <!-- BANK NAVIGATION -->
-
-            <aside class="cx-sidebar">
-
-              <div class="cx-sidebar-title">
-                Instituições
-              </div>
-
-              <div
-                class="cx-bank-list"
-                id="collectionBankGrid"
-              ></div>
-
-            </aside>
-
-
-            <!-- COLLECTION CONTENT -->
-
-            <main class="cx-main">
-
-              <div
-                class="cx-card cx-bank-header"
-                id="collectionSelectedHeader"
-              ></div>
-
-              <div class="cx-card">
-
-                <div
-                  class="cx-stat-row"
-                  id="collectionMetrics"
-                ></div>
-
-              </div>
-
-              <div class="cx-card">
-
-                <div class="cx-split">
-
-                  <div class="cx-endpoints">
-
-                    <div class="cx-endpoints-head">
-
-                      <strong>
-                        Endpoints incluídos
-                      </strong>
-
-                      <span
-                        class="cx-badge-count"
-                        id="endpointCount"
-                      >
-                        0 rotas
-                      </span>
-
-                    </div>
-
-                    <div
-                      class="cx-endpoint-list"
-                      id="endpointList"
-                    ></div>
-
-                  </div>
-
-                  <div class="cx-features">
-
-                    <div class="cx-features-title">
-                      Configuração
-                    </div>
-
-                    <div id="featureList"></div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              <div class="cx-card">
-
-                <div class="cx-fields-head">
-
-                  <div>
-                    <h3>Campos da Collection</h3>
-                    <p>Preencha os valores reais — eles são embutidos direto no JSON gerado.</p>
-                  </div>
-
-                  <div
-                    class="cx-fields-progress"
-                    id="collectionFieldsProgress"
-                  ></div>
-
-                </div>
-
-                <div
-                  class="cx-fields-grid"
-                  id="collectionFieldsForm"
-                ></div>
-
-              </div>
-
-              <div class="cx-action-bar">
-
-                <div class="cx-action-info">
-
-                  <strong>
-                    Pronto para gerar?
-                  </strong>
-
-                  <span>
-                    Será criado um arquivo Postman Collection
-                    no padrão v2.1.
-                  </span>
-
-                </div>
-
-                <button
-                  class="cx-generate-btn"
-                  type="button"
-                  id="btnGenerateCollection"
-                >
-
-                  <svg
-                    class="collection-download-icon"
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M12 3v12"/>
-                    <path d="m7 10 5 5 5-5"/>
-                    <path d="M5 21h14"/>
-                  </svg>
-
-                  Gerar Collection
-
-                </button>
-
-              </div>
-
-            </main>
-
-          </div>
-
-        </div>
 
       </section>
 
@@ -3888,6 +2993,66 @@
 
               </div>
 
+              <div class="form-group" style="margin-top:16px;">
+
+                <label>
+                  Gerar Query SQL (opcional)
+                </label>
+
+                <select
+                  id="faturaQuerySelect"
+                  class="query-select"
+                >
+                  <option value="nenhuma">Não gerar query</option>
+                  <option value="todos">Todos os registros</option>
+                  <option value="pendentes_vencidos">Pendentes e Vencidos (status)</option>
+                </select>
+
+              </div>
+
+              <div
+                class="docs-code-block"
+                id="faturaQueryBlock"
+                style="display:none; margin-top:10px;"
+              >
+
+                <div class="docs-code-head">
+
+                  <span>Query</span>
+
+                  <button
+                    type="button"
+                    class="docs-code-copy"
+                    id="btnCopyFaturaQuery"
+                  >
+
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <rect x="9" y="9" width="13" height="13" rx="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+
+                    Copiar
+
+                  </button>
+
+                </div>
+
+                <textarea
+                  id="faturaQueryText"
+                  class="fatura-output"
+                  style="min-height:90px;"
+                  readonly
+                ></textarea>
+
+              </div>
+
             </div>
 
           </div>
@@ -4092,7 +3257,6 @@ const BANKS = [
     color: "#F2B90C",
     protocol: "mTLS + OAuth2",
     desc: "Cobrança Bancária (boletos) e Pix Cobrança (cobv) via gateway BB com certificado mTLS.",
-    hasCollection: true,
     endpoints: {
       van: [
         "POST /oauth/token",
@@ -4116,7 +3280,6 @@ const BANKS = [
     color: "#EC7000",
     protocol: "CSR + mTLS",
     desc: "Geração de CSR e chave privada para credenciamento mTLS — não há conversão de PFX aqui.",
-    hasCollection: false,
     endpoints: {
       van: [],
       pix: []
@@ -4132,7 +3295,6 @@ const BANKS = [
     color: "#00843D",
     protocol: "V3 mTLS",
     desc: "Cobrança Bancária (boletos, v3) e Pix Cobrança (cobv, v2) via Keycloak OAuth2 + mTLS.",
-    hasCollection: true,
     endpoints: {
       van: [
         "POST /auth/realms/cooperado/protocol/openid-connect/token",
@@ -4156,7 +3318,6 @@ const BANKS = [
     color: "#005A36",
     protocol: "OAuth2 + x-api-key",
     desc: "Boleto híbrido (Pix) e Cobrança Bancária via API de Parceiros Sicredi.",
-    hasCollection: true,
     endpoints: {
       van: [
         "POST /auth/openapi/token",
@@ -4180,7 +3341,6 @@ const BANKS = [
     color: "#EC0000",
     protocol: "OAuth2 + mTLS",
     desc: "Cobrança de boletos em workspace dedicado e Pix Cobrança (cobv) via portal Developer Santander.",
-    hasCollection: true,
     endpoints: {
       van: [
         "POST /auth/oauth/v2/token",
@@ -4204,7 +3364,6 @@ const BANKS = [
     color: "#CC092F",
     protocol: "OpenAPI + mTLS",
     desc: "Cobrança Bancária (registro e baixa de boletos) e Pix Cobrança (cobv) via OpenAPI Bradesco.",
-    hasCollection: true,
     endpoints: {
       van: [
         "POST /auth/server-mtls/v2/token",
@@ -4223,8 +3382,6 @@ const BANKS = [
   }
 
 ];
-
-const COLLECTION_BANKS = BANKS.filter(bank => bank.hasCollection);
 
 
 /* =========================================================
@@ -4417,575 +3574,6 @@ function renderCards() {
       </a>
 
     `).join("");
-
-}
-
-
-/* =========================================================
-   COLLECTION STATE
-========================================================= */
-
-let selectedCollectionBankId =
-  COLLECTION_BANKS[0].id;
-
-let selectedCollectionProduct =
-  "pix";
-
-let collectionFields = [];
-
-const collectionFieldValues = {};
-
-
-/* =========================================================
-   COLLECTION SIDEBAR
-========================================================= */
-
-function renderCollectionBankGrid() {
-
-  const grid =
-    $("#collectionBankGrid");
-
-  if (!grid) return;
-
-
-  const banksCounter =
-    $("#cxStatBanks");
-
-  if (banksCounter) {
-    banksCounter.textContent = COLLECTION_BANKS.length;
-  }
-
-
-  grid.innerHTML =
-    COLLECTION_BANKS.map(bank => `
-
-      <button
-        type="button"
-        class="cx-bank-item ${
-          bank.id === selectedCollectionBankId
-            ? "selected"
-            : ""
-        }"
-        data-bank="${bank.id}"
-        style="--bank-accent:${bank.color}"
-        aria-pressed="${
-          bank.id === selectedCollectionBankId
-            ? "true"
-            : "false"
-        }"
-      >
-
-        <div class="cx-bank-badge">
-          ${bankInitials(bank.name)}
-        </div>
-
-        <div class="cx-bank-meta">
-
-          <span class="cx-bank-name">
-            ${bank.name}
-          </span>
-
-          <span class="cx-bank-protocol">
-            ${bank.protocol}
-          </span>
-
-        </div>
-
-        <span class="cx-bank-check">
-
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          >
-            <path d="m5 13 4 4L19 7"/>
-          </svg>
-
-        </span>
-
-      </button>
-
-    `).join("");
-
-
-  grid
-    .querySelectorAll(".cx-bank-item")
-    .forEach(item => {
-
-      item.addEventListener(
-        "click",
-        () => {
-
-          selectedCollectionBankId =
-            item.dataset.bank;
-
-          renderCollectionBankGrid();
-
-          renderCollectionWorkspace();
-
-        }
-      );
-
-    });
-
-}
-
-
-/* =========================================================
-   COLLECTION WORKSPACE
-========================================================= */
-
-function renderCollectionWorkspace() {
-
-  const bank =
-    COLLECTION_BANKS.find(
-      item =>
-        item.id === selectedCollectionBankId
-    ) || COLLECTION_BANKS[0];
-
-
-  const root =
-    document.documentElement;
-
-
-  root.style.setProperty(
-    "--selected-accent",
-    bank.color
-  );
-
-
-  /* ---------------------------------------------
-     HEADER
-  --------------------------------------------- */
-
-  $("#collectionSelectedHeader")
-    .innerHTML = `
-
-      <div class="cx-bank-identity">
-
-        <div
-          class="cx-bank-avatar"
-          style="--selected-accent:${bank.color}"
-        >
-          ${bankInitials(bank.name)}
-        </div>
-
-        <div class="cx-bank-identity-text">
-
-          <small>
-            Collection selecionada
-          </small>
-
-          <h2>
-            ${bank.name}
-          </h2>
-
-          <p>
-            ${bank.desc}
-          </p>
-
-        </div>
-
-      </div>
-
-      <div class="cx-header-controls">
-
-        <div class="cx-segmented">
-
-          <button
-            type="button"
-            class="cx-segmented-btn ${selectedCollectionProduct === 'pix' ? 'active' : ''}"
-            data-product="pix"
-          >
-            Pix
-          </button>
-
-          <button
-            type="button"
-            class="cx-segmented-btn ${selectedCollectionProduct === 'van' ? 'active' : ''}"
-            data-product="van"
-          >
-            Cobrança (VAN)
-          </button>
-
-        </div>
-
-        <div class="cx-format-pill">
-
-          <span class="cx-format-pill-dot"></span>
-
-          Postman v2.1
-
-        </div>
-
-      </div>
-
-    `;
-
-  $("#collectionSelectedHeader")
-    .querySelectorAll("[data-product]")
-    .forEach(btn => {
-
-      btn.addEventListener("click", () => {
-
-        if (btn.dataset.product === selectedCollectionProduct) return;
-
-        selectedCollectionProduct = btn.dataset.product;
-
-        renderCollectionWorkspace();
-
-      });
-
-    });
-
-
-  /* ---------------------------------------------
-     METRICS
-  --------------------------------------------- */
-
-  const metrics = [
-    {
-      label: "Autenticação",
-      value: bank.auth,
-      icon: `<path d="M12 3v18"/><path d="M3 12h18"/>`
-    },
-    {
-      label: "Ambiente",
-      value: bank.environment,
-      icon: `<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>`
-    },
-    {
-      label: "Segurança",
-      value: bank.security,
-      icon: `<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/>`
-    }
-  ];
-
-  $("#collectionMetrics")
-    .innerHTML =
-      metrics.map(metric => `
-
-        <div class="cx-stat">
-
-          <span class="cx-stat-icon">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              ${metric.icon}
-            </svg>
-          </span>
-
-          <span class="cx-stat-text">
-            <span class="cx-stat-label">${metric.label}</span>
-            <span class="cx-stat-value">${metric.value}</span>
-          </span>
-
-        </div>
-
-      `).join("");
-
-
-  /* ---------------------------------------------
-     ENDPOINTS
-  --------------------------------------------- */
-
-  const activeEndpoints =
-    bank.endpoints[selectedCollectionProduct] || [];
-
-
-  $("#endpointCount")
-    .textContent =
-      `${activeEndpoints.length} rotas`;
-
-
-  $("#endpointList")
-    .innerHTML =
-      activeEndpoints
-        .map(endpoint => {
-
-          const [method, ...pathParts] =
-            endpoint.split(" ");
-
-          const path =
-            pathParts.join(" ");
-
-
-          return `
-
-            <div class="cx-endpoint-row">
-
-              <span class="cx-method">
-                ${method}
-              </span>
-
-              <span class="cx-path">
-                ${path}
-              </span>
-
-            </div>
-
-          `;
-
-        })
-        .join("");
-
-
-  /* ---------------------------------------------
-     FEATURES
-  --------------------------------------------- */
-
-  const features = [
-    {
-      icon: `<path d="M12 3v18"/><path d="M3 12h18"/>`,
-      label: "OAuth2 configurado"
-    },
-    {
-      icon: `<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9h8"/>`,
-      label: bank.protocol
-    },
-    {
-      icon: `<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/>`,
-      label: "mTLS preparado"
-    },
-    {
-      icon: `<path d="M4 4h16v16H4z"/><path d="M8 9h8"/><path d="M8 13h6"/>`,
-      label: "Scripts Postman"
-    }
-  ];
-
-  $("#featureList")
-    .innerHTML =
-      features.map(feature => `
-
-        <div class="cx-feature-item">
-
-          <span class="cx-feature-icon">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              ${feature.icon}
-            </svg>
-          </span>
-
-          ${feature.label}
-
-        </div>
-
-      `).join("");
-
-
-  loadCollectionFields(bank);
-
-}
-
-
-/* =========================================================
-   COLLECTION FIELDS (dados a preencher na collection)
-========================================================= */
-
-function humanizeFieldLabel(key) {
-
-  const spaced =
-    key
-      .replace(/[_-]+/g, " ")
-      .replace(/([a-z0-9])([A-Z])/g, "$1 $2");
-
-  return spaced
-    .split(" ")
-    .filter(Boolean)
-    .map(word => word[0].toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-
-}
-
-
-function updateFieldsProgress(bank) {
-
-  const progressEl =
-    $("#collectionFieldsProgress");
-
-  if (!progressEl) return;
-
-
-  const total =
-    collectionFields.length;
-
-  const filled =
-    collectionFields.filter(field => {
-
-      const cacheKey =
-        `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
-
-      return (collectionFieldValues[cacheKey] || "").trim() !== "";
-
-    }).length;
-
-
-  if (!total) {
-    progressEl.innerHTML = "";
-    return;
-  }
-
-
-  const percent =
-    Math.round((filled / total) * 100);
-
-  progressEl.innerHTML = `
-
-    <span class="cx-progress-track">
-      <span
-        class="cx-progress-fill"
-        style="width:${percent}%;"
-      ></span>
-    </span>
-
-    <span class="cx-progress-label">
-      ${filled}/${total} preenchidos
-    </span>
-
-  `;
-
-}
-
-
-async function loadCollectionFields(bank) {
-
-  const panel =
-    $("#collectionFieldsForm");
-
-  const btn =
-    $("#btnGenerateCollection");
-
-  if (!panel) return;
-
-  const startHeight =
-    panel.getBoundingClientRect().height;
-
-  panel.style.height = `${startHeight}px`;
-  panel.style.overflow = "hidden";
-
-  panel.classList.add("is-loading");
-
-  btn.disabled = true;
-
-
-  try {
-
-    const response =
-      await fetch(
-        `/collections/${bank.id}/campos?produto=${selectedCollectionProduct}`
-      );
-
-    if (!response.ok) {
-      throw new Error("Não foi possível carregar os campos desta collection.");
-    }
-
-    const fields =
-      await response.json();
-
-    collectionFields = fields;
-
-    if (!fields.length) {
-
-      panel.innerHTML =
-        `<div class="cx-fields-empty">Esta collection não possui campos configuráveis.</div>`;
-
-    } else {
-
-      panel.innerHTML =
-        fields.map(field => {
-
-          const cacheKey =
-            `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
-
-          const value =
-            collectionFieldValues[cacheKey] || "";
-
-          return `
-            <div class="cx-field">
-              <label>
-                ${humanizeFieldLabel(field.chave)}
-                <span class="cx-field-key">${field.chave}</span>
-              </label>
-              <input
-                type="text"
-                data-field="${field.chave}"
-                value="${value.replace(/"/g, "&quot;")}"
-                placeholder="Valor para ${field.chave}"
-                autocomplete="off"
-              >
-            </div>
-          `;
-
-        }).join("");
-
-      panel
-        .querySelectorAll("[data-field]")
-        .forEach(input => {
-
-          const cacheKey =
-            `${bank.id}:${selectedCollectionProduct}:${input.dataset.field}`;
-
-          input.addEventListener("input", () => {
-            collectionFieldValues[cacheKey] = input.value;
-            updateFieldsProgress(bank);
-          });
-
-        });
-
-    }
-
-    updateFieldsProgress(bank);
-
-    btn.disabled = false;
-
-  } catch (error) {
-
-    collectionFields = [];
-
-    $("#collectionFieldsProgress").innerHTML = "";
-
-    panel.innerHTML =
-      `<div class="cx-fields-error">${error.message}</div>`;
-
-  } finally {
-
-    panel.classList.remove("is-loading");
-
-    requestAnimationFrame(() => {
-
-      const endHeight =
-        panel.scrollHeight;
-
-      panel.style.height = `${endHeight}px`;
-
-      panel.addEventListener("transitionend", function onHeightSettled(event) {
-
-        if (event.propertyName !== "height") return;
-
-        panel.style.height = "";
-        panel.style.overflow = "";
-
-        panel.removeEventListener("transitionend", onHeightSettled);
-
-      });
-
-    });
-
-  }
 
 }
 
@@ -6436,1259 +5024,6 @@ function renderSicrediConvertView(bank) {
 
 
 /* =========================================================
-   DOCUMENTATION DATA
-   ---------------------------------------------------------
-   Esqueleto de conteúdo. Troque os textos entre [[ ]] pelo
-   conteúdo real — a estrutura (callouts, código, tabelas)
-   pode ser reaproveitada livremente em cada tópico.
-========================================================= */
-
-function docsCallout(type, title, text) {
-
-  const icons = {
-    info: `<circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 11h1v5h1"/>`,
-    tip: `<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/><path d="m9 12 2 2 4-4"/>`,
-    warning: `<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>`,
-    danger: `<circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-5 5"/><path d="m9.5 9.5 5 5"/>`
-  };
-
-  return `
-
-    <div class="docs-callout docs-callout--${type}">
-
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        ${icons[type]}
-      </svg>
-
-      <div><strong>${title}:</strong> ${text}</div>
-
-    </div>
-
-  `;
-
-}
-
-
-function docsCode(lang, code) {
-
-  return `
-
-    <div class="docs-code-block">
-
-      <div class="docs-code-head">
-
-        <span>${lang}</span>
-
-        <button type="button" class="docs-code-copy" data-copy>
-
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="9" y="9" width="13" height="13" rx="2"/>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
-
-          Copiar
-
-        </button>
-
-      </div>
-
-      <pre>${code}</pre>
-
-    </div>
-
-  `;
-
-}
-
-
-// docsImage monta um print/diagrama já com moldura, cantos arredondados e
-// legenda opcional — nunca insira <img> "cru" no conteúdo da documentação,
-// sempre passe pela função pra herdar o CSS que impede a imagem de estourar
-// a largura do card (.docs-figure, definido junto com .docs-article).
-function docsImage(src, alt, legenda) {
-
-  return `
-
-    <figure class="docs-figure">
-
-      <img
-        src="${src}"
-        alt="${alt || ""}"
-        loading="lazy"
-      >
-
-      ${legenda ? `<figcaption>${legenda}</figcaption>` : ""}
-
-    </figure>
-
-  `;
-
-}
-
-
-function docsTable(headers, rows) {
-
-  return `
-
-    <div class="docs-table-wrap">
-
-      <table class="docs-table">
-
-        <thead>
-          <tr>
-            ${headers.map(h => `<th>${h}</th>`).join("")}
-          </tr>
-        </thead>
-
-        <tbody>
-          ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}
-        </tbody>
-
-      </table>
-
-    </div>
-
-  `;
-
-}
-
-
-function renderVarsTable(vars) {
-
-  return docsTable(
-    ["Variável", "O que é", "Exemplo"],
-    vars.map(v => [
-      `<code>${v.key}</code>`,
-      v.desc,
-      v.example ? `<code>${v.example}</code>` : "—"
-    ])
-  );
-
-}
-
-
-function renderEndpointsTable(endpoints) {
-
-  return docsTable(
-    ["Método", "Endpoint", "O que faz"],
-    endpoints.map(e => [
-      `<code>${e.method}</code>`,
-      `<code>${e.path}</code>`,
-      e.desc
-    ])
-  );
-
-}
-
-
-function renderDocsNotes(notes) {
-
-  if (!notes || !notes.length) return "";
-
-  return notes
-    .map(n => docsCallout(n.type, n.title, n.text))
-    .join("");
-
-}
-
-
-/* ---------------------------------------------------------
-   Dados reais de cada integração, extraídos diretamente dos
-   geradores de collection em internal/collections/{pix,van}
-   e internal/convert/csr_itau.go — não são texto de exemplo.
---------------------------------------------------------- */
-
-/* ---------------------------------------------------------
-   Origem do conteúdo: documentação interna de homologação e
-   atualização de Pix/Van (base de suporte) + os geradores de
-   collection em internal/collections/{pix,van} e o conversor
-   em internal/convert/*.go. Os passos de extração manual de
-   chave (OpenSSL, Gerenciador de Certificados do Windows para
-   o cliente final) foram removidos sempre que a aba Conversor
-   já faz aquele passo automaticamente — o que sobra aqui é só
-   o que ainda é manual (cadastro no portal do banco, upload
-   de certificado, preenchimento de campos no sistema).
---------------------------------------------------------- */
-
-const BANK_DOCS = {
-
-  bb: {
-    pix: {
-      authType: "OAuth2 (Basic Auth + client_credentials) sobre mTLS",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente (o Conversor já extrai a cadeia completa)",
-        "Aplicativo cadastrado no portal Developer do BB",
-        "Chave Pix no DICT"
-      ],
-      escopo: "PIX V2",
-      criacaoSteps: [
-        "Converta o certificado na aba <strong>Conversor</strong> (PFX → Chaves PEM) — só para o BB, já sai com os 5 arquivos: pública, privada, raiz e os 2 intermediários.",
-        "No portal Developer do BB, crie o aplicativo com escopo <strong>PIX V2</strong> e, na aba Certificados, envie os 5 arquivos.",
-        "Ative a produção (CNPJ + aceite no Internet Banking) e copie <code>client_id</code>, <code>client_secret</code> e <code>developer_application_key</code>.",
-        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — preencha os campos e teste a comunicação."
-      ],
-      criacaoNotaCadeia: "Se o .pfx não trouxer a cadeia completa, raiz/intermediários saem vazios do Conversor — peça o pacote completo ao emissor ou extraia pelo Gerenciador de Certificados do Windows.",
-      atualizacaoSteps: [
-        "Peça o novo certificado ao cliente e reconverta na aba Conversor (já sai com os 5 arquivos).",
-        "No portal Developer do BB, abra o app existente &gt; Certificados &gt; Enviar Certificado, e substitua pelos novos.",
-        "As credenciais não mudam — atualize só <code>path_cert_client</code> e <code>path_key_client</code> no sistema e teste."
-      ],
-      vars: [
-        { key: "client_id", desc: "Usuário do Basic Auth (app do portal Developer).", example: "eyJpZCI6..." },
-        { key: "client_secret", desc: "Senha do Basic Auth.", example: "••••••••" },
-        { key: "bb_dev_app_key", desc: "Chave de desenvolvedor (gw-dev-app-key), na query string.", example: "a1b2c3d4" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
-        { key: "scope", desc: "Escopos OAuth2 da autenticação.", example: "cobv.write cobv.read pix.read" },
-        { key: "pix_txid", desc: "ID da cobrança — troque pelo valor real em produção.", example: "AJIDJALISJSHDKUSHD" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
-        { method: "PUT", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Cria/atualiza a cobrança." },
-        { method: "PATCH", path: "/pix/v2/cobv/{txid}?gw-dev-app-key=...", desc: "Cancela a cobrança." }
-      ]
-    },
-    van: {
-      authType: "OAuth2 client_credentials com token Basic fixo (sem certificado/mTLS)",
-      mtls: false,
-      prereqs: [
-        "Convênio de cobrança com o BB",
-        "Token Basic, gw-app-key, convênio, carteira e variação (fornecidos pelo gerente da conta)"
-      ],
-      criacaoInfo: "Sem cadastro de portal — o BB fornece o token Basic e os demais dados direto ao contratar a Cobrança Bancária. Preencha na aba Collections.",
-      atualizacaoInfo: "Token fixo, não expira — sem renovação periódica. Se o BB trocar o token, só atualize bb_basic_token no sistema.",
-      vars: [
-        { key: "bb_basic_token", desc: "Header Authorization completo, já no formato \"Basic xxxxx\".", example: "Basic ZWFhYWFh..." },
-        { key: "bb_app_key", desc: "Chave de aplicação (gw-app-key) do gateway do BB.", example: "a1b2c3d4" },
-        { key: "bb_convenio", desc: "Número do convênio de cobrança.", example: "1234567" },
-        { key: "bb_num_carteira", desc: "Número da carteira vinculada ao convênio.", example: "17" },
-        { key: "bb_variacao_carteira", desc: "Variação da carteira.", example: "19" },
-        { key: "bb_modalidade", desc: "Código da modalidade (ex.: 1 = Simples).", example: "1" },
-        { key: "bb_titulo_beneficiario", desc: "Número do título do beneficiário.", example: "000123" },
-        { key: "bb_titulo_cliente", desc: "Número do título do cliente/sacado.", example: "000123" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica com o token Basic e retorna o bearer_token." },
-        { method: "POST", path: "/cobrancas/v2/boletos?gw-app-key=...", desc: "Registra um novo boleto." },
-        { method: "POST", path: "/cobrancas/v2/boletos/numTitulo/baixar?gw-app-key=...", desc: "Baixa (cancela) um boleto." }
-      ],
-      notes: [
-        { type: "warning", title: "Escopo fixo na Van", text: "A autenticação sempre envia cobrancas.boletos-requisicao cobrancas.boletos-info, não importa o que for preenchido em scope." }
-      ],
-      errors: [
-        { code: "400", cause: "bb_basic_token sem o prefixo \"Basic \"", action: "Inclua o prefixo Basic, exatamente como o BB fornece" }
-      ]
-    }
-  },
-
-  itau: {
-    isCsrOnly: true,
-    prereqs: [
-      "Solicitação de credenciamento no portal Developer do Itaú",
-      "Credencial por e-mail do Itaú — expira em 7 dias",
-      "Dados do solicitante para o CSR (Common Name = a credencial recebida)"
-    ],
-    atualizacaoInfo: "Nunca atualizamos uma integração do Itaú — o esperado é repetir o credenciamento: gerar um novo CSR aqui com a nova credencial recebida por e-mail. O certificado dura 1 ano.",
-    errors: [
-      { code: "Credencial expirada", cause: "Mais de 7 dias entre o e-mail do Itaú e o envio do CSR", action: "Solicite uma nova credencial — a anterior não serve mais" }
-    ]
-  },
-
-  sicoob: {
-    pix: {
-      authType: "OAuth2 (Basic Auth + client_credentials), via OpenID Connect/Keycloak",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente (aba Conversor)",
-        "Cadastro no portal Sicoob Developers",
-        "Chave Pix no DICT"
-      ],
-      escopo: "Pix Recebimentos",
-      criacaoSteps: [
-        "Converta o certificado na aba <strong>Conversor</strong> (PFX → Chaves PEM).",
-        "No Sicoob Developers, envie <strong>só a chave pública</strong> e selecione o escopo <strong>Pix Recebimentos</strong>.",
-        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong>.",
-        "<code>client_id</code> e <code>client_secret</code> recebem a <strong>mesma</strong> credencial (particularidade do Sicoob); <code>path_cert_client</code>/<code>path_key_client</code> recebem as chaves do Conversor. Teste a comunicação."
-      ],
-      atualizacaoSteps: [
-        "Peça o novo certificado e reconverta na aba Conversor.",
-        "O Sicoob <strong>não exige</strong> reenvio no portal — só atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema e teste."
-      ],
-      vars: [
-        { key: "client_id", desc: "App cadastrada no Sicoob Developers.", example: "9b2c..." },
-        { key: "client_secret", desc: "Mesma credencial do client_id (particularidade do Sicoob).", example: "••••••••" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
-        { key: "scope", desc: "Escopos da autenticação.", example: "cobv.write cobv.read pix.read" },
-        { key: "pix_txid", desc: "ID da cobrança — troque pelo valor real.", example: "JHAUDHFJANXUGVFUABND" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Autentica e retorna o bearer_token." },
-        { method: "PUT", path: "/pix/api/v2/cobv/{txid}", desc: "Cria a cobrança." },
-        { method: "PATCH", path: "/pix/api/v2/cobv/{txid}", desc: "Cancela a cobrança." }
-      ],
-      errors: [
-        { code: "401", cause: "client_id e client_secret com valores diferentes", action: "No Sicoob as duas credenciais são iguais — use a mesma nos dois campos" }
-      ]
-    },
-    van: {
-      authType: "Mesma autenticação do Pix (Basic Auth + client_credentials via Keycloak)",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente",
-        "Integração Sicoob já configurada no Next"
-      ],
-      criacaoSteps: [
-        "Na aba <strong>Conversor</strong>, use <strong>Re-encodar PFX (Compatibilidade)</strong> e gere o novo .pfx.",
-        "No Next: <strong>Configurações &gt; Integrações &gt; Sicoob</strong> — suba o novo .pfx (e a senha, se mudou)."
-      ],
-      atualizacaoInfo: "Mesmo processo da criação, ao lado — repita quando o certificado vencer. Sem reenvio no portal.",
-      vars: [
-        { key: "client_id", desc: "Mesma app usada no Pix.", example: "9b2c..." },
-        { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" },
-        { key: "numeroCliente", desc: "Número do cliente/cooperado.", example: "12345" },
-        { key: "scope", desc: "Escopos de cobrança bancária.", example: "boletos_inclusao boletos_consulta boletos_alteracao" },
-        { key: "codigoModalidade", desc: "Modalidade de cobrança do boleto.", example: "1" },
-        { key: "numeroContaCorrente", desc: "Conta corrente vinculada.", example: "12345" },
-        { key: "dataVencimento", desc: "Vencimento do boleto (AAAA-MM-DD).", example: "2027-02-02" },
-        { key: "dataEmissao", desc: "Emissão do boleto (AAAA-MM-DD).", example: "2026-09-15" },
-        { key: "seuNumero", desc: "Controle interno do beneficiário.", example: "251454" },
-        { key: "nossoNumero", desc: "Título do Sicoob — usado na baixa.", example: "1" },
-        { key: "identificacaoBoletoEmpresa", desc: "Identificação interna do boleto.", example: "1" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/auth/realms/cooperado/protocol/openid-connect/token", desc: "Mesma autenticação do Pix." },
-        { method: "POST", path: "/cobranca-bancaria/v3/boletos", desc: "Registra o boleto com QR Code Pix." },
-        { method: "POST", path: "/cobranca-bancaria/v3/boletos/{nossoNumero}/baixar", desc: "Baixa o boleto." }
-      ]
-    }
-  },
-
-  sicredi: {
-    pix: {
-      authType: "OAuth2 Basic + client_credentials (sem certificado A1 — chaves emitidas pelo Sicredi)",
-      mtls: true,
-      prereqs: [
-        "Acesso liberado a \"APIs de Recebimento\" no portal Sicredi (chamado se não tiver)",
-        "Dados para o CSR: CNPJ do associado/parceiro, cooperativa e conta do cliente",
-        "Chave Pix no DICT"
-      ],
-      criacaoSteps: [
-        "No portal Developer Sicredi, confirme o acesso a <strong>APIs de Recebimento &gt; Certificados e Credenciais</strong> (ou abra chamado pedindo \"Acesso à API Pix\").",
-        "Em <strong>Registrar CSR</strong>, preencha os dados do cliente e aguarde o banco processar.",
-        "Baixe o <strong>.cer</strong> e o <strong>.key</strong> (<strong>sempre sem frase secreta</strong>) e gere as credenciais no próprio portal.",
-        "Na aba <strong>Conversor</strong> desta ferramenta, no card do Sicredi, envie os dois arquivos para normalizar em PEM.",
-        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — preencha e teste."
-      ],
-      atualizacaoSteps: [
-        "O certificado dura <strong>2 anos</strong> — repita o registro de CSR no portal Sicredi.",
-        "Baixe o novo .cer/.key e converta na aba Conversor (card Sicredi).",
-        "Atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema."
-      ],
-      vars: [
-        { key: "sicredi_api_key", desc: "x-api-key, também usada como client_id no Pix.", example: "a1b2c3" },
-        { key: "username", desc: "Usuário da API de Parceiros.", example: "usuario.integracao" },
-        { key: "password", desc: "Senha do usuário.", example: "••••••••" },
-        { key: "cooperativa", desc: "Cooperativa do beneficiário.", example: "0123" },
-        { key: "posto", desc: "Posto de atendimento da conta.", example: "01" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
-        { key: "pix_txid", desc: "ID da cobrança.", example: "HAUSKJLDSIJUKDHSK" },
-        { key: "scope", desc: "Escopo da autenticação.", example: "cobv.write cobv.read pix.read" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
-        { method: "PUT", path: "/api/v2/cobv/{txid}", desc: "Cria a cobrança." },
-        { method: "PATCH", path: "/api/v2/cobv/{txid}", desc: "Cancela a cobrança." }
-      ],
-      notes: [
-        { type: "info", title: "Autenticação diferente por produto", text: "Pix usa client_credentials (Basic); Van usa password grant — não reaproveite o bearer_token entre os dois." }
-      ]
-    },
-    van: {
-      authType: "OAuth2 password grant + x-api-key (usuário/senha fixos, sem certificado)",
-      mtls: false,
-      prereqs: [
-        "Cadastro na API de Parceiros do Sicredi",
-        "x-api-key fornecida pelo banco"
-      ],
-      criacaoInfo: "Sem cadastro de portal — usuário, senha e x-api-key vêm do banco ao contratar a Van. Preencha na aba Collections.",
-      atualizacaoInfo: "Credenciais fixas, não expiram — sem renovação periódica.",
-      vars: [
-        { key: "username", desc: "Usuário da API de Parceiros.", example: "usuario.integracao" },
-        { key: "password", desc: "Senha do usuário.", example: "••••••••" },
-        { key: "x-api-key", desc: "Enviada no header x-api-key em toda chamada.", example: "a1b2c3" },
-        { key: "cooperativa", desc: "Cooperativa do beneficiário.", example: "0123" },
-        { key: "posto", desc: "Posto de atendimento da conta.", example: "01" },
-        { key: "sicredi_codBenef", desc: "Código do beneficiário.", example: "12345" },
-        { key: "sicredi_nossoNumero", desc: "Título do Sicredi — usado na baixa.", example: "251454" },
-        { key: "scope", desc: "Escopo de cobrança.", example: "cobranca" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/auth/openapi/token", desc: "Autentica (usuário/senha + x-api-key) e retorna o bearer_token." },
-        { method: "POST", path: "/cobranca/boleto/v1/boletos", desc: "Registra o boleto híbrido (QR Code Pix)." },
-        { method: "PATCH", path: "/cobranca/boleto/v1/boletos/{nossoNumero}/baixa", desc: "Baixa o boleto." }
-      ]
-    }
-  },
-
-  santander: {
-    pix: {
-      authType: "OAuth2 Basic + client_credentials, sobre mTLS",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente (aba Conversor)",
-        "Cadastro no portal Developer Santander Empresas",
-        "Chave Pix no DICT"
-      ],
-      escopo: "PIX - QR Code",
-      criacaoSteps: [
-        "Converta o certificado na aba <strong>Conversor</strong>.",
-        "No portal Developer Santander, crie o app com escopo <strong>PIX - QR Code</strong>.",
-        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 Edição &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — preencha e teste."
-      ],
-      atualizacaoSteps: [
-        "Converta o novo certificado na aba Conversor.",
-        "No portal, abra o app &gt; <strong>Renovar</strong>, e envie a chave pública nova.",
-        "Atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema e teste."
-      ],
-      vars: [
-        { key: "client_id", desc: "App cadastrada no portal Developer.", example: "abc123" },
-        { key: "client_secret", desc: "Segredo do Basic Auth.", example: "••••••••" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
-        { key: "pix_txid", desc: "ID da cobrança.", example: "AHUDAHIUDHAKDUHA" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
-        { method: "PUT", path: "/api/v1/cobv/{txid}", desc: "Cria a cobrança." },
-        { method: "PATCH", path: "/api/v1/cobv/{txid}", desc: "Cancela a cobrança." }
-      ]
-    },
-    van: {
-      authType: "OAuth2 client_credentials, sobre mTLS",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente",
-        "Workspace de cobrança criado no Santander"
-      ],
-      criacaoSteps: [
-        "Na aba <strong>Conversor</strong>, use <strong>Re-encodar PFX</strong> para gerar o novo .pfx.",
-        "Extraia a chave pública (<strong>PFX → Chaves PEM</strong>) e envie no portal Developer Santander (app da integração).",
-        "No Next: <strong>Configurações &gt; Integrações &gt; Santander</strong> — suba o novo .pfx."
-      ],
-      atualizacaoInfo: "Mesmos passos da criação, ao lado — repita quando o certificado do cliente for renovado.",
-      vars: [
-        { key: "client_id", desc: "Mesma app usada no Pix.", example: "abc123" },
-        { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" },
-        { key: "santander_app_key", desc: "X-Application-Key em toda chamada.", example: "a1b2c3" },
-        { key: "santander_workspace_id", desc: "Workspace de cobrança, usado na URL.", example: "ws-0001" },
-        { key: "santander_client_number", desc: "Número do cliente no Santander.", example: "123456" },
-        { key: "santander_bank_number", desc: "Código NSU/banco do boleto.", example: "654321" },
-        { key: "santander_convent_code", desc: "Convênio de cobrança.", example: "7654321" },
-        { key: "santander_dict_type", desc: "Tipo da chave Pix do boleto híbrido.", example: "EMAIL" },
-        { key: "santander_dict_key", desc: "Valor da chave Pix do boleto híbrido.", example: "contato@empresa.com" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/auth/oauth/v2/token", desc: "Autentica e retorna o bearer_token." },
-        { method: "POST", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Registra o boleto com QR Code Pix." },
-        { method: "PATCH", path: "/collection_bill_management/v2/workspaces/{workspace_id}/bank_slips", desc: "Baixa o boleto (operation: BAIXA)." }
-      ]
-    }
-  },
-
-  bradesco: {
-    pix: {
-      authType: "OAuth2 Basic + client_credentials, sobre mTLS",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente (aba Conversor)",
-        "Inscrição no produto \"Pix QR Code\" no portal Bradesco",
-        "Chave Pix no DICT"
-      ],
-      escopo: "Pix QR Code",
-      criacaoSteps: [
-        "Converta o certificado na aba <strong>Conversor</strong>.",
-        "No portal Developer Bradesco: <strong>Products &gt; Pix QR Code</strong> &gt; inscreva-se, depois registre o app em \"Aplicações registradas\".",
-        "No sistema: <strong>Config. &gt; Financeiro &gt; Profiles &gt; Boleto MK Ver.2 &gt; PIX &gt; Cadastrar Credenciais Pix</strong> — <code>path_cert_host</code> é o certificado do próprio Bradesco (qrpix.bradesco.com.br). Teste."
-      ],
-      atualizacaoSteps: [
-        "Converta o novo certificado na aba Conversor.",
-        "Em \"Aplicações registradas\", envie a nova chave pública.",
-        "Atualize <code>path_cert_client</code>/<code>path_key_client</code> no sistema e teste."
-      ],
-      vars: [
-        { key: "client_id", desc: "App cadastrada no Bradesco.", example: "abc123" },
-        { key: "client_secret", desc: "Usado no Basic Auth e no corpo da autenticação.", example: "••••••••" },
-        { key: "chave_pix", desc: "Chave Pix cadastrada no DICT.", example: "11999999999" },
-        { key: "scope", desc: "Escopos da autenticação.", example: "pix.read pix.write cobv.read cobv.write" },
-        { key: "pix_txid", desc: "ID da cobrança.", example: "HUAJDKJSIOHHUAHSUGD" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/oauth/token", desc: "Autentica e retorna o bearer_token." },
-        { method: "PUT", path: "/v2/cobv/{txid}", desc: "Cria a cobrança." },
-        { method: "PATCH", path: "/v2/cobv/{txid}", desc: "Cancela a cobrança." }
-      ]
-    },
-    van: {
-      authType: "OAuth2 client_credentials, sobre mTLS (grant-type com hífen)",
-      mtls: true,
-      prereqs: [
-        "Certificado A1 do cliente",
-        "Cadastro no portal Bradesco para Cobrança Bancária"
-      ],
-      criacaoSteps: [
-        "Na aba <strong>Conversor</strong>, use <strong>Re-encodar PFX</strong> para gerar o novo .pfx.",
-        "Extraia a chave pública e envie no portal (app da integração).",
-        "No Next: <strong>Configurações &gt; Integrações &gt; Bradesco</strong> — suba o novo .pfx."
-      ],
-      atualizacaoInfo: "Mesmos passos da criação, ao lado — repita quando o certificado vencer.",
-      vars: [
-        { key: "client_id", desc: "Mesma app usada no Pix.", example: "abc123" },
-        { key: "client_secret", desc: "Segredo da aplicação.", example: "••••••••" }
-      ],
-      endpoints: [
-        { method: "POST", path: "/auth/server-mtls/v2/token", desc: "Autentica via mTLS e retorna o bearer_token." },
-        { method: "POST", path: "/boleto/cobranca-registro/v1/cobranca", desc: "Registra o boleto." },
-        { method: "POST", path: "/boleto/cobranca-baixa/v1/baixar", desc: "Baixa o boleto." }
-      ],
-      notes: [
-        { type: "warning", title: "grant-type com hífen", text: "É proposital (exigência do Bradesco) — não corrija na collection." },
-        { type: "warning", title: "Boleto com dados fixos", text: "Documento, título, datas e valores vêm fixos no body — edite o JSON manualmente se precisar mudar." }
-      ]
-    }
-  }
-
-};
-
-
-function docsOL(items) {
-  return `<ol>${items.map(i => `<li>${i}</li>`).join("")}</ol>`;
-}
-
-
-function docsProductLabel(product) {
-  return product === "van" ? "Cobrança (VAN)" : "Pix";
-}
-
-
-function docsPostmanGuideContent() {
-
-  return `
-
-    <p class="docs-lead">Passo a passo único para instalar o Postman e testar qualquer banco. Leia antes da aba "Testes" de cada integração, que só traz os detalhes específicos daquele banco.</p>
-
-    <h2>1. Instalar e importar</h2>
-
-    ${docsOL([
-      "Baixe em <code>postman.com/downloads</code> e abra — não precisa criar conta.",
-      "Na aba <strong>Collections</strong> desta ferramenta, gere a collection do banco/produto e baixe o .json.",
-      "No Postman, <strong>Import</strong> &gt; selecione o arquivo. A collection aparece com as requisições de Autenticação, Criação e Remoção/Baixa."
-    ])}
-
-    ${docsCallout("tip", "bearer_token preenche sozinho", "Depois de rodar a Autenticação com sucesso, um script já grava o token na variável bearer_token — não precisa copiar e colar manualmente.")}
-
-    <h2>2. Certificado (mTLS) por host</h2>
-
-    <p>Bancos com mTLS (indicado na aba Testes de cada um) exigem certificado por host, não por requisição:</p>
-
-    ${docsOL([
-      "<strong>Settings &gt; Certificates &gt; Add Certificate</strong>.",
-      "<strong>Host</strong>: domínio da API (ex.: <code>api-pix.bb.com.br</code>, sem https://).",
-      "<strong>CRT file</strong>/<strong>KEY file</strong>: chave pública/privada geradas na aba Conversor.",
-      "Repita para cada host diferente da collection (ex.: o BB usa um host para autenticar e outro para as chamadas Pix)."
-    ])}
-
-    ${docsCallout("warning", "Sem certificado = handshake falha", "Sem certificado cadastrado para o host, a requisição falha antes de chegar no banco — mesmo com usuário/senha certos.")}
-
-    <h2>3. Rodando os testes</h2>
-
-    ${docsOL([
-      "<strong>Autenticação</strong> — espere <code>200</code> e o bearer_token preenchido.",
-      "<strong>Criação</strong> — espere <code>200</code>/<code>201</code> com os dados da cobrança.",
-      "<strong>Remoção/Baixa</strong> — confirma o cancelamento, evitando deixar cobrança de teste presa no banco."
-    ])}
-
-    <p>Status ruim? Veja a aba <strong>Erros Retornados</strong> da integração.</p>
-
-  `;
-
-}
-
-
-function docsProcessoContent(bank, product) {
-
-  const info = BANK_DOCS[bank.id];
-
-  if (!info) {
-    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
-  }
-
-  if (info.isCsrOnly) {
-
-    return `
-
-      <p class="docs-lead">O ${bank.name} não usa conversão de PFX: a integração exige um CSR + chave privada, gerados aqui a partir dos dados do solicitante.</p>
-
-      <h2>Pré-requisitos</h2>
-
-      <ul>
-        ${info.prereqs.map(p => `<li>${p}</li>`).join("")}
-      </ul>
-
-      <h2>Passo a passo</h2>
-
-      <ol>
-        <li>No Main Menu, abra o card do ${bank.name}.</li>
-        <li>Preencha o <strong>Common Name (CN)</strong> com a credencial recebida por e-mail do Itaú — os demais campos são opcionais.</li>
-        <li>Clique em <strong>Gerar CSR</strong> e baixe o CSR (.csr) e a Chave Privada (.key).</li>
-        <li>Envie o .csr pelo canal de credenciamento do Itaú para obter o certificado assinado.</li>
-      </ol>
-
-      ${docsCallout("warning", "Prazo de 7 dias e chave não reaproveitável", "Conclua o processo em até 7 dias após o e-mail do Itaú. Cada CSR gera uma chave nova — guarde o .csr junto com a .key baixada na mesma geração.")}
-
-    `;
-
-  }
-
-  const p = info[product];
-  const label = docsProductLabel(product);
-
-  if (!p) {
-    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
-  }
-
-  const prereqsList =
-    p.escopo ? [...p.prereqs, `Escopo: <strong>${p.escopo}</strong>`] : p.prereqs;
-
-  const prereqsHtml = `
-    <h2>Pré-requisitos</h2>
-    <ul>${prereqsList.map(x => `<li>${x}</li>`).join("")}</ul>
-  `;
-
-  if (!p.criacaoSteps) {
-
-    return `
-
-      <p class="docs-lead">Integração ${label} com o ${bank.name} — ${p.authType}.</p>
-
-      ${prereqsHtml}
-
-      ${docsCallout("info", "Sem passo a passo de portal", p.criacaoInfo)}
-
-      <h2>Variáveis</h2>
-
-      ${renderVarsTable(p.vars)}
-
-    `;
-
-  }
-
-  return `
-
-    <p class="docs-lead">Integração ${label} com o ${bank.name} — ${p.authType}.</p>
-
-    ${prereqsHtml}
-
-    <h2>Passo a passo</h2>
-
-    ${docsOL(p.criacaoSteps)}
-
-    ${p.criacaoNotaCadeia ? docsCallout("warning", "Se a cadeia vier vazia", p.criacaoNotaCadeia) : ""}
-
-    <h2>Variáveis</h2>
-
-    ${renderVarsTable(p.vars)}
-
-  `;
-
-}
-
-
-function docsAtualizacaoContent(bank, product) {
-
-  const info = BANK_DOCS[bank.id];
-
-  if (!info) {
-    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
-  }
-
-  if (info.isCsrOnly) {
-
-    return `
-
-      <p class="docs-lead">O que fazer quando o credenciamento do ${bank.name} precisar ser renovado.</p>
-
-      ${docsCallout("info", "Ainda sem um caso real", info.atualizacaoInfo)}
-
-    `;
-
-  }
-
-  const p = info[product];
-  const label = docsProductLabel(product);
-
-  if (!p) {
-    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
-  }
-
-  const parts = [
-    `<p class="docs-lead">O que fazer quando o certificado (ou as credenciais) da integração ${label} do ${bank.name} vencer.</p>`
-  ];
-
-  if (p.atualizacaoInfo) {
-    parts.push(docsCallout("info", "Processo de atualização", p.atualizacaoInfo));
-  }
-
-  if (p.atualizacaoSteps) {
-    parts.push(`<h2>Passo a passo</h2>${docsOL(p.atualizacaoSteps)}`);
-  }
-
-  return parts.join("\n");
-
-}
-
-
-function docsTestesContent(bank, product) {
-
-  const info = BANK_DOCS[bank.id];
-
-  if (!info) {
-    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
-  }
-
-  if (info.isCsrOnly) {
-
-    return `
-
-      <p class="docs-lead">Não existe Collection Postman pronta para o ${bank.name} — só CSR e chave privada.</p>
-
-      <ol>
-        <li>Envie o CSR ao banco e aguarde o certificado assinado.</li>
-        <li>Valide que o certificado forma par com a chave baixada aqui (hashes MD5 do módulo idênticos).</li>
-      </ol>
-
-      ${docsCode("bash", "openssl x509 -noout -modulus -in certificado.crt | openssl md5\nopenssl rsa -noout -modulus -in ChavePrivada_exemplo.key | openssl md5\n# os dois hashes devem ser idênticos")}
-
-    `;
-
-  }
-
-  const p = info[product];
-  const label = docsProductLabel(product);
-
-  if (!p) {
-    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
-  }
-
-  const introCallout =
-    p.mtls === false
-      ? docsCallout("tip", "Antes de começar", `Veja o <a href="#documentacao/postman-guia">guia geral do Postman</a>. Este produto não usa mTLS — só usuário/senha ou token.`)
-      : docsCallout("tip", "Antes de começar", `Veja o <a href="#documentacao/postman-guia">guia geral do Postman</a> para importar a collection e configurar o certificado mTLS do host.`);
-
-  return `
-
-    <p class="docs-lead">Roteiro para validar a integração ${label} com o ${bank.name}.</p>
-
-    ${introCallout}
-
-    <h2>Endpoints</h2>
-
-    ${renderEndpointsTable(p.endpoints)}
-
-    ${renderDocsNotes(p.notes)}
-
-    <h2>Roteiro de teste</h2>
-
-    ${docsOL([
-      `<strong>Autenticação</strong> — espere <code>200</code>${p.mtls === false ? "" : " (sem erro de handshake mTLS)"} e o bearer_token preenchido.`,
-      "<strong>Criação</strong> — espere <code>200</code>/<code>201</code> com o identificador da cobrança/boleto.",
-      "<strong>Remoção/Baixa</strong> — espere <code>200</code>/<code>204</code> confirmando o cancelamento."
-    ])}
-
-  `;
-
-}
-
-
-function docsErrosContent(bank, product) {
-
-  const info = BANK_DOCS[bank.id];
-
-  if (!info) {
-    return `<p class="docs-lead">Sem informações cadastradas para ${bank.name} ainda.</p>`;
-  }
-
-  if (info.isCsrOnly) {
-
-    return `
-
-      <p class="docs-lead">Erros mais comuns ao gerar o CSR e a chave do ${bank.name}.</p>
-
-      ${docsTable(
-        ["Mensagem", "Causa", "Ação"],
-        [
-          ["Common Name é obrigatório", "Campo CN em branco", "Preencha o Common Name"],
-          ["Falha ao gerar a chave RSA", "Erro interno, raro", "Tente de novo; persistindo, reinicie a ferramenta"],
-          ["Falha ao tentar gerar o CSR", "Caracteres inválidos nos campos", "Revise os dados preenchidos"],
-          ...(info.errors || []).map(e => [e.code, e.cause, e.action])
-        ]
-      )}
-
-      ${docsCallout("warning", "Rejeição pelo banco", "CSR rejeitado ou dados divergentes não é erro desta ferramenta — consulte o canal de credenciamento do banco.")}
-
-    `;
-
-  }
-
-  const p = info[product];
-  const label = docsProductLabel(product);
-
-  if (!p) {
-    return `<p class="docs-lead">O ${bank.name} não tem o produto ${label} documentado.</p>`;
-  }
-
-  const genericRows = [
-    ["<code>401</code>", "Token ausente, expirado ou credenciais inválidas", "Rode a Autenticação de novo"],
-    ["<code>403</code>",
-      p.mtls === false ? "Escopo não autorizado" : "Certificado não homologado ou escopo não autorizado",
-      p.mtls === false ? "Confirme se o scope foi liberado pelo banco" : "Confirme o certificado no portal e o scope liberado"],
-    ["<code>404</code>", "Identificador (txid, nossoNumero...) inexistente", "Confira o identificador na URL"],
-    ["<code>422</code>", "Payload inválido ou campo faltando", "Revise o body contra a aba Processo de Criação"],
-    ["<code>429</code>", "Limite de requisições excedido", "Aguarde e reduza a frequência"]
-  ];
-
-  if (p.mtls !== false) {
-    genericRows.push(["Falha SSL/TLS", "Certificado ausente ou não cadastrado no Postman", "Reconverta na aba Conversor e cheque Settings > Certificates"]);
-  }
-
-  const bankRows =
-    (p.errors || []).map(e => [`<code>${e.code}</code>`, e.cause, e.action]);
-
-  return `
-
-    <p class="docs-lead">Erros da API ${label} do ${bank.name} e como agir.</p>
-
-    <h2>Erros comuns</h2>
-
-    ${docsTable(["Código", "Causa", "Ação"], [...genericRows, ...bankRows])}
-
-  `;
-
-}
-
-
-function buildBankDocsSections(bank) {
-
-  const info = BANK_DOCS[bank.id];
-
-  if (!info) return [];
-
-  if (info.isCsrOnly) {
-    return [{
-      title: bank.name,
-      accent: bank.color,
-      topics: [
-        { id: `${bank.id}-processo`, title: "Processo de Criação", content: docsProcessoContent(bank, "pix") },
-        { id: `${bank.id}-atualizacao`, title: "Processo de Atualização", content: docsAtualizacaoContent(bank, "pix") },
-        { id: `${bank.id}-testes`, title: "Testes", content: docsTestesContent(bank, "pix") },
-        { id: `${bank.id}-erros`, title: "Erros Retornados", content: docsErrosContent(bank, "pix") }
-      ]
-    }];
-  }
-
-  const products =
-    info.van ? ["pix", "van"] : ["pix"];
-
-  return products.map(product => ({
-    title: `${bank.name} · ${docsProductLabel(product)}`,
-    accent: bank.color,
-    topics: [
-      { id: `${bank.id}-${product}-processo`, title: "Processo de Criação", content: docsProcessoContent(bank, product) },
-      { id: `${bank.id}-${product}-atualizacao`, title: "Processo de Atualização", content: docsAtualizacaoContent(bank, product) },
-      { id: `${bank.id}-${product}-testes`, title: "Testes", content: docsTestesContent(bank, product) },
-      { id: `${bank.id}-${product}-erros`, title: "Erros Retornados", content: docsErrosContent(bank, product) }
-    ]
-  }));
-
-}
-
-
-const DOCS_SECTIONS = [
-  {
-    title: "Guia Postman",
-    accent: "var(--brand-primary)",
-    topics: [
-      { id: "postman-guia", title: "Como Usar o Postman", content: docsPostmanGuideContent() }
-    ]
-  },
-  ...BANKS.flatMap(buildBankDocsSections)
-];
-
-
-/* =========================================================
-   DOCUMENTATION RENDER
-========================================================= */
-
-let currentDocsTopicId = null;
-
-
-function flattenDocsTopics() {
-
-  const flat = [];
-
-  DOCS_SECTIONS.forEach(section => {
-
-    section.topics.forEach(topic => {
-
-      flat.push({
-        ...topic,
-        sectionTitle: section.title,
-        sectionAccent: section.accent
-      });
-
-    });
-
-  });
-
-  return flat;
-
-}
-
-
-function renderDocsSidebar(activeId) {
-
-  const sidebar =
-    $("#docsSidebar");
-
-  if (!sidebar) return;
-
-
-  sidebar.innerHTML = `
-
-    <div class="docs-sidebar-search">
-
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.3-4.3"/>
-      </svg>
-
-      <input
-        type="text"
-        id="docsSidebarSearch"
-        placeholder="Filtrar tópicos..."
-      >
-
-    </div>
-
-  ` + DOCS_SECTIONS.map(section => {
-
-    const isActiveSection =
-      section.topics.some(topic => topic.id === activeId);
-
-    return `
-
-      <div class="docs-nav-group ${isActiveSection ? 'active' : ''}" data-docs-group>
-
-        <div class="docs-nav-group-title">
-          <span
-            style="
-              display:inline-block;
-              width:6px;
-              height:6px;
-              border-radius:50%;
-              background:${section.accent};
-              margin-right:6px;
-            "
-          ></span>
-          ${section.title}
-        </div>
-
-        <div class="docs-nav-list">
-
-          ${section.topics.map(topic => `
-
-            <a
-              href="#documentacao/${topic.id}"
-              class="docs-nav-link ${topic.id === activeId ? 'active' : ''}"
-              data-docs-title="${(section.title + ' ' + topic.title).toLowerCase()}"
-            >
-              <span class="docs-nav-dot"></span>
-              ${topic.title}
-            </a>
-
-          `).join("")}
-
-        </div>
-
-      </div>
-
-    `;
-
-  }).join("");
-
-
-  const searchInput =
-    $("#docsSidebarSearch");
-
-  if (searchInput) {
-
-    searchInput.addEventListener("input", () => {
-
-      const term =
-        searchInput.value.trim().toLowerCase();
-
-      sidebar
-        .querySelectorAll("[data-docs-group]")
-        .forEach(group => {
-
-          let anyVisible = false;
-
-          group
-            .querySelectorAll(".docs-nav-link")
-            .forEach(link => {
-
-              const match =
-                !term || link.dataset.docsTitle.includes(term);
-
-              link.style.display = match ? "flex" : "none";
-
-              if (match) anyVisible = true;
-
-            });
-
-          group.style.display = anyVisible ? "block" : "none";
-
-        });
-
-    });
-
-  }
-
-}
-
-
-function renderDocsToc() {
-
-  const toc =
-    $("#docsToc");
-
-  if (!toc) return;
-
-
-  const headings =
-    $$("#docsArticle h2");
-
-  if (!headings.length) {
-
-    toc.innerHTML = `
-      <div class="docs-toc-title">Nesta página</div>
-      <div class="docs-toc-empty">Sem seções nesta página.</div>
-    `;
-
-    return;
-
-  }
-
-
-  headings.forEach((heading, index) => {
-
-    if (!heading.id) {
-      heading.id = `docs-heading-${index}`;
-    }
-
-  });
-
-
-  toc.innerHTML = `
-
-    <div class="docs-toc-title">Nesta página</div>
-
-    <div class="docs-toc-list">
-
-      ${headings.map(heading => `
-        <button
-          type="button"
-          class="docs-toc-link"
-          data-scroll-to="${heading.id}"
-        >
-          ${heading.textContent}
-        </button>
-      `).join("")}
-
-    </div>
-
-  `;
-
-
-  toc
-    .querySelectorAll("[data-scroll-to]")
-    .forEach(btn => {
-
-      btn.addEventListener("click", () => {
-
-        const target =
-          document.getElementById(btn.dataset.scrollTo);
-
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-
-      });
-
-    });
-
-}
-
-
-function wireDocsCodeCopyButtons() {
-
-  $$("#docsArticle [data-copy]")
-    .forEach(btn => {
-
-      btn.addEventListener("click", async () => {
-
-        const code =
-          btn.closest(".docs-code-block")
-            .querySelector("pre")
-            .textContent;
-
-        try {
-
-          await navigator.clipboard.writeText(code);
-
-          const original =
-            btn.innerHTML;
-
-          btn.textContent = "Copiado!";
-
-          setTimeout(() => {
-            btn.innerHTML = original;
-          }, 1500);
-
-        } catch (error) {
-          /* clipboard indisponível — ignora silenciosamente */
-        }
-
-      });
-
-    });
-
-}
-
-
-function renderDocsFooterNav(flat, activeId) {
-
-  const container =
-    $("#docsFooterNav");
-
-  if (!container) return;
-
-
-  const index =
-    flat.findIndex(topic => topic.id === activeId);
-
-  const prev = flat[index - 1];
-  const next = flat[index + 1];
-
-
-  container.innerHTML = `
-
-    ${prev ? `
-      <a href="#documentacao/${prev.id}" class="docs-footer-link prev">
-        <small>Anterior</small>
-        <strong>← ${prev.title}</strong>
-      </a>
-    ` : "<div></div>"}
-
-    ${next ? `
-      <a href="#documentacao/${next.id}" class="docs-footer-link next">
-        <small>Próximo</small>
-        <strong>${next.title} →</strong>
-      </a>
-    ` : "<div></div>"}
-
-  `;
-
-}
-
-
-function renderDocsView(topicId) {
-
-  const flat =
-    flattenDocsTopics();
-
-  const topic =
-    flat.find(item => item.id === topicId) || flat[0];
-
-  if (!topic) return;
-
-  currentDocsTopicId = topic.id;
-
-
-  if (topic.sectionAccent) {
-    document.documentElement.style.setProperty("--docs-accent", topic.sectionAccent);
-  } else {
-    document.documentElement.style.removeProperty("--docs-accent");
-  }
-
-
-  const statTopics =
-    $("#docsStatTopics");
-
-  const statSections =
-    $("#docsStatSections");
-
-  if (statTopics) statTopics.textContent = flat.length;
-  if (statSections) statSections.textContent = BANKS.length;
-
-
-  renderDocsSidebar(topic.id);
-
-
-  $("#docsBreadcrumb").innerHTML = `
-    <span>${topic.sectionTitle}</span>
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
-    <span>${topic.title}</span>
-  `;
-
-
-  $("#docsArticle").innerHTML = `
-    <h1>${topic.sectionTitle} <span style="color:var(--docs-accent, var(--brand-primary));">· ${topic.title}</span></h1>
-    ${topic.content}
-  `;
-
-
-  renderDocsToc();
-  wireDocsCodeCopyButtons();
-  renderDocsFooterNav(flat, topic.id);
-
-}
-
-
-/* =========================================================
-   ROUTING
-========================================================= */
-
-/* =========================================================
    UTILIDADES
 ========================================================= */
 
@@ -7749,6 +5084,7 @@ function initFaturas() {
 
   let faturaValores = [];
   let faturaQuoteMode = "plain";
+  let faturaQueryMode = "nenhuma";
 
 
   function formatFaturaValores(valores, mode) {
@@ -7766,6 +5102,43 @@ function initFaturas() {
   }
 
 
+  // buildFaturaQuery monta a query SQL pronta pra colar, usando os mesmos
+  // valores extraídos da planilha — sempre entre aspas simples no IN,
+  // independente do toggle "Sem aspas/Com aspas" (que é só pro texto puro),
+  // porque external_reference é uma coluna de texto.
+  function buildFaturaQuery(valores, mode) {
+
+    if (mode === "nenhuma" || !valores.length) return "";
+
+    const lista =
+      valores.map(v => `'${v}'`).join(", ");
+
+    if (mode === "pendentes_vencidos") {
+      return `select * from payment where status in ('pending', 'overdue') and external_reference in (${lista})`;
+    }
+
+    return `select * from payment where external_reference in (${lista})`;
+
+  }
+
+
+  function renderFaturaQuery() {
+
+    const queryBlock =
+      $("#faturaQueryBlock");
+
+    const query =
+      buildFaturaQuery(faturaValores, faturaQueryMode);
+
+    queryBlock.style.display =
+      query ? "block" : "none";
+
+    $("#faturaQueryText").value =
+      query;
+
+  }
+
+
   function renderFaturaResult() {
 
     $("#faturaResultText").value =
@@ -7773,6 +5146,8 @@ function initFaturas() {
 
     $("#faturaResultCount").textContent =
       `${faturaValores.length} valor${faturaValores.length === 1 ? "" : "es"} encontrado${faturaValores.length === 1 ? "" : "s"}`;
+
+    renderFaturaQuery();
 
   }
 
@@ -7902,6 +5277,43 @@ function initFaturas() {
         "success",
         "Copiado!",
         "Os valores foram copiados para a área de transferência."
+      );
+
+    } catch (error) {
+
+      toast(
+        "error",
+        "Falha ao copiar",
+        "Não foi possível acessar a área de transferência."
+      );
+
+    }
+
+  };
+
+
+  $("#faturaQuerySelect").onchange = event => {
+
+    faturaQueryMode =
+      event.target.value;
+
+    renderFaturaQuery();
+
+  };
+
+
+  $("#btnCopyFaturaQuery").onclick = async () => {
+
+    try {
+
+      await navigator.clipboard.writeText(
+        $("#faturaQueryText").value
+      );
+
+      toast(
+        "success",
+        "Copiado!",
+        "A query foi copiada para a área de transferência."
       );
 
     } catch (error) {
@@ -8309,28 +5721,9 @@ function route() {
     });
 
 
-  const contentContainer =
-    $("#contentContainer");
-
-  if (contentContainer) {
-
-    contentContainer.classList.toggle(
-      "content-container--wide",
-      view === "documentacao"
-    );
-
-  }
-
-
   if (view === "banco") {
 
     renderBankView(param);
-
-  } else if (view === "documentacao") {
-
-    applyDynamicTheme(null);
-
-    renderDocsView(param);
 
   } else {
 
@@ -8407,176 +5800,6 @@ function toast(
   }, 4500);
 
 }
-
-
-/* =========================================================
-   GENERATE COLLECTION
-========================================================= */
-
-$("#btnGenerateCollection")
-  .addEventListener(
-    "click",
-    async () => {
-
-      const bank =
-        COLLECTION_BANKS.find(
-          item =>
-            item.id ===
-            selectedCollectionBankId
-        ) || COLLECTION_BANKS[0];
-
-
-      const button =
-        $("#btnGenerateCollection");
-
-
-      button.classList.add(
-        "loading"
-      );
-
-
-      button.innerHTML = `
-
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          style="
-            animation:
-            spin .8s linear infinite;
-          "
-        >
-          <path d="M12 3a9 9 0 1 0 9 9"/>
-        </svg>
-
-        Preparando Collection...
-
-      `;
-
-
-      try {
-
-        const values = {};
-
-        collectionFields.forEach(field => {
-
-          const cacheKey =
-            `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
-
-          values[field.chave] =
-            collectionFieldValues[cacheKey] || "";
-
-        });
-
-
-        const response =
-          await fetch(
-            `/collections/${bank.id}?produto=${selectedCollectionProduct}`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(values)
-            }
-          );
-
-        const text =
-          await response.text();
-
-        let asJson = null;
-
-        try {
-          asJson = JSON.parse(text);
-        } catch (parseError) {
-          asJson = null;
-        }
-
-        if (!response.ok || (asJson && asJson.sucesso === false)) {
-          throw new Error(
-            (asJson && asJson.erro) ||
-            "Não foi possível gerar a collection."
-          );
-        }
-
-        const blob =
-          new Blob([text], { type: "application/json" });
-
-        const url =
-          URL.createObjectURL(blob);
-
-        const link =
-          document.createElement("a");
-
-        link.href = url;
-        link.download = `${bank.id}-${selectedCollectionProduct}.json`;
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        URL.revokeObjectURL(url);
-
-
-        toast(
-          "success",
-          "Download Iniciado",
-          `Collection do ${bank.name} gerada com sucesso no formato Postman 2.1.`
-        );
-
-        // Limpa os campos preenchidos, deixando pronto pra gerar a
-        // próxima collection (outro cliente, outro banco etc.).
-        collectionFields.forEach(field => {
-          const cacheKey =
-            `${bank.id}:${selectedCollectionProduct}:${field.chave}`;
-          delete collectionFieldValues[cacheKey];
-        });
-
-        loadCollectionFields(bank);
-
-
-      } catch (error) {
-
-        toast(
-          "error",
-          "Falha na Collection",
-          error.message
-        );
-
-      } finally {
-
-        button.classList.remove(
-          "loading"
-        );
-
-
-        button.innerHTML = `
-
-          <svg
-            class="collection-download-icon"
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 3v12"/>
-            <path d="m7 10 5 5 5-5"/>
-            <path d="M5 21h14"/>
-          </svg>
-
-          Gerar Collection
-
-        `;
-
-      }
-
-    }
-  );
 
 
 /* =========================================================
@@ -8671,10 +5894,6 @@ window.onhashchange =
 ========================================================= */
 
 renderCards();
-
-renderCollectionBankGrid();
-
-renderCollectionWorkspace();
 
 initUtilidadesToolToggle();
 
