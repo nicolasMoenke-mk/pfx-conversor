@@ -21,7 +21,7 @@ func decodeCertificateBytes(data []byte) (*x509.Certificate, error) {
 func ConvertCERtoPEM(cerData []byte) ([]byte, error) {
 	cert, err := decodeCertificateBytes(cerData)
 	if err != nil {
-		return nil, errors.New("Falha ao ler o certificado .cer — verifique se o arquivo não está corrompido")
+		return nil, errors.New("Failed to load certificate .cer")
 	}
 	return certificateToPEM(cert)
 }
@@ -45,5 +45,5 @@ func ConvertKEYtoPEM(keyData []byte) ([]byte, error) {
 		return privateKeyToPEM(key)
 	}
 
-	return nil, errors.New("Falha ao ler a chave privada .key — formato não reconhecido (esperado RSA)")
+	return nil, errors.New("Failed to load private key .key")
 }

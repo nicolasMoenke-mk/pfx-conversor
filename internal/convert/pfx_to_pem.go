@@ -20,11 +20,11 @@ func decodePFX(pfxData []byte, password string) (crypto.PrivateKey, *x509.Certif
 
 	key, cert, _, err := sslpkcs12.DecodeChain(pfxData, password)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao ler certificado!")
+		return nil, nil, errors.New("Failed to load certificate")
 	}
 
 	if key == nil {
-		return nil, nil, errors.New("Falha ao carregar chave privada!")
+		return nil, nil, errors.New("Failed to load private key")
 	}
 
 	return key, cert, nil
@@ -34,7 +34,7 @@ func privateKeyToPEM(key crypto.PrivateKey) ([]byte, error) {
 
 	derBytes, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
-		return nil, errors.New("Certificado sem Chave Privada válida")
+		return nil, errors.New("Certificate without a valid private key")
 	}
 
 	block := &pem.Block{
@@ -59,17 +59,17 @@ func ConvertPFX(pfxData []byte, password string) ([]byte, []byte, error) {
 
 	privKey, cert, err := decodePFX(pfxData, password)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao abrir o pfx, verifique se a senha está correta!")
+		return nil, nil, errors.New("Failed to load pfx, check if password is correct")
 	}
 
 	keyPEM, err := privateKeyToPEM(privKey)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao criar a Chave Privada")
+		return nil, nil, errors.New("Failed to generated the private key")
 	}
 
 	certPEM, err := certificateToPEM(cert)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao criar a Chave Pública")
+		return nil, nil, errors.New("Failed to generated the public key")
 	}
 
 	return keyPEM, certPEM, nil

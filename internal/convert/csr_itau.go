@@ -22,12 +22,12 @@ type ItauCSR struct {
 func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 	if dados.CommonName == "" {
-		return nil, nil, errors.New("Common Name é obrigatório para gerar o CSR")
+		return nil, nil, errors.New("Common Name is required to generated the CSR")
 	}
 
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao gerar a chave RSA")
+		return nil, nil, errors.New("Failed to generated RSA Key")
 	}
 
 	subject := pkix.Name{
@@ -50,7 +50,7 @@ func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 	csrDer, err := x509.CreateCertificateRequest(rand.Reader, &template, privKey)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao tentar gerar o CSR")
+		return nil, nil, errors.New("Failed to generated CSR")
 	}
 
 	csrPEM = pem.EncodeToMemory(&pem.Block{
@@ -60,7 +60,7 @@ func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 	keyDer, err := x509.MarshalPKCS8PrivateKey(privKey)
 	if err != nil {
-		return nil, nil, errors.New("Falha ao converter a chave para o formato PKCS8")
+		return nil, nil, errors.New("Failed to convert the key to PKCS8 format")
 	}
 
 	keyPEM = pem.EncodeToMemory(&pem.Block{
@@ -72,6 +72,11 @@ func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 }
 
+/*
+Função que determina se um elemento vier vazio, faz o tratamento ignorar e omitir
+o campo no Subject da struct, retornando um slice de string devido a biblioteca pkix,
+os elementos da struct Name da lib retornam este tipo
+*/
 func noNull(value string) []string {
 	if value == "" {
 		return nil

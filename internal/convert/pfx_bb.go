@@ -22,7 +22,7 @@ type CadeiaCertificado struct {
 func privateKeyBBtoPEM(key crypto.PrivateKey) ([]byte, error) {
 	derBytes, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
-		return nil, errors.New("Certificado sem Chave Privada válida")
+		return nil, errors.New("Certificate without a valid private key")
 	}
 
 	block := &pem.Block{
@@ -104,17 +104,17 @@ func ConvertPFXBB(pfxData []byte, password string) ([]byte, []byte, *CadeiaCerti
 
 	privKey, cert, chain, err := sslpkcs12.DecodeChain(pfxData, password)
 	if err != nil {
-		return nil, nil, nil, errors.New("Falha ao abrir o pfx, verifique se a senha está correta!")
+		return nil, nil, nil, errors.New("Failed to load pfx certificate, check if the password is correct!")
 	}
 
 	keyPEM, err := privateKeyBBtoPEM(privKey)
 	if err != nil {
-		return nil, nil, nil, errors.New("Erro ao tentar extrair a Chave Privada")
+		return nil, nil, nil, errors.New("Error while attempting to extract the private key")
 	}
 
 	certPEM, err := certificateBBtoPEM(cert)
 	if err != nil {
-		return nil, nil, nil, errors.New("Erro ao tentar extrair a Chave Pública")
+		return nil, nil, nil, errors.New("Error while attempting to extract the public key")
 	}
 
 	cadeia := CadeiaCertificado{}

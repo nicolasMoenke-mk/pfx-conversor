@@ -10,6 +10,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -82,7 +83,7 @@ func detectarTipo(linhas []string) (TipoCnab, error) {
 func parseNumero(campo string) (int, error) {
 	campo = strings.TrimSpace(campo)
 	if campo == "" {
-		return 0, fmt.Errorf("campo numérico vazio")
+		return 0, errors.New("Numeric field is empty")
 	}
 	return strconv.Atoi(campo)
 }
@@ -109,7 +110,7 @@ func campo(linha string, inicio, fim int) string {
 func ValidarRemessa(conteudo []byte) (*Resultado, error) {
 	linhas := splitLinhas(conteudo)
 	if len(linhas) == 0 {
-		return nil, fmt.Errorf("arquivo vazio")
+		return nil, errors.New("Empty file")
 	}
 
 	tipo, err := detectarTipo(linhas)

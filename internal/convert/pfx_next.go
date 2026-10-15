@@ -15,12 +15,12 @@ import (
 func ConvertPfxNext(pfxData []byte, senhaAtual, novaSenha string) ([]byte, error) {
 	key, cert, _, err := sslpkcs12.DecodeChain(pfxData, senhaAtual)
 	if err != nil {
-		return nil, errors.New("Falha ao abrir o certificado, verifique se a senha está correta")
+		return nil, errors.New("Failed to load certificate, check if the password is correct")
 	}
 
 	newPfx, err := sslpkcs12.Modern.Encode(key, cert, []*x509.Certificate{}, novaSenha)
 	if err != nil {
-		return nil, errors.New("Erro inesperado ao tentar converter o certificado")
+		return nil, errors.New("Unespected error to convert pfx file")
 	}
 
 	return newPfx, nil

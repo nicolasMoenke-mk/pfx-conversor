@@ -95,7 +95,7 @@ func main() {
 		}
 
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			responseJSON(w, Page{Success: false, Error: "O arquivo excede o limite permitido 10MB"})
+			responseJSON(w, Page{Success: false, Error: "The file exceeds the 10MB limit"})
 			return
 		}
 
@@ -103,7 +103,7 @@ func main() {
 
 		file, _, err := r.FormFile("pfxfile")
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao carregar o arquivo pfx"})
+			responseJSON(w, Page{Success: false, Error: "Failed to load certificate"})
 			return
 		}
 
@@ -111,7 +111,7 @@ func main() {
 
 		pfxByte, err := io.ReadAll(file)
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao ler o conteúdo do pfx"})
+			responseJSON(w, Page{Success: false, Error: "Failed to read the contents of the pfx file"})
 			return
 		}
 
@@ -164,33 +164,33 @@ func main() {
 		}
 
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			responseJSON(w, Page{Success: false, Error: "O arquivo excede o limite permitido 10MB"})
+			responseJSON(w, Page{Success: false, Error: "The file exceeds the 10MB limit"})
 			return
 		}
 
 		cerFile, _, err := r.FormFile("cerfile")
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao carregar o certificado .cer"})
+			responseJSON(w, Page{Success: false, Error: "Failed to load certificate .cer"})
 			return
 		}
 		defer cerFile.Close()
 
 		cerByte, err := io.ReadAll(cerFile)
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao ler o conteúdo do .cer"})
+			responseJSON(w, Page{Success: false, Error: "Failed to read the contents of the .cer file"})
 			return
 		}
 
 		keyFile, _, err := r.FormFile("keyfile")
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao carregar a chave .key"})
+			responseJSON(w, Page{Success: false, Error: "Failed to load private key .key"})
 			return
 		}
 		defer keyFile.Close()
 
 		keyByte, err := io.ReadAll(keyFile)
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao ler o conteúdo do .key"})
+			responseJSON(w, Page{Success: false, Error: "Failed to read the contents of the .key file"})
 			return
 		}
 
@@ -223,7 +223,7 @@ func main() {
 		}
 
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			responseJSON(w, Page{Success: false, Error: "O arquivo excede o limite permitido 10MB"})
+			responseJSON(w, Page{Success: false, Error: "The file exceeds the 10MB limit"})
 			return
 		}
 
@@ -236,7 +236,7 @@ func main() {
 
 		file, _, err := r.FormFile("pfxfile")
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao carregar o arquivo pfx"})
+			responseJSON(w, Page{Success: false, Error: "Failed to load pfx file"})
 			return
 		}
 
@@ -244,7 +244,7 @@ func main() {
 
 		certPFX, err := io.ReadAll(file)
 		if err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao ler o conteúdo o pfx"})
+			responseJSON(w, Page{Success: false, Error: "Failed to read the contents of the pfx"})
 			return
 		}
 
@@ -271,7 +271,7 @@ func main() {
 		var dados convert.ItauCSR
 
 		if err := json.NewDecoder(r.Body).Decode(&dados); err != nil {
-			responseJSON(w, Page{Success: false, Error: "Falha ao ler os dados enviados"})
+			responseJSON(w, Page{Success: false, Error: "Failed to read data"})
 			return
 		}
 
@@ -298,13 +298,13 @@ func main() {
 		}
 
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			responseJSON(w, FaturaResponse{Success: false, Error: "O arquivo excede o limite permitido 10MB"})
+			responseJSON(w, FaturaResponse{Success: false, Error: "The file exceeds the 10MB limit"})
 			return
 		}
 
 		file, header, err := r.FormFile("planilha")
 		if err != nil {
-			responseJSON(w, FaturaResponse{Success: false, Error: "Falha ao carregar a planilha"})
+			responseJSON(w, FaturaResponse{Success: false, Error: "Failed to load xlsx"})
 			return
 		}
 
@@ -312,7 +312,7 @@ func main() {
 
 		data, err := io.ReadAll(file)
 		if err != nil {
-			responseJSON(w, FaturaResponse{Success: false, Error: "Falha ao ler o conteúdo da planilha"})
+			responseJSON(w, FaturaResponse{Success: false, Error: "Failed to read the contents of the xlsx"})
 			return
 		}
 
@@ -333,13 +333,13 @@ func main() {
 		}
 
 		if err := r.ParseMultipartForm(20 << 20); err != nil {
-			responseJSON(w, RemessaResponse{Success: false, Error: "O arquivo excede o limite permitido 20MB"})
+			responseJSON(w, RemessaResponse{Success: false, Error: "The file exceeds the 20MB limit"})
 			return
 		}
 
 		file, _, err := r.FormFile("remessa")
 		if err != nil {
-			responseJSON(w, RemessaResponse{Success: false, Error: "Falha ao carregar o arquivo de remessa"})
+			responseJSON(w, RemessaResponse{Success: false, Error: "Failed to load file"})
 			return
 		}
 
@@ -347,7 +347,7 @@ func main() {
 
 		data, err := io.ReadAll(file)
 		if err != nil {
-			responseJSON(w, RemessaResponse{Success: false, Error: "Falha ao ler o conteúdo do arquivo"})
+			responseJSON(w, RemessaResponse{Success: false, Error: "Failed to read the contents of the file"})
 			return
 		}
 
