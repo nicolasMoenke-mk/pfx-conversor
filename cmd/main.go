@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"io.github.com/conv-pfx/internal/assets"
@@ -103,6 +105,42 @@ func abrirNavegador(url string) {
 func responseJSON(w http.ResponseWriter, res any) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(res)
+}
+
+// lastHeartbeat guarda o horário do último sinal de vida recebido do
+// navegador. Começa em time.Now() pra dar um tempo de folga entre o
+// servidor subir e a página terminar de carregar e mandar o primeiro sinal.
+var (
+	lastHeartbeatMu sync.Mutex
+	lastHeartbeat   = time.Now()
+)
+
+// heartbeat é chamado pelo frontend em intervalos curtos enquanto a aba
+// estiver aberta — só atualiza o horário do último sinal recebido.
+func heartbeat(w http.ResponseWriter, r *http.Request) {
+	lastHeartbeatMu.Lock()
+	lastHeartbeat = time.Now()
+	lastHeartbeatMu.Unlock()
+}
+
+// vigiarAba desliga o programa sozinho quando os sinais de vida param de
+// chegar — ou seja, quando o usuário fecha a aba ou o navegador inteiro.
+// Sem isso, o processo fica esquecido rodando em segundo plano ocupando a
+// porta 8080 indefinidamente, exigindo encerrar manualmente pelo Gerenciador
+// de Tarefas antes de conseguir abrir o programa de novo.
+func vigiarAba() {
+	for {
+		time.Sleep(2 * time.Second)
+
+		lastHeartbeatMu.Lock()
+		ultimo := lastHeartbeat
+		lastHeartbeatMu.Unlock()
+
+		if time.Since(ultimo) > 10*time.Second {
+			fmt.Println("Nenhum sinal do navegador recebido, encerrando o servidor.")
+			os.Exit(0)
+		}
+	}
 }
 
 func main() {
@@ -407,7 +445,12 @@ func main() {
 
 	})
 
+	// /heartbeat: recebe o sinal de vida do frontend; sem ele por 10s
+	// seguidos, o programa se encerra sozinho (ver vigiarAba).
+	http.HandleFunc("/heartbeat", heartbeat)
+
 	go abrirNavegador("http://localhost:8080")
+	go vigiarAba()
 
 	fmt.Println("Server initializing locally 🚀")
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='3' fill='%232563eb'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='15.5' r='1.6' fill='white'/%3E%3Crect x='11.2' y='15.5' width='1.6' height='3' fill='white'/%3E%3C/svg%3E">
-<title>BankHub · Suporte & Operações</title>
+<title>Finas · Suporte & Operações</title>
 
 <style>
 @layer reset, tokens, layout, components, utilities;
@@ -1804,7 +1804,7 @@
       </div>
 
       <div class="brand-info">
-        <h2>BankHub</h2>
+        <h2>Finas</h2>
         <span>Suporte & Operações</span>
       </div>
 
@@ -3978,6 +3978,12 @@ function wireDropzone({ inputId, dropAreaId, fileBadgeId, fileNameId, fileSizeId
 
   input.onchange = () => showFile(input.files[0]);
 
+    dropArea.addEventListener("click", event => {
+    if (event.target === input) return;
+    event.preventDefault();
+    input.click();
+  });
+
   ["dragenter", "dragover"].forEach(eventName => {
     dropArea.addEventListener(eventName, event => {
       event.preventDefault();
@@ -5129,6 +5135,15 @@ window.onhashchange =
 /* =========================================================
    INITIALIZATION
 ========================================================= */
+
+/* =========================================================
+   HEARTBEAT (avisa o backend que a aba continua aberta — se
+   parar de avisar, o servidor se encerra sozinho)
+========================================================= */
+
+setInterval(() => {
+  fetch("/heartbeat", { method: "POST" }).catch(() => {});
+}, 3000);
 
 renderCards();
 
