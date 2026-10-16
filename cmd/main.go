@@ -56,8 +56,7 @@ type RemessaResponse struct {
 
 // formatarNomeArquivo monta o nome de download a partir do apelido digitado
 // pelo usuário, removendo qualquer extensão que ele já tenha incluído sem
-// querer e aplicando a extensão correta. Se o campo vier vazio, usa só o
-// prefixo (ex.: "ChavePublica.pem") como nome padrão.
+// querer e aplicando a extensão correta. Se o campo vier vazio, usa só o prefixo
 func formatarNomeArquivo(nomeInput, prefixo, extensao string) string {
 
 	nomeLimpo := strings.TrimSpace(nomeInput)
@@ -102,7 +101,7 @@ func abrirNavegador(url string) {
 // RemessaResponse) como JSON — centraliza o content-type pra não repetir em
 // cada handler.
 func responseJSON(w http.ResponseWriter, res any) {
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(res)
 }
 
@@ -316,9 +315,9 @@ func main() {
 
 		responseJSON(w, Page{
 			Success:   true,
-			NomeCert:  formatarNomeArquivo(dados.CommonName, "CSR_", ".csr"),
+			NomeCert:  "csr_itau_certificado.csr",
 			CertPEM:   string(csrPEM),
-			NomeChave: formatarNomeArquivo(dados.CommonName, "ChavePrivada_", ".key"),
+			NomeChave: "itau_chave_privada.key",
 			KeyPEM:    string(keyPEM),
 		})
 
@@ -410,9 +409,9 @@ func main() {
 
 	go abrirNavegador("http://localhost:8080")
 
-	fmt.Println("Servidor inicializando localmente 🚀")
+	fmt.Println("Server initializing locally 🚀")
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Printf("Erro ao iniciar o servidor")
+		fmt.Printf("Failed to start the server")
 	}
 }

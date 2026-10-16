@@ -56,16 +56,16 @@ internal/utils/planilha.go    extração de códigos de fatura de planilhas
 internal/utils/remessa.go      validador estrutural de remessa CNAB 240/400
 ```
 
-## Rotas HTTP
+## Rotas
 
 | Rota | Descrição |
 |---|---|
-| `POST /convert-pem` | Converte `.pfx` → PEM (genérico ou BB, conforme `banco`) |
-| `POST /convert-sicredi-pem` | Converte `.cer` + `.key` do Sicredi → PEM |
-| `POST /convert-next` | Re-encoda um `.pfx` com nova senha |
-| `POST /convert-csr` | Gera CSR + chave privada para o Itaú |
-| `POST /planilha/faturas` | Extrai códigos de fatura de uma planilha |
-| `POST /remessa/validar` | Valida um arquivo de remessa CNAB 240/400 |
+| `/convert-pem` | Converte `.pfx` → PEM (genérico ou BB, conforme `banco`) |
+| `/convert-sicredi-pem` | Converte `.cer` + `.key` do Sicredi → PEM |
+| `/convert-next` | Re-encoda um `.pfx` com nova senha |
+| `/convert-csr` | Gera CSR + chave privada para o Itaú |
+| `/planilha/faturas` | Extrai códigos de fatura de uma planilha |
+| `/remessa/validar` | Valida um arquivo de remessa CNAB 240/400 |
 
 ## Dependências
 

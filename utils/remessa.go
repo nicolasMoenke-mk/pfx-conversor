@@ -1,4 +1,4 @@
-// Package remessa valida a integridade estrutural de arquivos de remessa
+// remessa.go valida a integridade estrutural de arquivos de remessa
 // bancária nos layouts CNAB 240 e CNAB 400: tamanho de linha, sequência dos
 // registros e a ordem dos tipos de registro (header/detalhe/trailer).
 //
@@ -76,7 +76,7 @@ func detectarTipo(linhas []string) (TipoCnab, error) {
 	case 400:
 		return CNAB400, nil
 	default:
-		return "", fmt.Errorf("não foi possível identificar o layout do arquivo: tamanho de linha predominante é %d caracteres (esperado 240 para CNAB 240 ou 400 para CNAB 400)", tamanhoDominante)
+		return "", fmt.Errorf("Unable to identify the file layout: the predominant line length is %d characters (expected 240 for CNAB 240 or 400 for CNAB 400)", tamanhoDominante)
 	}
 }
 
@@ -149,7 +149,7 @@ func validarCNAB400(linhas []string) []Erro {
 		erros = append(erros, Erro{
 			Linha:     1,
 			Categoria: "estrutura",
-			Descricao: fmt.Sprintf("a primeira linha deveria ser o Header de Arquivo (tipo 0), mas o tipo de registro encontrado foi %q", primeiroTipo),
+			Descricao: fmt.Sprintf("The first line should be the File Header (type 0), but the record type found was %q", primeiroTipo),
 		})
 	}
 
@@ -159,7 +159,7 @@ func validarCNAB400(linhas []string) []Erro {
 		erros = append(erros, Erro{
 			Linha:     ultimaLinha,
 			Categoria: "estrutura",
-			Descricao: fmt.Sprintf("a última linha deveria ser o Trailer de Arquivo (tipo 9), mas o tipo de registro encontrado foi %q — o arquivo pode estar truncado", ultimoTipo),
+			Descricao: fmt.Sprintf("The last line should be the File Trailer (type 9), but the record type found was %q — the file may be truncated", ultimoTipo),
 		})
 	}
 
@@ -171,7 +171,7 @@ func validarCNAB400(linhas []string) []Erro {
 			erros = append(erros, Erro{
 				Linha:     numLinha,
 				Categoria: "tamanho",
-				Descricao: fmt.Sprintf("linha com %d caracteres, esperado 400 (CNAB 400)", len(linha)),
+				Descricao: fmt.Sprintf("Line with %d characters, expected 400 (CNAB 400)", len(linha)),
 			})
 			continue
 		}
@@ -183,7 +183,7 @@ func validarCNAB400(linhas []string) []Erro {
 			erros = append(erros, Erro{
 				Linha:     numLinha,
 				Categoria: "sequencia",
-				Descricao: fmt.Sprintf("não foi possível ler o número sequencial do registro (posições 395-400): %q", campo(linha, 395, 400)),
+				Descricao: fmt.Sprintf("Unable to read the record's sequential number (positions 395-400): %q", campo(linha, 395, 400)),
 			})
 			continue
 		}
@@ -227,7 +227,7 @@ func validarCNAB240(linhas []string) ([]Erro, int) {
 			erros = append(erros, Erro{
 				Linha:     numLinha,
 				Categoria: "tamanho",
-				Descricao: fmt.Sprintf("linha com %d caracteres, esperado 240 (CNAB 240)", len(linha)),
+				Descricao: fmt.Sprintf("Line with %d characters, expected 240 (CNAB 240)", len(linha)),
 			})
 			continue
 		}
@@ -240,7 +240,7 @@ func validarCNAB240(linhas []string) ([]Erro, int) {
 				erros = append(erros, Erro{
 					Linha:     numLinha,
 					Categoria: "estrutura",
-					Descricao: fmt.Sprintf("a primeira linha deveria ser o Header de Arquivo (tipo 0), mas o tipo de registro encontrado foi %q", tipo),
+					Descricao: fmt.Sprintf("The first line should be the File Header (type 0), but the record type found was %q", tipo),
 				})
 			}
 			estado = estadoAposHeaderArq
@@ -260,7 +260,7 @@ func validarCNAB240(linhas []string) ([]Erro, int) {
 				erros = append(erros, Erro{
 					Linha:     numLinha,
 					Categoria: "estrutura",
-					Descricao: fmt.Sprintf("esperado Header de Lote (tipo 1) ou Trailer de Arquivo (tipo 9), mas encontrado tipo %q — pode faltar o Header de Lote", tipo),
+					Descricao: fmt.Sprintf("Expected Batch Header (type 1) or File Trailer (type 9), but found type %q — the Batch Header may be missing", tipo),
 				})
 				// tenta se recuperar tratando a linha como início de um lote
 				quantidadeLotes++
@@ -278,7 +278,7 @@ func validarCNAB240(linhas []string) ([]Erro, int) {
 					erros = append(erros, Erro{
 						Linha:     numLinha,
 						Categoria: "sequencia",
-						Descricao: fmt.Sprintf("não foi possível ler o número sequencial do registro no lote (posições 9-13): %q", campo(linha, 9, 13)),
+						Descricao: fmt.Sprintf("Unable to read the record's sequence number within the batch (positions 9-13): %q", campo(linha, 9, 13)),
 					})
 					continue
 				}
@@ -293,13 +293,13 @@ func validarCNAB240(linhas []string) ([]Erro, int) {
 					erros = append(erros, Erro{
 						Linha:     numLinha,
 						Categoria: "sequencia",
-						Descricao: fmt.Sprintf("não foi possível ler a quantidade de registros do lote (posições 18-23): %q", campo(linha, 18, 23)),
+						Descricao: fmt.Sprintf("Unable to read the number of records in the batch (positions 18-23): %q", campo(linha, 18, 23)),
 					})
 				} else if declarado != esperadoNoLote {
 					erros = append(erros, Erro{
 						Linha:     numLinha,
 						Categoria: "sequencia",
-						Descricao: fmt.Sprintf("Trailer de Lote declara %d registros no lote, mas foram contados %d (lote iniciado na linha %d) — provável linha faltante ou duplicada dentro do lote", declarado, esperadoNoLote, inicioLoteLinha),
+						Descricao: fmt.Sprintf("Batch trailer declares %d records in the batch, but %d were counted (batch started on line %d) — likely a missing or duplicate line within the batch", declarado, esperadoNoLote, inicioLoteLinha),
 					})
 				}
 				estado = estadoAposHeaderArq
@@ -307,7 +307,7 @@ func validarCNAB240(linhas []string) ([]Erro, int) {
 				erros = append(erros, Erro{
 					Linha:     numLinha,
 					Categoria: "estrutura",
-					Descricao: fmt.Sprintf("esperado Detalhe (tipo 3) ou Trailer de Lote (tipo 5), mas encontrado tipo %q — pode faltar o Trailer de Lote", tipo),
+					Descricao: fmt.Sprintf("Expected Detail (type 3) or Batch Trailer (type 5), but found type %q — the Batch Trailer might be missing", tipo),
 				})
 			}
 
@@ -337,13 +337,13 @@ func validarTrailerArquivo(linha string, numLinha, totalLinhas, quantidadeLotesC
 		*erros = append(*erros, Erro{
 			Linha:     numLinha,
 			Categoria: "sequencia",
-			Descricao: fmt.Sprintf("não foi possível ler a quantidade de lotes do arquivo (posições 18-23): %q", campo(linha, 18, 23)),
+			Descricao: fmt.Sprintf("Unable to read the number of batches from the file (positions 18-23): %q", campo(linha, 18, 23)),
 		})
 	} else if lotesDeclarados != quantidadeLotesContada {
 		*erros = append(*erros, Erro{
 			Linha:     numLinha,
 			Categoria: "sequencia",
-			Descricao: fmt.Sprintf("Trailer de Arquivo declara %d lote(s), mas foram contados %d — provável lote inteiro faltando", lotesDeclarados, quantidadeLotesContada),
+			Descricao: fmt.Sprintf("Archive trailer declares %d batch(es), but %d were counted — likely an entire batch is missing", lotesDeclarados, quantidadeLotesContada),
 		})
 	}
 
@@ -352,13 +352,13 @@ func validarTrailerArquivo(linha string, numLinha, totalLinhas, quantidadeLotesC
 		*erros = append(*erros, Erro{
 			Linha:     numLinha,
 			Categoria: "sequencia",
-			Descricao: fmt.Sprintf("não foi possível ler a quantidade de registros do arquivo (posições 24-29): %q", campo(linha, 24, 29)),
+			Descricao: fmt.Sprintf("Unable to read the number of records in the file (positions 24-29): %q", campo(linha, 24, 29)),
 		})
 	} else if registrosDeclarados != totalLinhas {
 		*erros = append(*erros, Erro{
 			Linha:     numLinha,
 			Categoria: "sequencia",
-			Descricao: fmt.Sprintf("Trailer de Arquivo declara %d registro(s) no total, mas o arquivo tem %d linha(s) — provável linha faltante", registrosDeclarados, totalLinhas),
+			Descricao: fmt.Sprintf("File trailer declares a total of %d record(s), but the file contains %d line(s) — likely a missing line", registrosDeclarados, totalLinhas),
 		})
 	}
 }
@@ -369,13 +369,13 @@ func sequenciaQuebradaErro(numLinha, esperado, encontrado int) Erro {
 		return Erro{
 			Linha:     numLinha,
 			Categoria: "sequencia",
-			Descricao: fmt.Sprintf("quebra de sequência: número esperado era %d, mas foi encontrado %d — parece(m) estar faltando %d linha(s) antes desta", esperado, encontrado, faltando),
+			Descricao: fmt.Sprintf("Sequence break: expected number was %d, but %d was found — it appears that %d line(s) are missing before this one", esperado, encontrado, faltando),
 		}
 	}
 
 	return Erro{
 		Linha:     numLinha,
 		Categoria: "sequencia",
-		Descricao: fmt.Sprintf("sequência fora de ordem: número esperado era %d, mas foi encontrado %d (menor que o esperado — possível linha duplicada ou fora de ordem)", esperado, encontrado),
+		Descricao: fmt.Sprintf("Out-of-order sequence: expected number was %d, but found %d (lower than expected — possibly a duplicate or out-of-order line)", esperado, encontrado),
 	}
 }

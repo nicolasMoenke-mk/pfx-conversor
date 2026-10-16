@@ -8,7 +8,7 @@ import (
 )
 
 // ConvertPfxNext usa sslpkcs12.DecodeChain pelo mesmo motivo de decodePFX em
-// pfx_to_pem.go: um .pfx com a cadeia embutida quebrava a decodificação
+// pfx_to_pem.go um .pfx com a cadeia embutida quebrava a decodificação
 // antes mesmo de chegar a reencodar para o Next. A cadeia (se houver) é
 // descartada de propósito — o Next só usa o par chave/certificado da folha,
 // já era assim mesmo antes desta correção (Encode recebe []*x509.Certificate{}).

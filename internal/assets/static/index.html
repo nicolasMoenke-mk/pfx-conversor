@@ -3666,15 +3666,16 @@ function renderItauCsrView(bank) {
 
               <div class="form-group">
 
+                
                 <label>
-                  Common Name / CN
+                  Common Name
                   (obrigatório)
                 </label>
 
                 <input
                   type="text"
                   id="csrCommonName"
-                  placeholder="Ex: api.minhaempresa.com.br"
+                  placeholder="Credencial informada pelo banco no email"
                   required
                 >
 
@@ -3686,28 +3687,28 @@ function renderItauCsrView(bank) {
                 <div class="form-group">
 
                   <label>
-                    Organização (O)
-                  </label>
+                Organization Name
+              </label>
 
-                  <input
-                    type="text"
-                    id="csrOrganization"
-                    placeholder="Ex: Minha Empresa LTDA"
-                  >
+              <input
+                type="text"
+                id="csrOrganization"
+                placeholder="Sempre Itau"
+              >
 
                 </div>
 
                 <div class="form-group">
 
                   <label>
-                    Unidade Organizacional (OU)
-                  </label>
+                Organizational Unit Name
+              </label>
 
-                  <input
-                    type="text"
-                    id="csrOrganizationalUnit"
-                    placeholder="Ex: TI"
-                  >
+              <input
+                type="text"
+                id="csrOrganizationalUnit"
+                placeholder="Razão Social do provedor"
+              >
 
                 </div>
 
@@ -3719,13 +3720,13 @@ function renderItauCsrView(bank) {
                 <div class="form-group">
 
                   <label>
-                    País (C)
+                    Country Name
                   </label>
 
                   <input
                     type="text"
                     id="csrCountry"
-                    placeholder="Ex: BR"
+                    placeholder="Sempre vai ser BR"
                     maxlength="2"
                   >
 
@@ -3734,13 +3735,13 @@ function renderItauCsrView(bank) {
                 <div class="form-group">
 
                   <label>
-                    Estado (ST)
+                    State
                   </label>
 
                   <input
                     type="text"
                     id="csrState"
-                    placeholder="Ex: São Paulo"
+                    placeholder="Estado do provedor"
                   >
 
                 </div>
@@ -3753,13 +3754,13 @@ function renderItauCsrView(bank) {
                 <div class="form-group">
 
                   <label>
-                    Localidade / Cidade (L)
+                    Locality
                   </label>
 
                   <input
                     type="text"
                     id="csrLocality"
-                    placeholder="Ex: São Paulo"
+                    placeholder="Cidade do provedor"
                   >
 
                 </div>
@@ -3767,13 +3768,13 @@ function renderItauCsrView(bank) {
                 <div class="form-group">
 
                   <label>
-                    E-mail
+                    Email address
                   </label>
 
                   <input
                     type="email"
                     id="csrEmail"
-                    placeholder="contato@minhaempresa.com.br"
+                    placeholder="Email do provedor"
                   >
 
                 </div>

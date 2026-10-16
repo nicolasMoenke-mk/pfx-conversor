@@ -7,7 +7,7 @@ import (
 )
 
 // staticEmbed embute a pasta static (index.html e demais arquivos) dentro
-// do próprio binário em tempo de compilação — é o que torna o programa um
+// do próprio binário em tempo de compilação é o que torna o programa um
 // único .exe autossuficiente, sem precisar desses arquivos soltos no disco
 // de quem for rodar.
 
