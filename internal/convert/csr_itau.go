@@ -19,6 +19,11 @@ type ItauCSR struct {
 	Email              string
 }
 
+// GenNewCSR gera uma nova chave privada RSA 2048 e, a partir dela, um CSR
+// (Certificate Signing Request) assinado com essa chave — é o par que o
+// Itaú pede no credenciamento mTLS: o CSR vai pro banco assinar e devolver
+// o certificado, a chave privada fica com o cliente. Nada é salvo em
+// disco; os dois PEMs retornados existem só em memória.
 func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 
 	if dados.CommonName == "" {
@@ -30,6 +35,9 @@ func GenNewCSR(dados ItauCSR) (csrPEM []byte, keyPEM []byte, err error) {
 		return nil, nil, errors.New("Failed to generated RSA Key")
 	}
 
+	// pkix.Name exige []string nesses campos (um DN de X.509 permite múltiplos
+	// valores por atributo) — noNull só adapta a string única do formulário
+	// pro tipo que o struct da stdlib espera, omitindo o campo quando vazio.
 	subject := pkix.Name{
 		CommonName:         dados.CommonName,
 		Organization:       noNull(dados.Organization),

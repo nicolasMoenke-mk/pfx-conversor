@@ -123,7 +123,7 @@ func readCSV(file []byte) ([][]string, error) {
 
 	rows, err := reader.ReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("falha ao ler o csv: %w", err)
+		return nil, fmt.Errorf("Failed to read CSV file: %w", err)
 	}
 	return rows, nil
 }
@@ -131,7 +131,7 @@ func readCSV(file []byte) ([][]string, error) {
 func readXLSX(file []byte) ([][]string, error) {
 	f, err := excelize.OpenReader(bytes.NewReader(file))
 	if err != nil {
-		return nil, fmt.Errorf("falha ao abrir o arquivo xlsx: %w", err)
+		return nil, fmt.Errorf("Failed to open XLSX file: %w", err)
 	}
 	defer f.Close()
 

@@ -15,6 +15,9 @@ import (
 	"io.github.com/conv-pfx/utils"
 )
 
+// Page é a resposta JSON comum a todos os endpoints de conversão de
+// certificado — só os campos relevantes pra cada banco vêm preenchidos,
+// o resto fica omitido (omitempty) no JSON de saída.
 type Page struct {
 	Success       bool   `json:"sucesso"`
 	Error         string `json:"erro,omitempty"`
@@ -30,12 +33,17 @@ type Page struct {
 	Intermed2PEM  string `json:"intermed2Pem,omitempty"`
 }
 
+// FaturaResponse é a resposta da extração de códigos de fatura de uma
+// planilha — Valores vem na ordem em que os códigos aparecem na planilha.
 type FaturaResponse struct {
 	Success bool     `json:"sucesso"`
 	Error   string   `json:"erro,omitempty"`
 	Valores []string `json:"valores,omitempty"`
 }
 
+// RemessaResponse é a resposta da validação de um arquivo de remessa
+// bancária — Erros lista cada inconsistência estrutural encontrada, já
+// com a linha exata do arquivo original.
 type RemessaResponse struct {
 	Success         bool           `json:"sucesso"`
 	Error           string         `json:"erro,omitempty"`
@@ -46,6 +54,10 @@ type RemessaResponse struct {
 	Valido          bool           `json:"valido,omitempty"`
 }
 
+// formatarNomeArquivo monta o nome de download a partir do apelido digitado
+// pelo usuário, removendo qualquer extensão que ele já tenha incluído sem
+// querer e aplicando a extensão correta. Se o campo vier vazio, usa só o
+// prefixo (ex.: "ChavePublica.pem") como nome padrão.
 func formatarNomeArquivo(nomeInput, prefixo, extensao string) string {
 
 	nomeLimpo := strings.TrimSpace(nomeInput)
@@ -63,6 +75,12 @@ func formatarNomeArquivo(nomeInput, prefixo, extensao string) string {
 	return fmt.Sprintf("%s%s%s", prefixo, nomeLimpo, extensao)
 }
 
+// abrirNavegador espera o servidor subir e abre o Chrome apontando pra ele
+// — o comando varia por sistema operacional porque não existe um jeito
+// único de abrir o navegador padrão com argumentos pelo shell em
+// Windows/macOS/Linux. Falha ao abrir é ignorada de propósito: o servidor
+// continua funcionando normalmente, o usuário só precisaria abrir o
+// endereço manualmente.
 func abrirNavegador(url string) {
 	time.Sleep(300 * time.Millisecond)
 	var cmd *exec.Cmd
@@ -80,6 +98,9 @@ func abrirNavegador(url string) {
 
 }
 
+// responseJSON serializa qualquer struct de resposta (Page, FaturaResponse,
+// RemessaResponse) como JSON — centraliza o content-type pra não repetir em
+// cada handler.
 func responseJSON(w http.ResponseWriter, res any) {
 	w.Header().Set("content-type", "application/json")
 	_ = json.NewEncoder(w).Encode(res)
@@ -88,6 +109,10 @@ func responseJSON(w http.ResponseWriter, res any) {
 func main() {
 	http.Handle("/", http.FileServer(assets.GetCoreFile()))
 
+	// /convert-pem: converte um .pfx em chave pública + privada PEM. Pro
+	// Banco do Brasil (banco == "bb") usa ConvertPFXBB, que também extrai a
+	// cadeia de certificação (raiz + intermediários) exigida pelo portal
+	// Developer do BB; pros demais bancos usa o conversor genérico.
 	http.HandleFunc("/convert-pem", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -157,6 +182,8 @@ func main() {
 
 	})
 
+	// /convert-sicredi-pem: normaliza o .cer + .key que o Sicredi entrega
+	// prontos (banco não usa .pfx) para o formato PEM.
 	http.HandleFunc("/convert-sicredi-pem", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -216,6 +243,9 @@ func main() {
 
 	})
 
+	// /convert-next: re-encoda um .pfx existente com uma nova senha (e
+	// devolve o arquivo .pfx pronto pra download, não um JSON). Se o campo
+	// de nova senha vier vazio, mantém a mesma senha original.
 	http.HandleFunc("/convert-next", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -262,6 +292,9 @@ func main() {
 
 	})
 
+	// /convert-csr: gera um CSR + chave privada novos para o credenciamento
+	// mTLS do Itaú — esse banco não envolve conversão de .pfx, o par é
+	// criado do zero a partir dos dados do formulário.
 	http.HandleFunc("/convert-csr", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -291,6 +324,9 @@ func main() {
 
 	})
 
+	// /planilha/faturas: lê uma planilha .csv/.xlsx e devolve só os
+	// códigos de fatura encontrados, prontos pra copiar (ferramenta
+	// "Substituição de Códigos" da aba Utilidades).
 	http.HandleFunc("/planilha/faturas", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -326,6 +362,10 @@ func main() {
 
 	})
 
+	// /remessa/validar: confere a integridade estrutural de um arquivo de
+	// remessa bancária CNAB 240/400 (layout detectado automaticamente) —
+	// não valida o conteúdo de negócio dos campos, só a estrutura do
+	// arquivo em si.
 	http.HandleFunc("/remessa/validar", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Redirect(w, r, "/", http.StatusSeeOther)

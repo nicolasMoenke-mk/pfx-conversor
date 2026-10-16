@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='3' fill='%232563eb'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4' fill='none' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='15.5' r='1.6' fill='white'/%3E%3Crect x='11.2' y='15.5' width='1.6' height='3' fill='white'/%3E%3C/svg%3E">
-<title>BankHub Core · Suporte & Operações</title>
+<title>BankHub · Suporte & Operações</title>
 
 <style>
 @layer reset, tokens, layout, components, utilities;
@@ -405,52 +405,6 @@
     }
   }
 
-  /* =====================================================
-     TOPBAR
-  ===================================================== */
-
-  .search-btn {
-    width: min(440px, 45vw);
-    height: 38px;
-
-    border-radius: var(--radius-sm);
-
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding: 0 12px;
-
-    color: var(--text-muted);
-    font-size: 13px;
-
-    transition:
-      border-color .2s,
-      background-color .35s var(--ease);
-  }
-
-  .search-btn:hover {
-    border-color: var(--border-focus);
-  }
-
-  .search-btn kbd {
-    margin-left: auto;
-
-    font-size: 10px;
-    font-weight: 700;
-
-    background: var(--bg-surface);
-
-    border: 1px solid var(--border-subtle);
-
-    padding: 2px 6px;
-
-    border-radius: 4px;
-  }
-
   .theme-btn {
     width: 38px;
     height: 38px;
@@ -813,15 +767,6 @@
     overflow: hidden;
 
     flex-shrink: 0;
-  }
-
-  .bank-logo-img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-
-    display: block;
   }
 
   .bank-logo-mono {
@@ -1295,49 +1240,6 @@
     color: var(--text-muted);
   }
 
-  .cx-hero-stats {
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-
-  .cx-hero-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 76px;
-    padding: 10px 14px;
-
-    border-radius: var(--radius-md);
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-  }
-
-  .cx-hero-stat strong {
-    font-size: 16px;
-    font-weight: 800;
-  }
-
-  .cx-hero-stat span {
-    margin-top: 2px;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--text-subtle);
-  }
-
-  /* ---- layout ---- */
-
-  .cx-layout {
-    display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
-    gap: 20px;
-    align-items: start;
-  }
-
   .fatura-layout {
     display: flex;
     flex-direction: column;
@@ -1465,222 +1367,12 @@
     margin-right: 6px;
   }
 
-  /* ---- sidebar ---- */
-
-  .cx-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    padding: 16px;
-
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-
-    position: sticky;
-    top: 84px;
-  }
-
-  .cx-sidebar-title {
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--text-subtle);
-    padding: 0 4px;
-  }
-
-  .cx-bank-list {
-    display: grid;
-    gap: 4px;
-  }
-
-  .cx-bank-item {
-    --bank-accent: var(--brand-primary);
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    width: 100%;
-    padding: 9px;
-
-    border-radius: 12px;
-    border: 1px solid transparent;
-
-    text-align: left;
-    color: var(--text-muted);
-
-    transition:
-      background .2s var(--ease),
-      color .2s var(--ease),
-      border-color .2s var(--ease);
-  }
-
-  .cx-bank-item:hover {
-    background: var(--bg-surface-elevated);
-    color: var(--text-main);
-  }
-
-  .cx-bank-item.selected {
-    background: color-mix(in srgb, var(--bank-accent) 10%, var(--bg-surface));
-    border-color: color-mix(in srgb, var(--bank-accent) 30%, var(--border-subtle));
-    color: var(--text-main);
-  }
-
-  .cx-bank-badge {
-    flex-shrink: 0;
-
-    width: 34px;
-    height: 34px;
-
-    border-radius: 9px;
-
-    display: grid;
-    place-items: center;
-
-    background: var(--bank-accent);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-
-    transition: transform .2s var(--ease);
-  }
-
-  .cx-bank-item:hover .cx-bank-badge {
-    transform: scale(1.05);
-  }
-
-  .cx-bank-meta {
-    min-width: 0;
-    flex: 1;
-  }
-
-  .cx-bank-name {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .cx-bank-protocol {
-    display: block;
-    margin-top: 1px;
-    font-size: 9.5px;
-    color: var(--text-subtle);
-  }
-
-  .cx-bank-check {
-    flex-shrink: 0;
-
-    width: 16px;
-    height: 16px;
-
-    border-radius: 50%;
-
-    display: grid;
-    place-items: center;
-
-    color: #fff;
-    background: var(--bank-accent);
-
-    opacity: 0;
-    transform: scale(.6);
-
-    transition: opacity .2s, transform .2s;
-  }
-
-  .cx-bank-item.selected .cx-bank-check {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  /* ---- main column ---- */
-
-  .cx-main {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-width: 0;
-  }
-
   .cx-card {
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-sm);
     padding: 20px;
-  }
-
-  /* header card */
-
-  .cx-bank-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  .cx-bank-identity {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-  }
-
-  .cx-bank-avatar {
-    flex-shrink: 0;
-
-    width: 46px;
-    height: 46px;
-
-    border-radius: 12px;
-
-    display: grid;
-    place-items: center;
-
-    background: var(--selected-accent);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 800;
-
-    box-shadow:
-      0 6px 16px -6px
-      color-mix(in srgb, var(--selected-accent) 60%, transparent);
-  }
-
-  .cx-bank-identity-text small {
-    display: block;
-    font-size: 9px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--selected-accent);
-    margin-bottom: 2px;
-  }
-
-  .cx-bank-identity-text h2 {
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -.01em;
-  }
-
-  .cx-bank-identity-text p {
-    margin-top: 2px;
-    font-size: 11.5px;
-    color: var(--text-muted);
-  }
-
-  .cx-header-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
   }
 
   .cx-segmented {
@@ -1713,32 +1405,6 @@
      selecionado na aba Collections (que fica setada em :root). */
   [data-view="utilidades"] {
     --selected-accent: var(--brand-primary);
-  }
-
-  .cx-format-pill {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-
-    padding: 7px 10px;
-    border-radius: var(--radius-full);
-
-    background: color-mix(in srgb, var(--selected-accent) 8%, var(--bg-surface));
-    border: 1px solid color-mix(in srgb, var(--selected-accent) 18%, var(--border-subtle));
-
-    color: var(--selected-accent);
-    font-size: 9px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-  }
-
-  .cx-format-pill-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: currentColor;
   }
 
   /* stat row */
@@ -1806,141 +1472,6 @@
     text-overflow: ellipsis;
   }
 
-  /* endpoints + features */
-
-  .cx-split {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 230px;
-    gap: 14px;
-  }
-
-  .cx-endpoints {
-    min-width: 0;
-    border-radius: 14px;
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-base);
-    overflow: hidden;
-  }
-
-  .cx-endpoints-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 11px 14px;
-
-    border-bottom: 1px solid var(--border-subtle);
-    background: var(--bg-surface);
-  }
-
-  .cx-endpoints-head strong {
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-  }
-
-  .cx-badge-count {
-    padding: 3px 8px;
-    border-radius: var(--radius-full);
-    background: color-mix(in srgb, var(--selected-accent) 10%, transparent);
-    color: var(--selected-accent);
-    font-size: 9px;
-    font-weight: 800;
-  }
-
-  .cx-endpoint-list {
-    padding: 6px;
-    display: grid;
-    gap: 2px;
-    max-height: 190px;
-    overflow-y: auto;
-  }
-
-  .cx-endpoint-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    padding: 7px 8px;
-    border-radius: 8px;
-
-    transition: background .2s;
-  }
-
-  .cx-endpoint-row:hover {
-    background: var(--bg-surface);
-  }
-
-  .cx-method {
-    flex-shrink: 0;
-    min-width: 44px;
-    text-align: center;
-
-    padding: 3px 5px;
-    border-radius: 5px;
-
-    background: color-mix(in srgb, var(--selected-accent) 10%, transparent);
-    color: var(--selected-accent);
-
-    font-size: 8px;
-    font-weight: 850;
-    letter-spacing: .03em;
-  }
-
-  .cx-path {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 9.5px;
-    color: var(--text-muted);
-  }
-
-  .cx-features {
-    border-radius: 14px;
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-base);
-    padding: 14px;
-  }
-
-  .cx-features-title {
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    margin-bottom: 10px;
-    color: var(--text-subtle);
-  }
-
-  .cx-feature-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    padding: 5px 0;
-
-    font-size: 10.5px;
-    color: var(--text-muted);
-  }
-
-  .cx-feature-icon {
-    flex-shrink: 0;
-
-    width: 22px;
-    height: 22px;
-
-    border-radius: 7px;
-
-    display: grid;
-    place-items: center;
-
-    background: color-mix(in srgb, var(--selected-accent) 10%, transparent);
-    color: var(--selected-accent);
-  }
-
   /* fields card */
 
   .cx-fields-head {
@@ -1962,104 +1493,6 @@
     margin-top: 2px;
     font-size: 11px;
     color: var(--text-muted);
-  }
-
-  .cx-fields-progress {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .cx-progress-track {
-    width: 80px;
-    height: 6px;
-    border-radius: var(--radius-full);
-    background: var(--bg-surface-elevated);
-    overflow: hidden;
-  }
-
-  .cx-progress-fill {
-    height: 100%;
-    background: var(--selected-accent);
-    transition: width .25s var(--ease);
-  }
-
-  .cx-progress-label {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-
-  .cx-fields-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 14px;
-
-    min-height: 38px;
-
-    transition: opacity .15s var(--ease), height .22s var(--ease);
-  }
-
-  .cx-fields-grid.is-loading {
-    opacity: .45;
-    pointer-events: none;
-  }
-
-  .cx-field {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .cx-field label {
-    display: block;
-    font-size: 11.5px;
-    font-weight: 700;
-    margin-bottom: 5px;
-  }
-
-  .cx-field-key {
-    display: block;
-    margin-top: 2px;
-
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 9.5px;
-    font-weight: 500;
-    color: var(--text-subtle);
-  }
-
-  .cx-field input {
-    width: 100%;
-    height: 38px;
-    margin-top: auto;
-
-    padding: 0 12px;
-    border-radius: 9px;
-
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-base);
-
-    font-size: 12.5px;
-    outline: none;
-
-    transition: border-color .2s;
-  }
-
-  .cx-field input:focus {
-    border-color: var(--selected-accent);
-  }
-
-  .cx-fields-empty,
-  .cx-fields-error,
-  .cx-fields-loading {
-    font-size: 12px;
-    color: var(--text-muted);
-    padding: 10px 2px;
-  }
-
-  .cx-fields-error {
-    color: var(--danger);
   }
 
   /* action bar */
@@ -2137,19 +1570,6 @@
     opacity: .55;
     cursor: not-allowed;
     box-shadow: none;
-  }
-
-  .cx-generate-btn.loading {
-    pointer-events: none;
-    opacity: .75;
-  }
-
-  .collection-download-icon {
-    transition: transform .25s var(--ease);
-  }
-
-  .cx-generate-btn:hover .collection-download-icon {
-    transform: translateY(2px);
   }
 
 
@@ -2257,29 +1677,6 @@
       grid-template-columns:
         repeat(2, 1fr);
     }
-
-    .cx-layout {
-      grid-template-columns:
-        200px minmax(0, 1fr);
-    }
-
-    .cx-split {
-      grid-template-columns:
-        1fr;
-    }
-
-    .cx-features {
-      display: none;
-    }
-
-    .docs-shell {
-      grid-template-columns:
-        220px minmax(0, 1fr);
-    }
-
-    .docs-toc {
-      display: none;
-    }
   }
 
   @media (max-width: 768px) {
@@ -2328,42 +1725,10 @@
         1fr;
     }
 
-    .search-btn {
-      width: 100%;
-    }
-
-    .search-btn kbd {
-      display: none;
-    }
-
     /* Collections mobile */
 
     .cx-hero {
       align-items: flex-start;
-    }
-
-    .cx-hero-stats {
-      display: none;
-    }
-
-    .cx-layout {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .cx-sidebar {
-      position: static;
-      padding: 12px;
-    }
-
-    .cx-bank-list {
-      display: flex;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .cx-bank-item {
-      min-width: 160px;
     }
 
     .cx-stat-row {
@@ -2378,42 +1743,6 @@
 
     .cx-generate-btn {
       width: 100%;
-    }
-
-    .cx-bank-header {
-      align-items: flex-start;
-    }
-
-    .cx-format-pill {
-      display: none;
-    }
-
-    /* Documentation mobile */
-
-    .docs-hero-top {
-      align-items: flex-start;
-    }
-
-    .docs-hero-stats {
-      display: none;
-    }
-
-    .docs-shell {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .docs-sidebar {
-      position: static;
-      max-height: none;
-    }
-
-    .docs-content {
-      padding: 20px;
-    }
-
-    .docs-footer-nav {
-      grid-template-columns: 1fr;
     }
   }
 
@@ -2430,16 +1759,6 @@
 
     .cx-card {
       padding: 16px;
-    }
-
-    .cx-bank-avatar {
-      width: 40px;
-      height: 40px;
-      font-size: 12px;
-    }
-
-    .cx-bank-identity-text h2 {
-      font-size: 15px;
     }
 
     .toast-container {
@@ -2485,7 +1804,7 @@
       </div>
 
       <div class="brand-info">
-        <h2>BankHub Core</h2>
+        <h2>BankHub</h2>
         <span>Suporte & Operações</span>
       </div>
 
@@ -2591,7 +1910,7 @@
           <div class="hero-content">
 
             <h1>
-              Central de Operações Bancárias
+              Central de Integrações Bancárias
             </h1>
 
             <p>
@@ -2996,7 +2315,7 @@
               <div class="form-group" style="margin-top:16px;">
 
                 <label>
-                  Gerar Query SQL (opcional)
+                  Gerar Query SQL
                 </label>
 
                 <select
@@ -3256,22 +2575,7 @@ const BANKS = [
     name: "Banco do Brasil",
     color: "#F2B90C",
     protocol: "mTLS + OAuth2",
-    desc: "Cobrança Bancária (boletos) e Pix Cobrança (cobv) via gateway BB com certificado mTLS.",
-    endpoints: {
-      van: [
-        "POST /oauth/token",
-        "POST /boletos?gw-app-key={{bb_app_key}}",
-        "POST /boletos/{{nosso_numero}}/baixar?gw-app-key={{bb_app_key}}"
-      ],
-      pix: [
-        "POST /oauth/token",
-        "PUT /pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}",
-        "PATCH /pix/v2/cobv/{{pix_txid}}?gw-dev-app-key={{bb_dev_app_key}}"
-      ]
-    },
-    auth: "OAuth2 (Basic) + mTLS",
-    environment: "Produção",
-    security: "Certificado A1"
+    desc: "Cobrança Bancária (boletos) e Pix Cobrança (cobv) via gateway BB com certificado mTLS."
   },
 
   {
@@ -3279,14 +2583,7 @@ const BANKS = [
     name: "Itaú Unibanco",
     color: "#EC7000",
     protocol: "CSR + mTLS",
-    desc: "Geração de CSR e chave privada para credenciamento mTLS — não há conversão de PFX aqui.",
-    endpoints: {
-      van: [],
-      pix: []
-    },
-    auth: "mTLS Dedicated",
-    environment: "Credenciamento",
-    security: "CSR + RSA 2048"
+    desc: "Geração de CSR e chave privada para credenciamento mTLS — não há conversão de PFX aqui."
   },
 
   {
@@ -3294,22 +2591,7 @@ const BANKS = [
     name: "Sicoob",
     color: "#00843D",
     protocol: "V3 mTLS",
-    desc: "Cobrança Bancária (boletos, v3) e Pix Cobrança (cobv, v2) via Keycloak OAuth2 + mTLS.",
-    endpoints: {
-      van: [
-        "POST /auth/realms/cooperado/protocol/openid-connect/token",
-        "POST /cobranca-bancaria/v3/boletos",
-        "POST /cobranca-bancaria/v3/boletos/{{sicoob_nossoNumero}}/baixar"
-      ],
-      pix: [
-        "POST /auth/realms/cooperado/protocol/openid-connect/token",
-        "PUT /pix/api/v2/cobv/{{pix_txid}}",
-        "PATCH /pix/api/v2/cobv/{{pix_txid}}"
-      ]
-    },
-    auth: "OAuth2 (Basic) + mTLS via Keycloak",
-    environment: "Produção",
-    security: "Certificado A1"
+    desc: "Cobrança Bancária (boletos, v3) e Pix Cobrança (cobv, v2)."
   },
 
   {
@@ -3317,22 +2599,7 @@ const BANKS = [
     name: "Sicredi",
     color: "#005A36",
     protocol: "OAuth2 + x-api-key",
-    desc: "Boleto híbrido (Pix) e Cobrança Bancária via API de Parceiros Sicredi.",
-    endpoints: {
-      van: [
-        "POST /auth/openapi/token",
-        "POST /cobranca/boleto/v1/boletos",
-        "PATCH /cobranca/boleto/v1/boletos/{{sicredi_nossoNumero}}/baixa"
-      ],
-      pix: [
-        "POST /oauth/token",
-        "PUT /api/v2/cobv/{{pix_txid}}",
-        "PATCH /api/v2/cobv/{{pix_txid}}"
-      ]
-    },
-    auth: "OAuth2 (client_credentials no Pix, password no VAN)",
-    environment: "Produção",
-    security: "Certificado próprio Sicredi"
+    desc: "Boleto híbrido (Pix) e Cobrança Bancária via API de Parceiros Sicredi."
   },
 
   {
@@ -3340,22 +2607,7 @@ const BANKS = [
     name: "Santander",
     color: "#EC0000",
     protocol: "OAuth2 + mTLS",
-    desc: "Cobrança de boletos em workspace dedicado e Pix Cobrança (cobv) via portal Developer Santander.",
-    endpoints: {
-      van: [
-        "POST /auth/oauth/v2/token",
-        "POST /collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips",
-        "PATCH /collection_bill_management/v2/workspaces/{{santander_workspace_id}}/bank_slips"
-      ],
-      pix: [
-        "POST /oauth/token",
-        "PUT /api/v1/cobv/{{pix_txid}}",
-        "PATCH /api/v1/cobv/{{pix_txid}}"
-      ]
-    },
-    auth: "OAuth2 (Basic) + mTLS",
-    environment: "Produção",
-    security: "Certificado A1"
+    desc: "Cobrança de boletos em workspace dedicado e Pix Cobrança (cobv) via portal Developer Santander."
   },
 
   {
@@ -3363,22 +2615,7 @@ const BANKS = [
     name: "Bradesco",
     color: "#CC092F",
     protocol: "OpenAPI + mTLS",
-    desc: "Cobrança Bancária (registro e baixa de boletos) e Pix Cobrança (cobv) via OpenAPI Bradesco.",
-    endpoints: {
-      van: [
-        "POST /auth/server-mtls/v2/token",
-        "POST /boleto/cobranca-registro/v1/cobranca",
-        "POST /boleto/cobranca-baixa/v1/baixar"
-      ],
-      pix: [
-        "POST /oauth/token",
-        "PUT /v2/cobv/{{pix_txid}}",
-        "PATCH /v2/cobv/{{pix_txid}}"
-      ]
-    },
-    auth: "OAuth2 (Basic) + mTLS",
-    environment: "Produção",
-    security: "Certificado A1"
+    desc: "Cobrança Bancária (registro e baixa de boletos) e Pix Cobrança (cobv) via OpenAPI Bradesco."
   }
 
 ];
@@ -3716,7 +2953,6 @@ function renderBankView(id) {
                 data-tab="next"
               >
                 Re-encodar PFX
-                (Compatibilidade)
               </button>
             ` : ""}
 
@@ -3833,7 +3069,7 @@ function renderBankView(id) {
                 </label>
 
                 <input
-                  type="password"
+                  type="text"
                   id="pfxPass"
                   placeholder="••••••••••••"
                   required
@@ -3887,13 +3123,13 @@ function renderBankView(id) {
                 <div class="form-group">
 
                   <label>
-                    Nova Senha (opcional)
+                    Nova Senha
                   </label>
 
                   <input
-                    type="password"
+                    type="text"
                     id="novaSenhaInput"
-                    placeholder="Deixe em branco para manter a atual"
+                    placeholder="••••••••••••"
                   >
 
                 </div>
@@ -5114,7 +4350,7 @@ function initFaturas() {
       valores.map(v => `'${v}'`).join(", ");
 
     if (mode === "pendentes_vencidos") {
-      return `select * from payment where status in ('pending', 'overdue') and external_reference in (${lista})`;
+      return `select * from payment where external_reference in (${lista}) and status in ('pending', 'overdue')`;
     }
 
     return `select * from payment where external_reference in (${lista})`;
